@@ -68,6 +68,7 @@ export class CreateBoilerCharacteristicsCalculationDto {
 
   constructor(externalConditions?: CreateExternalConditionsCalculationDto) {
     if (!externalConditions) return;
+    this.loadPercentage = externalConditions.boilerLoadPercentage;
     this.airHumidityForCombustion = externalConditions.airHumidityForCombustion;
     this.gasHumidityForCombustion = externalConditions.gasHumidityForCombustion;
     this.feedWaterTemperature = externalConditions.feedWaterTemperature;

@@ -11,40 +11,40 @@ export class BoilerCharacteristic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'float' })
   nominalSteamProduction: number;
 
-  @Column()
+  @Column({ type: 'float' })
   actualSteamProduction: number;
 
-  @Column()
+  @Column({ type: 'float' })
   loadPercentage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   blowdownPercentage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   excessPressureInBoiler: number;
 
-  @Column()
+  @Column({ type: 'float' })
   airHumidityForCombustion: number;
 
-  @Column()
+  @Column({ type: 'float' })
   gasHumidityForCombustion: number;
 
-  @Column()
+  @Column({ type: 'float' })
   feedWaterTemperature: number;
 
-  @Column()
+  @Column({ type: 'float' })
   roomAirTemperature: number;
 
-  @Column()
+  @Column({ type: 'float' })
   gasInletTemperature: number;
 
-  @Column()
+  @Column({ type: 'float' })
   excessAirCoefficient: number;
 
-  @Column()
+  @Column({ type: 'float' })
   flueGasAbsolutePressure: number;
 
   @CreateDateColumn()

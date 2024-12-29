@@ -54,6 +54,7 @@ export class CalculationsService {
     await this.createBoilerCharacteristic(dto);
     await this.createFuelComposition(dto);
     await this.createFurnaceCharacteristic(dto);
+    await this.createConvectivePackages(dto);
     return 'Ok';
   }
 
@@ -201,5 +202,56 @@ export class CalculationsService {
     return await this.furnaceCharacteristicRepository.save(
       furnaceCharacteristic,
     );
+  }
+
+  async createConvectivePackages(dto: CreateCalculationDto) {
+    for (const convectivePackage of dto.convectivePackagesParameters) {
+      const relativeTubePitchInRow =
+        convectivePackage.tubePitchInRow / convectivePackage.outerTubeDiameter;
+      const relativeRowPitch =
+        convectivePackage.rowPitch / convectivePackage.outerTubeDiameter;
+      const effectiveRadiatingLayerThickness =
+        0.9 *
+        convectivePackage.outerTubeDiameter *
+        0.001 *
+        ((4 * relativeTubePitchInRow * relativeRowPitch) / Math.PI - 1);
+      const convectivePackageHeatSurfaceArea =
+        Math.PI *
+        convectivePackage.outerTubeDiameter *
+        0.001 *
+        convectivePackage.averageTubeLength *
+        convectivePackage.numberOfRows *
+        convectivePackage.tubesPerRow;
+      const totalNumberOfTubes =
+        convectivePackage.tubesPerRow * convectivePackage.numberOfRows;
+      const channelCrossSectionArea =
+        convectivePackage.minCrossSectionDimension *
+          convectivePackage.maxCrossSectionDimension -
+        convectivePackage.outerTubeDiameter *
+          0.001 *
+          convectivePackage.averageTubeLength *
+          convectivePackage.tubesPerRow;
+      const equivalentChannelDiameter =
+        (4 * channelCrossSectionArea) /
+        ((convectivePackage.minCrossSectionDimension -
+          convectivePackage.outerTubeDiameter *
+            0.001 *
+            convectivePackage.tubesPerRow) *
+          2 +
+          2.6 * (convectivePackage.tubesPerRow * 2 + 2));
+
+      const convectivePackageEntity = this.convectivePackageRepository.create({
+        ...convectivePackage,
+        id: convectivePackage.id,
+        relativeTubePitchInRow,
+        relativeRowPitch,
+        effectiveRadiatingLayerThickness,
+        convectivePackageHeatSurfaceArea,
+        totalNumberOfTubes,
+        channelCrossSectionArea,
+        equivalentChannelDiameter,
+      });
+      await this.convectivePackageRepository.save(convectivePackageEntity);
+    }
   }
 }

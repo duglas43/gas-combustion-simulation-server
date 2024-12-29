@@ -12,5 +12,6 @@ ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 RUN npm install
 COPY tsconfig.json ./
+COPY --from=build /app/dist ./dist
 EXPOSE 5000
-CMD ["npm run start:prod"]
+CMD ["sh", "-c", "npm run start:prod"]  

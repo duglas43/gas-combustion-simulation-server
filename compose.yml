@@ -39,5 +39,13 @@ services:
     ports:
       - ${PORT}:${PORT}
 
+  metabase:
+    image: metabase/metabase
+    ports:
+      - 3000:3000
+    volumes:
+      - metabase-data:/metabase-data
+
 volumes:
   postgres:
+  metabase-data:

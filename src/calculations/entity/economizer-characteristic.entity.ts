@@ -11,15 +11,6 @@ export class EconomizerCharacteristic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  economizerType: string;
-
-  @Column()
-  tubeArrangementScheme: string;
-
-  @Column()
-  finShape: string;
-
   @Column({ type: 'float' })
   outerCasingTubeDiameter: number;
 

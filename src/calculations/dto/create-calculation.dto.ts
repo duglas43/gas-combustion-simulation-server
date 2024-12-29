@@ -20,7 +20,20 @@ class CreateFurnaceCharacteristicCalculationDto {
   burnersInFirstRow: number = 2;
   secondBurnerRowHeight: number = 0;
   burnersInSecondRow: number = 0;
-  screenContaminationFactor: number = 0.9;
+  firstScreenRadiantHeatSurface: number = 5.23;
+  secondScreenRadiantHeatSurface: number = 24.82;
+  thirdScreenRadiantHeatSurface: number = 20.61;
+  fourthScreenRadiantHeatSurface: number = 9.94;
+  fifthScreenRadiantHeatSurface: number = 0;
+  totalRadiantHeatSurfaceArea: number = 60.6;
+  totalWallSurfaceArea: number = 80.54;
+  furnaceScreeningDegree: number = 0.752;
+  effectiveRadiatingLayerThickness: number = 1.81;
+  totalBurnersInBoiler: number = 2;
+
+  @ApiProperty()
+  @IsNumber()
+  screenContaminationFactor: number;
 }
 
 class CreateExternalConditionsCalculationDto {
@@ -203,7 +216,7 @@ export class CreateCalculationDto {
   boilerCharacteristics: CreateBoilerCharacteristicsCalculationDto =
     new CreateBoilerCharacteristicsCalculationDto();
 
-  @ApiProperty()
+  @ApiProperty({ type: CreateFurnaceCharacteristicCalculationDto })
   @ValidateNested()
   @Type(() => CreateFurnaceCharacteristicCalculationDto)
   furnaceCharacteristics: CreateFurnaceCharacteristicCalculationDto;

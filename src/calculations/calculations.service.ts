@@ -53,6 +53,7 @@ export class CalculationsService {
   async create(dto: CreateCalculationDto) {
     await this.createBoilerCharacteristic(dto);
     await this.createFuelComposition(dto);
+    await this.createFurnaceCharacteristic(dto);
     return 'Ok';
   }
 
@@ -191,5 +192,14 @@ export class CalculationsService {
         8.8141e-16 * gasInletTemperature ** 5,
     });
     await this.fuelCompositionRepository.save(fuelComposition);
+  }
+
+  async createFurnaceCharacteristic(dto: CreateCalculationDto) {
+    const furnaceCharacteristic = this.furnaceCharacteristicRepository.create({
+      ...dto.furnaceCharacteristics,
+    });
+    return await this.furnaceCharacteristicRepository.save(
+      furnaceCharacteristic,
+    );
   }
 }

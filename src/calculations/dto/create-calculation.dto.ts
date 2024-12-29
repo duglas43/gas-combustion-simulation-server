@@ -96,7 +96,12 @@ class CreateFuelCompositionCalculationDto {
   @ApiProperty()
   @IsNumber()
   @Max(100)
-  butanePercentage: number;
+  nButanePercentage: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @Max(100)
+  isoButanePercentage: number;
 
   @ApiProperty()
   @IsNumber()
@@ -106,27 +111,52 @@ class CreateFuelCompositionCalculationDto {
   @ApiProperty()
   @IsNumber()
   @Max(100)
-  hexanePercentage: number;
+  hydrogenPercentage: number;
 
   @ApiProperty()
   @IsNumber()
   @Max(100)
-  heptanePercentage: number;
+  ethylenePercentage: number;
 
   @ApiProperty()
   @IsNumber()
   @Max(100)
-  octanePercentage: number;
+  propylenePercentage: number;
 
   @ApiProperty()
   @IsNumber()
   @Max(100)
-  nonanePercentage: number;
+  butylenePercentage: number;
 
   @ApiProperty()
   @IsNumber()
   @Max(100)
-  decanePercentage: number;
+  acetylenePercentage: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @Max(100)
+  hydrogenSulfidePercentage: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @Max(100)
+  carbonMonoxidePercentage: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @Max(100)
+  carbonDioxidePercentage: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @Max(100)
+  nitrogenPercentage: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @Max(100)
+  oxygenPercentage: number;
 }
 
 export class ConvectivePackageParameters {

@@ -11,19 +11,19 @@ export class TemperatureCharacteristic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'float' })
   recirculationRate: number;
 
-  @Column()
+  @Column({ type: 'float' })
   combustionAirTemperature: number;
 
-  @Column()
+  @Column({ type: 'float' })
   gasMixtureHeatCapacity: number;
 
-  @Column()
+  @Column({ type: 'float' })
   boilerRoomAirHeatCapacity: number;
 
-  @Column()
+  @Column({ type: 'float' })
   combustionAirHeatCapacity: number;
 
   @CreateDateColumn()

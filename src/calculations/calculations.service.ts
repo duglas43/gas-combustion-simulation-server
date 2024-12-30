@@ -56,6 +56,7 @@ export class CalculationsService {
     await this.createFurnaceCharacteristic(dto);
     await this.createConvectivePackages(dto);
     await this.createAirLeakage();
+    await this.createTemperatureCharacteristic();
     return 'Ok';
   }
 
@@ -279,5 +280,75 @@ export class CalculationsService {
         0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
     });
     return await this.airLeakageRepository.save(airLeakage);
+  }
+
+  async createTemperatureCharacteristic() {
+    const fuelComposition = await this.fuelCompositionRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+    const lastFuelComposition = fuelComposition[0];
+
+    const boilerCharacteristics =
+      await this.boilerCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+    const lastBoilerCharacteristic = boilerCharacteristics[0];
+
+    const temperatureCharacteristic =
+      this.temperatureCharacteristicRepository.create({
+        recirculationRate: 0,
+        combustionAirTemperature: lastBoilerCharacteristic.roomAirTemperature,
+        gasMixtureHeatCapacity:
+          (lastFuelComposition.methanePercentage *
+            lastFuelComposition.methaneHeatCapacity +
+            lastFuelComposition.ethanePercentage *
+              lastFuelComposition.ethaneHeatCapacity +
+            lastFuelComposition.propanePercentage *
+              lastFuelComposition.propaneHeatCapacity +
+            lastFuelComposition.nButanePercentage *
+              lastFuelComposition.nButaneHeatCapacity +
+            lastFuelComposition.isoButanePercentage *
+              lastFuelComposition.isoButaneHeatCapacity +
+            lastFuelComposition.pentanePercentage *
+              lastFuelComposition.pentaneHeatCapacity +
+            lastFuelComposition.hydrogenPercentage *
+              lastFuelComposition.hydrogenHeatCapacity +
+            lastFuelComposition.ethylenePercentage *
+              lastFuelComposition.ethyleneHeatCapacity +
+            lastFuelComposition.propylenePercentage *
+              lastFuelComposition.propyleneHeatCapacity +
+            lastFuelComposition.butylenePercentage *
+              lastFuelComposition.butyleneHeatCapacity +
+            lastFuelComposition.acetylenePercentage *
+              lastFuelComposition.acetyleneHeatCapacity +
+            lastFuelComposition.hydrogenSulfidePercentage *
+              lastFuelComposition.hydrogenSulfideHeatCapacity +
+            lastFuelComposition.carbonMonoxidePercentage *
+              lastFuelComposition.carbonMonoxideHeatCapacity +
+            lastFuelComposition.carbonDioxidePercentage *
+              lastFuelComposition.carbonDioxideHeatCapacity +
+            lastFuelComposition.nitrogenPercentage *
+              lastFuelComposition.nitrogenHeatCapacity +
+            lastFuelComposition.oxygenPercentage *
+              lastFuelComposition.oxygenHeatCapacity) /
+          100,
+        boilerRoomAirHeatCapacity:
+          1.323305621 +
+          2.32677e-5 * lastBoilerCharacteristic.roomAirTemperature +
+          2.40222e-7 * lastBoilerCharacteristic.roomAirTemperature ** 2 +
+          -2.12806e-10 * lastBoilerCharacteristic.roomAirTemperature ** 3 +
+          7.96863e-14 * lastBoilerCharacteristic.roomAirTemperature ** 4 +
+          -1.14303e-17 * lastBoilerCharacteristic.roomAirTemperature ** 5,
+        combustionAirHeatCapacity:
+          1.323305621 +
+          2.32677e-5 * lastBoilerCharacteristic.roomAirTemperature +
+          2.40222e-7 * lastBoilerCharacteristic.roomAirTemperature ** 2 +
+          -2.12806e-10 * lastBoilerCharacteristic.roomAirTemperature ** 3 +
+          7.96863e-14 * lastBoilerCharacteristic.roomAirTemperature ** 4 +
+          -1.14303e-17 * lastBoilerCharacteristic.roomAirTemperature ** 5,
+      });
+    return await this.temperatureCharacteristicRepository.save(
+      temperatureCharacteristic,
+    );
   }
 }

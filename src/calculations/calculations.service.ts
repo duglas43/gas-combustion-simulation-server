@@ -57,6 +57,7 @@ export class CalculationsService {
     await this.createConvectivePackages(dto);
     await this.createAirLeakage();
     await this.createTemperatureCharacteristic();
+    await this.createCombustionMaterialBalanceTemperature();
     return 'Ok';
   }
 
@@ -349,6 +350,78 @@ export class CalculationsService {
       });
     return await this.temperatureCharacteristicRepository.save(
       temperatureCharacteristic,
+    );
+  }
+
+  async createCombustionMaterialBalanceTemperature() {
+    const fuelComposition = await this.fuelCompositionRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+    const lastFuelComposition = fuelComposition[0];
+    const boilerCharacteristics =
+      await this.boilerCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+    const lastBoilerCharacteristic = boilerCharacteristics[0];
+
+    const lowerHeatingValue =
+      0.01 *
+      (10790 * lastFuelComposition.hydrogenPercentage +
+        12640 * lastFuelComposition.carbonMonoxidePercentage +
+        35880 * lastFuelComposition.methanePercentage +
+        64300 * lastFuelComposition.ethanePercentage +
+        93180 * lastFuelComposition.propanePercentage +
+        123500 * lastFuelComposition.nButanePercentage +
+        122700 * lastFuelComposition.isoButanePercentage +
+        156600 * lastFuelComposition.pentanePercentage +
+        59500 * lastFuelComposition.acetylenePercentage +
+        88400 * lastFuelComposition.propylenePercentage +
+        113800 * lastFuelComposition.butylenePercentage);
+
+    const higherHeatingValue =
+      0.01 *
+      (12750 * lastFuelComposition.hydrogenPercentage +
+        12640 * lastFuelComposition.carbonMonoxidePercentage +
+        39800 * lastFuelComposition.methanePercentage +
+        70300 * lastFuelComposition.ethanePercentage +
+        101200 * lastFuelComposition.propanePercentage +
+        113800 * lastFuelComposition.nButanePercentage +
+        132900 * lastFuelComposition.isoButanePercentage +
+        169300 * lastFuelComposition.pentanePercentage +
+        36000 * lastFuelComposition.acetylenePercentage +
+        91900 * lastFuelComposition.propylenePercentage +
+        121400 * lastFuelComposition.butylenePercentage);
+
+    const theoreticalDryAirConsumption =
+      0.0476 *
+      (2 * lastFuelComposition.methanePercentage +
+        3.5 * lastFuelComposition.ethanePercentage +
+        5 * lastFuelComposition.propanePercentage +
+        6.5 *
+          (lastFuelComposition.nButanePercentage +
+            lastFuelComposition.isoButanePercentage) +
+        8 * lastFuelComposition.pentanePercentage +
+        0.5 * lastFuelComposition.hydrogenPercentage +
+        3 * lastFuelComposition.acetylenePercentage +
+        4.5 * lastFuelComposition.propylenePercentage +
+        6 * lastFuelComposition.butylenePercentage +
+        2.5 * lastFuelComposition.carbonMonoxidePercentage -
+        0.01 * lastFuelComposition.oxygenPercentage);
+    const theoreticalWetAirConsumption =
+      theoreticalDryAirConsumption +
+      0.00124 *
+        lastBoilerCharacteristic.airHumidityForCombustion *
+        theoreticalDryAirConsumption;
+
+    const combustionMaterialBalanceTemperature =
+      this.combustionMaterialBalanceTemperatureRepository.create({
+        lowerHeatingValue,
+        higherHeatingValue,
+        theoreticalDryAirConsumption,
+        theoreticalWetAirConsumption,
+      });
+    return await this.combustionMaterialBalanceTemperatureRepository.save(
+      combustionMaterialBalanceTemperature,
     );
   }
 }

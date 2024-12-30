@@ -51,6 +51,21 @@ export class CalculationsService {
   ) {}
 
   async create(dto: CreateCalculationDto) {
+    await this.economizerCharacteristicRepository.delete({});
+    await this.airLeakageRepository.delete({});
+    await this.airExcessCoefficientRepository.delete({});
+    await this.boilerCharacteristicRepository.delete({});
+    await this.combustionMaterialBalanceRepository.delete({});
+    await this.combustionMaterialBalanceTemperatureRepository.delete({});
+    await this.convectivePackageRepository.delete({});
+    await this.convectivePackageHeatBalanceRepository.delete({});
+    await this.economizerHeatBalanceRepository.delete({});
+    await this.fuelCompositionRepository.delete({});
+    await this.furnaceCharacteristicRepository.delete({});
+    await this.furnaceHeatBalanceRepository.delete({});
+    await this.heatBalanceRepository.delete({});
+    await this.temperatureCharacteristicRepository.delete({});
+
     await this.createBoilerCharacteristic(dto);
     await this.createFuelComposition(dto);
     await this.createFurnaceCharacteristic(dto);

@@ -11,41 +11,29 @@ export class AirLeakage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'float' })
   actualFurnaceAirLeakage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   nominalFurnaceAirLeakage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   actualFirstConvectiveAirLeakage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   nominalFirstConvectiveAirLeakage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   actualSecondConvectiveAirLeakage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   nominalSecondConvectiveAirLeakage: number;
 
-  @Column()
-  actualThirdConvectiveAirLeakage: number;
-
-  @Column()
-  nominalThirdConvectiveAirLeakage: number;
-
-  @Column()
+  @Column({ type: 'float' })
   actualEconomizerAirLeakage: number;
 
-  @Column()
+  @Column({ type: 'float' })
   nominalEconomizerAirLeakage: number;
-
-  @Column()
-  actualAirPreheaterLeakage: number;
-
-  @Column()
-  nominalAirPreheaterLeakage: number;
 
   @CreateDateColumn()
   createdAt: Date;

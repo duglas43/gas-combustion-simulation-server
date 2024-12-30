@@ -55,6 +55,7 @@ export class CalculationsService {
     await this.createFuelComposition(dto);
     await this.createFurnaceCharacteristic(dto);
     await this.createConvectivePackages(dto);
+    await this.createAirLeakage();
     return 'Ok';
   }
 
@@ -253,5 +254,30 @@ export class CalculationsService {
       });
       await this.convectivePackageRepository.save(convectivePackageEntity);
     }
+  }
+
+  async createAirLeakage() {
+    const boilerCharacteristics =
+      await this.boilerCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+      });
+    const lastBoilerCharacteristic = boilerCharacteristics[0];
+    const { nominalSteamProduction, actualSteamProduction } =
+      lastBoilerCharacteristic;
+    const airLeakage = this.airLeakageRepository.create({
+      nominalFurnaceAirLeakage: 0.05,
+      actualFurnaceAirLeakage:
+        0.05 * (nominalSteamProduction / actualSteamProduction),
+      nominalFirstConvectiveAirLeakage: 0.05,
+      actualFirstConvectiveAirLeakage:
+        0.05 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
+      nominalSecondConvectiveAirLeakage: 0.1,
+      actualSecondConvectiveAirLeakage:
+        0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
+      nominalEconomizerAirLeakage: 0.1,
+      actualEconomizerAirLeakage:
+        0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
+    });
+    return await this.airLeakageRepository.save(airLeakage);
   }
 }

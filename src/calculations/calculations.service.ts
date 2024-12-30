@@ -61,6 +61,7 @@ export class CalculationsService {
     await this.createAirExcessCoefficients();
     await this.createCombustionMaterialBalance();
     await this.createHeatBalance();
+    await this.createFurnaceHeatBalance();
     return 'Ok';
   }
 
@@ -695,15 +696,6 @@ export class CalculationsService {
         order: { createdAt: 'DESC' },
         take: 1,
       });
-    const fuelCompositions = await this.fuelCompositionRepository.find({
-      order: { createdAt: 'DESC' },
-      take: 1,
-    });
-    const combustionMaterialBalances =
-      await this.combustionMaterialBalanceRepository.find({
-        order: { createdAt: 'DESC' },
-        take: 1,
-      });
     const temperatureCharacteristics =
       await this.temperatureCharacteristicRepository.find({
         order: { createdAt: 'DESC' },
@@ -729,8 +721,6 @@ export class CalculationsService {
       });
 
     const lastBoilerCharacteristic = boilerCharacteristics[0];
-    const lastFuelComposition = fuelCompositions[0];
-    const lastCombustionMaterialBalance = combustionMaterialBalances[0];
     const lastTemperatureCharacteristic = temperatureCharacteristics[0];
     const heatLossDueToChemicalIncompleteCombustionPercentage = 0;
     const lastCombustionMaterialBalanceTemperature =
@@ -829,6 +819,7 @@ export class CalculationsService {
       lastBoilerCharacteristic.nominalSteamProduction *
       lastBoilerCharacteristic.loadPercentage;
 
+    // Problem is here
     const usefulHeatUtilized =
       ((lastBoilerCharacteristic.nominalSteamProduction *
         lastBoilerCharacteristic.loadPercentage) /
@@ -908,5 +899,357 @@ export class CalculationsService {
     });
 
     return await this.heatBalanceRepository.save(heatBalance);
+  }
+
+  async createFurnaceHeatBalance() {
+    const furnaceCharacteristics =
+      await this.furnaceCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const alphaBurnerCombustionMaterialBalance =
+      await this.combustionMaterialBalanceRepository.find({
+        where: { airExcessCoefficient: { name: 'alphaBurner' } },
+        relations: ['airExcessCoefficient'],
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const combustionMaterialBalanceTemperatures =
+      await this.combustionMaterialBalanceTemperatureRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const temperatureCharacteristics =
+      await this.temperatureCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const alphaBurnerAirExcessCoefficient =
+      await this.airExcessCoefficientRepository.find({
+        where: { name: 'alphaBurner' },
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const airLeakages = await this.airLeakageRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    const heatBalances = await this.heatBalanceRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    const alphaFurnaceAvgCombustionMaterialBalance =
+      await this.combustionMaterialBalanceRepository.find({
+        where: { airExcessCoefficient: { name: 'alphaFurnaceAvg' } },
+        relations: ['airExcessCoefficient'],
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const fuelCompositions = await this.fuelCompositionRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    const boilerCharacteristics =
+      await this.boilerCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+
+    const lastBoilerCharacteristic = boilerCharacteristics[0];
+    const lastFuelComposition = fuelCompositions[0];
+    const lastHeatBalance = heatBalances[0];
+    const lastAirLeakage = airLeakages[0];
+    const lastAlphaBurnerAirExcessCoefficient =
+      alphaBurnerAirExcessCoefficient[0];
+    const lastTemperatureCharacteristic = temperatureCharacteristics[0];
+    const lastCombustionMaterialBalanceTemperature =
+      combustionMaterialBalanceTemperatures[0];
+    const lastAlphaBurnerCombustionMaterialBalance =
+      alphaBurnerCombustionMaterialBalance[0];
+    const lastFurnaceCharacteristic = furnaceCharacteristics[0];
+    const lastAlphaFurnaceAvgCombustionMaterialBalance =
+      alphaFurnaceAvgCombustionMaterialBalance[0];
+
+    const parameterM0 = 0.4;
+    const luminousFlameFillingCoefficient = 0.1;
+    const blackBodyRadiationCoefficient = 20.53e-8;
+    const screenPollutionCoefficient =
+      lastFurnaceCharacteristic.screenContaminationFactor;
+    const furnaceExitTemperatureSet = 844;
+
+    const combustionProductEnthalpyExit =
+      (lastAlphaBurnerCombustionMaterialBalance.theoreticalCO2Volume *
+        ((1.604309582 +
+          0.001133138 * furnaceExitTemperatureSet +
+          -8.60416e-7 * furnaceExitTemperatureSet) ^
+          (2 + 4.68441e-10 * furnaceExitTemperatureSet) ^
+          (3 + -1.44713e-13 * furnaceExitTemperatureSet) ^
+          (4 + 1.82271e-17 * furnaceExitTemperatureSet) ^
+          5) +
+        lastAlphaBurnerCombustionMaterialBalance.theoreticalSO2Volume *
+          ((0.607026715 +
+            0.000038632 * furnaceExitTemperatureSet +
+            -1.5937e-7 * furnaceExitTemperatureSet) ^
+            (2 + 1.63367e-11 * furnaceExitTemperatureSet) ^
+            (3 + -3.03012e-18 * furnaceExitTemperatureSet) ^
+            4) +
+        lastAlphaBurnerCombustionMaterialBalance.theoreticalWaterVaporVolume *
+          ((1.306450711 +
+            0.000150251 * furnaceExitTemperatureSet +
+            1.72284e-7 * furnaceExitTemperatureSet) ^
+            (2 + -2.32114e-10 * furnaceExitTemperatureSet) ^
+            (3 + 1.01527e-13 * furnaceExitTemperatureSet) ^
+            (4 + -1.53025e-17 * furnaceExitTemperatureSet) ^
+            5) +
+        lastAlphaBurnerCombustionMaterialBalance.theoreticalNitrogenVolume *
+          ((1.498317949 +
+            0.000102932 * furnaceExitTemperatureSet +
+            2.44654e-7 * furnaceExitTemperatureSet) ^
+            (2 + -4.79443e-9 * furnaceExitTemperatureSet) ^
+            (3 + 4.30216e-12 * furnaceExitTemperatureSet) ^
+            (4 + -1.50641e-15 * furnaceExitTemperatureSet) ^
+            5) +
+        lastAlphaBurnerCombustionMaterialBalance.theoreticalOxygenVolume *
+          ((1.285314861 +
+            0.0001585 * furnaceExitTemperatureSet +
+            -4.77872e-7 * furnaceExitTemperatureSet) ^
+            (2 + 7.55826e-10 * furnaceExitTemperatureSet) ^
+            (3 + -5.20124e-13 * furnaceExitTemperatureSet) ^
+            (4 + 1.33782e-16 * furnaceExitTemperatureSet) ^
+            5)) *
+      furnaceExitTemperatureSet;
+    const combustionAirEnthalpy =
+      lastCombustionMaterialBalanceTemperature.theoreticalWetAirConsumption *
+      lastTemperatureCharacteristic.combustionAirHeatCapacity *
+      lastTemperatureCharacteristic.combustionAirTemperature;
+
+    const airFractionFromAirPreheater =
+      lastAlphaBurnerAirExcessCoefficient.value -
+      lastAirLeakage.actualFurnaceAirLeakage;
+    const heatInputToFurnaceFromAir =
+      airFractionFromAirPreheater * combustionAirEnthalpy +
+      lastAirLeakage.actualFurnaceAirLeakage *
+        lastHeatBalance.surroundingAirEnthalpy;
+
+    const usefulHeatReleaseInFurnace =
+      lastHeatBalance.availableHeatInputToBoiler *
+        ((100 -
+          lastHeatBalance.heatLossDueToChemicalIncompleteCombustionPercentage) /
+          100) +
+      heatInputToFurnaceFromAir -
+      lastHeatBalance.heatInputFromAir;
+    const assumedAdiabaticCombustionTemperature = 2200;
+    const actualAdiabaticCombustionTemperature =
+      usefulHeatReleaseInFurnace /
+      (lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalCO2Volume *
+        ((1.604309582 +
+          0.001133138 * assumedAdiabaticCombustionTemperature +
+          -8.60416e-7 * assumedAdiabaticCombustionTemperature) ^
+          (2 + 4.68441e-10 * assumedAdiabaticCombustionTemperature) ^
+          (3 + -1.44713e-13 * assumedAdiabaticCombustionTemperature) ^
+          (4 + 1.82271e-17 * assumedAdiabaticCombustionTemperature) ^
+          5) +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalSO2Volume *
+          ((0.607026715 +
+            0.000038632 * assumedAdiabaticCombustionTemperature +
+            -1.5937e-7 * assumedAdiabaticCombustionTemperature) ^
+            (2 + 1.63367e-11 * assumedAdiabaticCombustionTemperature) ^
+            (3 + -3.03012e-18 * assumedAdiabaticCombustionTemperature) ^
+            4) +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalWaterVaporVolume *
+          ((1.306450711 +
+            0.000150251 * assumedAdiabaticCombustionTemperature +
+            1.72284e-7 * assumedAdiabaticCombustionTemperature) ^
+            (2 + -2.32114e-10 * assumedAdiabaticCombustionTemperature) ^
+            (3 + 1.01527e-13 * assumedAdiabaticCombustionTemperature) ^
+            (4 + -1.53025e-17 * assumedAdiabaticCombustionTemperature) ^
+            5) +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalNitrogenVolume *
+          ((1.498317949 +
+            0.000102932 * assumedAdiabaticCombustionTemperature +
+            2.44654e-7 * assumedAdiabaticCombustionTemperature) ^
+            (2 + -4.79443e-9 * assumedAdiabaticCombustionTemperature) ^
+            (3 + 4.30216e-12 * assumedAdiabaticCombustionTemperature) ^
+            (4 + -1.50641e-15 * assumedAdiabaticCombustionTemperature) ^
+            5) +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalOxygenVolume *
+          ((1.285314861 +
+            0.0001585 * assumedAdiabaticCombustionTemperature +
+            -4.77872e-7 * assumedAdiabaticCombustionTemperature) ^
+            (2 + 7.55826e-10 * assumedAdiabaticCombustionTemperature) ^
+            (3 + -5.20124e-13 * assumedAdiabaticCombustionTemperature) ^
+            (4 + 1.33782e-16 * assumedAdiabaticCombustionTemperature) ^
+            5));
+
+    const imbalancePercentage = Math.abs(
+      ((assumedAdiabaticCombustionTemperature -
+        actualAdiabaticCombustionTemperature) *
+        100) /
+        actualAdiabaticCombustionTemperature,
+    );
+    const averageHeatCapacityProductsInFurnace =
+      (usefulHeatReleaseInFurnace - combustionProductEnthalpyExit) /
+      (actualAdiabaticCombustionTemperature - furnaceExitTemperatureSet);
+
+    const averageThermalEfficiencyCoefficient =
+      ((lastFurnaceCharacteristic.firstScreenArea *
+        lastFurnaceCharacteristic.firstScreenAngleCoefficient +
+        lastFurnaceCharacteristic.secondScreenArea *
+          lastFurnaceCharacteristic.secondScreenAngleCoefficient +
+        lastFurnaceCharacteristic.thirdScreenArea *
+          lastFurnaceCharacteristic.thirdScreenAngleCoefficient +
+        lastFurnaceCharacteristic.fourthScreenArea *
+          lastFurnaceCharacteristic.fourthScreenAngleCoefficient +
+        lastFurnaceCharacteristic.fifthScreenArea *
+          lastFurnaceCharacteristic.fifthScreenAngleCoefficient) *
+        screenPollutionCoefficient) /
+      lastFurnaceCharacteristic.totalWallSurfaceArea;
+
+    const boltzmannCriterion =
+      (lastHeatBalance.heatRetentionCoefficient *
+        lastHeatBalance.calculatedHourlyFuelConsumption *
+        averageHeatCapacityProductsInFurnace) /
+      (blackBodyRadiationCoefficient *
+        averageThermalEfficiencyCoefficient *
+        lastFurnaceCharacteristic.totalWallSurfaceArea *
+        (actualAdiabaticCombustionTemperature + 273.15) ** 3);
+
+    // =('МБ и ТБ'!C49*'МБ и ТБ'!C47*C17)/(C4*C18*Характеристики!C84*(C15+273,15)^3)
+
+    const maxTemperatureZoneHeight =
+      (((lastFurnaceCharacteristic.burnersInFirstRow *
+        lastHeatBalance.calculatedHourlyFuelConsumption) /
+        lastFurnaceCharacteristic.totalBurnersInBoiler) *
+        lastFurnaceCharacteristic.firstBurnerRowHeight) /
+      ((lastFurnaceCharacteristic.totalBurnersInBoiler *
+        lastHeatBalance.calculatedHourlyFuelConsumption) /
+        lastFurnaceCharacteristic.totalBurnersInBoiler);
+    const relativeMaxTemperatureZonePosition =
+      maxTemperatureZoneHeight / lastFurnaceCharacteristic.furnaceHeight;
+
+    const furnaceGasDilutionCoefficient =
+      (lastAlphaFurnaceAvgCombustionMaterialBalance.totalWetCombustionProductsVolume *
+        (1 - lastTemperatureCharacteristic.recirculationRate)) /
+      (lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalCO2Volume +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalSO2Volume +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalNitrogenVolume);
+
+    const calculatedParameterM =
+      parameterM0 *
+      (1 - 0.4 * relativeMaxTemperatureZonePosition) *
+      furnaceGasDilutionCoefficient ** 0.3333;
+
+    const rayAttenuationCoefficientThreeAtomGases =
+      ((7.8 +
+        16 *
+          lastAlphaFurnaceAvgCombustionMaterialBalance.specificVolumeFractionWaterVapor) /
+        (3.16 *
+          Math.sqrt(
+            lastAlphaFurnaceAvgCombustionMaterialBalance.specificVolumeFractionTriatomicGases *
+              lastFurnaceCharacteristic.effectiveRadiatingLayerThickness,
+          )) -
+        1) *
+      (1 - (0.37 * (blackBodyRadiationCoefficient + 273.15)) / 1000) *
+      lastAlphaFurnaceAvgCombustionMaterialBalance.specificVolumeFractionTriatomicGases;
+
+    const carbonToHydrogenMassRatio =
+      0.12 *
+      ((1 / 4) * lastFuelComposition.methanePercentage +
+        (2 / 6) * lastFuelComposition.ethanePercentage +
+        (3 / 8) * lastFuelComposition.propanePercentage +
+        (4 / 10) *
+          (lastFuelComposition.nButanePercentage +
+            lastFuelComposition.isoButanePercentage) +
+        (5 / 12) * lastFuelComposition.pentanePercentage +
+        (2 / 4) * lastFuelComposition.ethylenePercentage +
+        (3 / 6) * lastFuelComposition.propylenePercentage +
+        (4 / 8) * lastFuelComposition.butylenePercentage +
+        (2 / 2) * lastFuelComposition.acetylenePercentage);
+
+    const sootRayAttenuationCoefficient =
+      (1.2 / (1 + lastAlphaBurnerAirExcessCoefficient.value ** 2)) *
+      ((1.6 * (furnaceExitTemperatureSet + 273.15)) / 1000 - 0.5) *
+      carbonToHydrogenMassRatio ** 0.4;
+
+    const furnaceMediumAbsorptionCoefficient =
+      rayAttenuationCoefficientThreeAtomGases +
+      luminousFlameFillingCoefficient * sootRayAttenuationCoefficient;
+
+    const bugerCriterion =
+      furnaceMediumAbsorptionCoefficient *
+      lastBoilerCharacteristic.flueGasAbsolutePressure *
+      lastFurnaceCharacteristic.effectiveRadiatingLayerThickness;
+
+    const effectiveBugerCriterion =
+      1.6 *
+      Math.log(
+        (1.4 * bugerCriterion ** 2 + bugerCriterion + 2) /
+          (1.4 * bugerCriterion ** 2 - bugerCriterion + 2),
+      );
+    const combustionProductExitTemperature =
+      (actualAdiabaticCombustionTemperature + 273.15) /
+        (calculatedParameterM *
+          effectiveBugerCriterion ** 0.3 *
+          (1 / boltzmannCriterion) ** 0.6 +
+          1) -
+      273;
+    const calculatedImbalance = Math.abs(
+      ((combustionProductExitTemperature - furnaceExitTemperatureSet) * 100) /
+        combustionProductExitTemperature,
+    );
+    const heatAbsorbedByRadiativeScreens =
+      lastHeatBalance.heatRetentionCoefficient *
+      (usefulHeatReleaseInFurnace - combustionProductEnthalpyExit);
+
+    const specificHeatLoadRadiativeScreens =
+      (lastHeatBalance.calculatedHourlyFuelConsumption *
+        heatAbsorbedByRadiativeScreens) /
+      lastFurnaceCharacteristic.totalRadiantHeatSurfaceArea;
+
+    const specificHeatTensionFurnaceVolume =
+      (lastHeatBalance.calculatedHourlyFuelConsumption *
+        usefulHeatReleaseInFurnace) /
+      lastFurnaceCharacteristic.furnaceVolume;
+
+    const enthalpyIncrementHeatedHeatCarrier =
+      (lastHeatBalance.calculatedHourlyFuelConsumption *
+        (heatAbsorbedByRadiativeScreens - 0)) /
+      lastHeatBalance.heatedHeatCarrierFlow;
+
+    const furnaceHeatBalance = this.furnaceHeatBalanceRepository.create({
+      blackBodyRadiationCoefficient,
+      screenPollutionCoefficient,
+      parameterM0,
+      luminousFlameFillingCoefficient,
+      furnaceExitTemperatureSet,
+      combustionProductEnthalpyExit,
+      combustionAirEnthalpy,
+      airFractionFromAirPreheater,
+      heatInputToFurnaceFromAir,
+      usefulHeatReleaseInFurnace,
+      assumedAdiabaticCombustionTemperature,
+      actualAdiabaticCombustionTemperature,
+      imbalancePercentage,
+      averageHeatCapacityProductsInFurnace,
+      averageThermalEfficiencyCoefficient,
+      boltzmannCriterion,
+      maxTemperatureZoneHeight,
+      relativeMaxTemperatureZonePosition,
+      furnaceGasDilutionCoefficient,
+      calculatedParameterM,
+      rayAttenuationCoefficientThreeAtomGases,
+      carbonToHydrogenMassRatio,
+      sootRayAttenuationCoefficient,
+      furnaceMediumAbsorptionCoefficient,
+      bugerCriterion,
+      effectiveBugerCriterion,
+      combustionProductExitTemperature,
+      calculatedImbalance,
+      heatAbsorbedByRadiativeScreens,
+      specificHeatLoadRadiativeScreens,
+      specificHeatTensionFurnaceVolume,
+      enthalpyIncrementHeatedHeatCarrier,
+    });
+    return await this.furnaceHeatBalanceRepository.save(furnaceHeatBalance);
   }
 }

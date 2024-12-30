@@ -59,6 +59,7 @@ export class CalculationsService {
     await this.createTemperatureCharacteristic();
     await this.createCombustionMaterialBalanceTemperature();
     await this.createAirExcessCoefficients();
+    await this.createCombustionMaterialBalance();
     return 'Ok';
   }
 
@@ -521,5 +522,169 @@ export class CalculationsService {
     return await this.airExcessCoefficientRepository.save(
       airExcessCoefficients,
     );
+  }
+
+  async createCombustionMaterialBalance() {
+    const combustionMaterialBalanceTemperatures =
+      await this.combustionMaterialBalanceTemperatureRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const fuelCompositions = await this.fuelCompositionRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    const boilerCharacteristics =
+      await this.boilerCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+
+    const lastBoilerCharacteristic = boilerCharacteristics[0];
+    const lastFuelComposition = fuelCompositions[0];
+    const lastCombustionMaterialBalanceTemperature =
+      combustionMaterialBalanceTemperatures[0];
+
+    const alphaNames = [
+      'alpha',
+      'alphaBurner',
+      'alphaFurnace',
+      'alphaFurnaceAvg',
+      'alphaConvectivePackage1',
+      'alphaConvectivePackage1Avg',
+      'alphaConvectivePackage2',
+      'alphaConvectivePackage2Avg',
+      'alphaEconomizer',
+      'alphaFlueGas',
+    ];
+
+    for (const alphaName of alphaNames) {
+      const alphaCoefficient = await this.airExcessCoefficientRepository.find({
+        where: { name: alphaName },
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+
+      const lastAlphaCoefficient = alphaCoefficient[0];
+
+      const theoreticalCO2Volume =
+        0.01 *
+        (lastFuelComposition.carbonDioxidePercentage +
+          lastFuelComposition.carbonMonoxidePercentage +
+          lastFuelComposition.methanePercentage +
+          2 * lastFuelComposition.ethanePercentage +
+          3 * lastFuelComposition.propanePercentage +
+          4 *
+            (lastFuelComposition.nButanePercentage +
+              lastFuelComposition.isoButanePercentage) +
+          5 * lastFuelComposition.pentanePercentage +
+          2 * lastFuelComposition.acetylenePercentage +
+          3 * lastFuelComposition.ethylenePercentage +
+          4 * lastFuelComposition.propylenePercentage +
+          2 * lastFuelComposition.butylenePercentage);
+
+      const theoreticalWaterVaporVolume =
+        0.01 *
+          (lastFuelComposition.hydrogenPercentage +
+            lastFuelComposition.hydrogenSulfidePercentage +
+            2 * lastFuelComposition.methanePercentage +
+            3 * lastFuelComposition.ethanePercentage +
+            4 * lastFuelComposition.propanePercentage +
+            5 *
+              (lastFuelComposition.nButanePercentage +
+                lastFuelComposition.isoButanePercentage) +
+            6 * lastFuelComposition.pentanePercentage +
+            2 * lastFuelComposition.acetylenePercentage +
+            3 * lastFuelComposition.ethylenePercentage +
+            4 * lastFuelComposition.propylenePercentage +
+            0.5 * lastFuelComposition.butylenePercentage) +
+        0.00124 *
+          (lastBoilerCharacteristic.airHumidityForCombustion *
+            lastAlphaCoefficient.value *
+            lastCombustionMaterialBalanceTemperature.theoreticalDryAirConsumption +
+            lastBoilerCharacteristic.gasHumidityForCombustion);
+
+      const theoreticalNitrogenVolume =
+        0.79 *
+          lastCombustionMaterialBalanceTemperature.theoreticalDryAirConsumption *
+          lastAlphaCoefficient.value +
+        0.01 * lastFuelComposition.nitrogenPercentage;
+
+      const theoreticalOxygenVolume =
+        0.21 *
+          (lastAlphaCoefficient.value - 1) *
+          lastCombustionMaterialBalanceTemperature.theoreticalDryAirConsumption +
+        0.01 * lastFuelComposition.oxygenPercentage;
+
+      const totalWetCombustionProductsVolume =
+        theoreticalCO2Volume +
+        0 +
+        theoreticalWaterVaporVolume +
+        theoreticalNitrogenVolume +
+        theoreticalOxygenVolume;
+
+      const specificVolumeFractionRO2 =
+        theoreticalCO2Volume / totalWetCombustionProductsVolume;
+
+      const specificVolumeFractionWaterVapor =
+        theoreticalWaterVaporVolume / totalWetCombustionProductsVolume;
+
+      const specificVolumeFractionTriatomicGases =
+        specificVolumeFractionRO2 + specificVolumeFractionWaterVapor;
+
+      const partialPressureRO2 =
+        specificVolumeFractionRO2 *
+        lastBoilerCharacteristic.flueGasAbsolutePressure;
+
+      const partialPressureWaterVapor =
+        specificVolumeFractionWaterVapor *
+        lastBoilerCharacteristic.flueGasAbsolutePressure;
+
+      const partialPressureTriatomicGases =
+        specificVolumeFractionTriatomicGases *
+        lastBoilerCharacteristic.flueGasAbsolutePressure;
+
+      const recirculationRate = 0;
+
+      const specificMassOfCombustionProducts =
+        (((theoreticalCO2Volume * 1.977 +
+          theoreticalWaterVaporVolume * 0.8041 +
+          theoreticalNitrogenVolume * 1.251 +
+          theoreticalOxygenVolume * 1.429) /
+          totalWetCombustionProductsVolume +
+          lastBoilerCharacteristic.gasHumidityForCombustion * 0.001) *
+          (1 + recirculationRate) +
+          1.306 *
+            (lastAlphaCoefficient.value +
+              lastAlphaCoefficient.value +
+              lastAlphaCoefficient.value * recirculationRate)) *
+        totalWetCombustionProductsVolume;
+
+      const combustionMaterialBalance =
+        this.combustionMaterialBalanceRepository.create({
+          airExcessCoefficientId: lastAlphaCoefficient.id,
+          actualWetAirConsumption:
+            lastAlphaCoefficient.value *
+            lastCombustionMaterialBalanceTemperature.theoreticalWetAirConsumption,
+          theoreticalCO2Volume,
+          theoreticalSO2Volume: 0,
+          theoreticalWaterVaporVolume,
+          theoreticalNitrogenVolume,
+          theoreticalOxygenVolume,
+          totalWetCombustionProductsVolume,
+          specificVolumeFractionRO2,
+          specificVolumeFractionWaterVapor,
+          specificVolumeFractionTriatomicGases,
+          partialPressureRO2,
+          partialPressureWaterVapor,
+          partialPressureTriatomicGases,
+          recirculationRate,
+          specificMassOfCombustionProducts,
+        });
+
+      await this.combustionMaterialBalanceRepository.save(
+        combustionMaterialBalance,
+      );
+    }
   }
 }

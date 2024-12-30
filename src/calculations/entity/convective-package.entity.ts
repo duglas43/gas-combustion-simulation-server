@@ -11,6 +11,9 @@ export class ConvectivePackage {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  packageNumber: number;
+
   @Column({ type: 'float' })
   outerTubeDiameter: number;
 

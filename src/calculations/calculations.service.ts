@@ -51,7 +51,6 @@ export class CalculationsService {
   ) {}
 
   async create(dto: CreateCalculationDto) {
-    await this.economizerCharacteristicRepository.delete({});
     await this.airLeakageRepository.delete({});
     await this.airExcessCoefficientRepository.delete({});
     await this.boilerCharacteristicRepository.delete({});
@@ -831,12 +830,64 @@ export class CalculationsService {
       heatLossThroughOuterWalls;
 
     const blowdownWaterFlow =
-      0.01 *
-      lastBoilerCharacteristic.blowdownPercentage *
-      lastBoilerCharacteristic.nominalSteamProduction *
-      lastBoilerCharacteristic.loadPercentage;
+      (0.01 *
+        lastBoilerCharacteristic.blowdownPercentage *
+        lastBoilerCharacteristic.nominalSteamProduction *
+        lastBoilerCharacteristic.loadPercentage) /
+      100;
 
-    const usefulHeatUtilized = 0.1;
+    const usefulHeatUtilized =
+      (((lastBoilerCharacteristic.nominalSteamProduction *
+        lastBoilerCharacteristic.loadPercentage) /
+        100) *
+        (2529.561501 +
+          689.7698653 *
+            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 0.5 +
+          -945.4105533 *
+            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) +
+          798.3009619 *
+            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 1.5 +
+          -357.523749 *
+            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2 +
+          63.1843854 *
+            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2.5 -
+          (4.21728893897003 +
+            -4.24888399827776e-4 *
+              lastBoilerCharacteristic.feedWaterTemperature +
+            -1.90766415583401e-5 *
+              lastBoilerCharacteristic.feedWaterTemperature ** 2 +
+            3.73685094570715e-7 *
+              lastBoilerCharacteristic.feedWaterTemperature ** 3 +
+            -1.82785185562934e-9 *
+              lastBoilerCharacteristic.feedWaterTemperature ** 4 +
+            3.30764930384364e-12 *
+              lastBoilerCharacteristic.feedWaterTemperature ** 5) *
+            lastBoilerCharacteristic.feedWaterTemperature) +
+        blowdownWaterFlow *
+          (63.3125516389845 +
+            1600.35159333891 *
+              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 0.5 +
+            -2000.28710382556 *
+              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) +
+            1744.33493642283 *
+              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 1.5 +
+            -785.768886299272 *
+              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2 +
+            140.026972257752 *
+              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2.5 -
+            (4.21728893897003 +
+              -4.24888399827776e-4 *
+                lastBoilerCharacteristic.feedWaterTemperature +
+              -1.90766415583401e-5 *
+                lastBoilerCharacteristic.feedWaterTemperature ** 2 +
+              3.73685094570715e-7 *
+                lastBoilerCharacteristic.feedWaterTemperature ** 3 +
+              -1.82785185562934e-9 *
+                lastBoilerCharacteristic.feedWaterTemperature ** 4 +
+              3.30764930384364e-12 *
+                lastBoilerCharacteristic.feedWaterTemperature ** 5) *
+              lastBoilerCharacteristic.feedWaterTemperature)) *
+      1000;
 
     const calculatedHourlyFuelConsumption =
       (usefulHeatUtilized * 100) /
@@ -954,45 +1005,42 @@ export class CalculationsService {
 
     const combustionProductEnthalpyExit =
       (lastAlphaBurnerCombustionMaterialBalance.theoreticalCO2Volume *
-        ((1.604309582 +
+        (1.604309582 +
           0.001133138 * furnaceExitTemperatureSet +
-          -8.60416e-7 * furnaceExitTemperatureSet) ^
-          (2 + 4.68441e-10 * furnaceExitTemperatureSet) ^
-          (3 + -1.44713e-13 * furnaceExitTemperatureSet) ^
-          (4 + 1.82271e-17 * furnaceExitTemperatureSet) ^
-          5) +
+          -0.000000860416 * furnaceExitTemperatureSet ** 2 +
+          0.000000000468441 * furnaceExitTemperatureSet ** 3 +
+          -1.44713e-13 * furnaceExitTemperatureSet ** 4 +
+          1.822707e-17 * furnaceExitTemperatureSet ** 5) +
         lastAlphaBurnerCombustionMaterialBalance.theoreticalSO2Volume *
-          ((0.607026715 +
-            0.000038632 * furnaceExitTemperatureSet +
-            -1.5937e-7 * furnaceExitTemperatureSet) ^
-            (2 + 1.63367e-11 * furnaceExitTemperatureSet) ^
-            (3 + -3.03012e-18 * furnaceExitTemperatureSet) ^
-            4) +
+          (0.607026715343734 +
+            3.08631797297832e-4 * furnaceExitTemperatureSet +
+            -1.59369965554858e-7 * furnaceExitTemperatureSet ** 2 +
+            1.63637023130679e-11 * furnaceExitTemperatureSet ** 3 +
+            1.25572787709454e-14 * furnaceExitTemperatureSet ** 4 +
+            -3.03012265579358e-18 * furnaceExitTemperatureSet ** 5) +
         lastAlphaBurnerCombustionMaterialBalance.theoreticalWaterVaporVolume *
-          ((1.306450711 +
-            0.000150251 * furnaceExitTemperatureSet +
-            1.72284e-7 * furnaceExitTemperatureSet) ^
-            (2 + -2.32114e-10 * furnaceExitTemperatureSet) ^
-            (3 + 1.01527e-13 * furnaceExitTemperatureSet) ^
-            (4 + -1.53025e-17 * furnaceExitTemperatureSet) ^
-            5) +
-        lastAlphaBurnerCombustionMaterialBalance.theoreticalNitrogenVolume *
-          ((1.498317949 +
+          (1.498317949 +
             0.000102932 * furnaceExitTemperatureSet +
-            2.44654e-7 * furnaceExitTemperatureSet) ^
-            (2 + -4.79443e-9 * furnaceExitTemperatureSet) ^
-            (3 + 4.30216e-12 * furnaceExitTemperatureSet) ^
-            (4 + -1.50641e-15 * furnaceExitTemperatureSet) ^
-            5) +
+            0.000000244654 * furnaceExitTemperatureSet ** 2 +
+            -0.000000000156126 * furnaceExitTemperatureSet ** 3 +
+            4.36681e-14 * furnaceExitTemperatureSet ** 4 +
+            -5.05709e-18 * furnaceExitTemperatureSet ** 5) +
+        lastAlphaBurnerCombustionMaterialBalance.theoreticalNitrogenVolume *
+          (1.29747332 +
+            -0.000010563 * furnaceExitTemperatureSet +
+            0.00000024181 * furnaceExitTemperatureSet ** 2 +
+            -0.000000000183389 * furnaceExitTemperatureSet ** 3 +
+            5.85924e-14 * furnaceExitTemperatureSet ** 4 +
+            -7.03381e-18 * furnaceExitTemperatureSet ** 5) +
         lastAlphaBurnerCombustionMaterialBalance.theoreticalOxygenVolume *
-          ((1.285314861 +
-            0.0001585 * furnaceExitTemperatureSet +
-            -4.77872e-7 * furnaceExitTemperatureSet) ^
-            (2 + 7.55826e-10 * furnaceExitTemperatureSet) ^
-            (3 + -5.20124e-13 * furnaceExitTemperatureSet) ^
-            (4 + 1.33782e-16 * furnaceExitTemperatureSet) ^
-            5)) *
+          (1.306450711 +
+            0.000150251 * furnaceExitTemperatureSet +
+            0.000000172284 * furnaceExitTemperatureSet ** 2 +
+            -0.000000000232114 * furnaceExitTemperatureSet ** 3 +
+            1.01527e-13 * furnaceExitTemperatureSet ** 4 +
+            -1.53025e-17 * furnaceExitTemperatureSet ** 5)) *
       furnaceExitTemperatureSet;
+
     const combustionAirEnthalpy =
       lastCombustionMaterialBalanceTemperature.theoreticalWetAirConsumption *
       lastTemperatureCharacteristic.combustionAirHeatCapacity *
@@ -1017,44 +1065,41 @@ export class CalculationsService {
     const actualAdiabaticCombustionTemperature =
       usefulHeatReleaseInFurnace /
       (lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalCO2Volume *
-        ((1.604309582 +
+        (1.604309582 +
           0.001133138 * assumedAdiabaticCombustionTemperature +
-          -8.60416e-7 * assumedAdiabaticCombustionTemperature) ^
-          (2 + 4.68441e-10 * assumedAdiabaticCombustionTemperature) ^
-          (3 + -1.44713e-13 * assumedAdiabaticCombustionTemperature) ^
-          (4 + 1.82271e-17 * assumedAdiabaticCombustionTemperature) ^
-          5) +
+          -0.000000860416 * assumedAdiabaticCombustionTemperature ** 2 +
+          0.000000000468441 * assumedAdiabaticCombustionTemperature ** 3 +
+          -1.44713e-13 * assumedAdiabaticCombustionTemperature ** 4 +
+          1.822707e-17 * assumedAdiabaticCombustionTemperature ** 5) +
         lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalSO2Volume *
-          ((0.607026715 +
-            0.000038632 * assumedAdiabaticCombustionTemperature +
-            -1.5937e-7 * assumedAdiabaticCombustionTemperature) ^
-            (2 + 1.63367e-11 * assumedAdiabaticCombustionTemperature) ^
-            (3 + -3.03012e-18 * assumedAdiabaticCombustionTemperature) ^
-            4) +
+          (0.607026715343734 +
+            3.08631797297832e-4 * assumedAdiabaticCombustionTemperature +
+            -1.59369965554858e-7 * assumedAdiabaticCombustionTemperature ** 2 +
+            1.63637023130679e-11 * assumedAdiabaticCombustionTemperature ** 3 +
+            1.25572787709454e-14 * assumedAdiabaticCombustionTemperature ** 4 +
+            -3.03012265579358e-18 *
+              assumedAdiabaticCombustionTemperature ** 5) +
         lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalWaterVaporVolume *
-          ((1.306450711 +
-            0.000150251 * assumedAdiabaticCombustionTemperature +
-            1.72284e-7 * assumedAdiabaticCombustionTemperature) ^
-            (2 + -2.32114e-10 * assumedAdiabaticCombustionTemperature) ^
-            (3 + 1.01527e-13 * assumedAdiabaticCombustionTemperature) ^
-            (4 + -1.53025e-17 * assumedAdiabaticCombustionTemperature) ^
-            5) +
-        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalNitrogenVolume *
-          ((1.498317949 +
+          (1.498317949 +
             0.000102932 * assumedAdiabaticCombustionTemperature +
-            2.44654e-7 * assumedAdiabaticCombustionTemperature) ^
-            (2 + -4.79443e-9 * assumedAdiabaticCombustionTemperature) ^
-            (3 + 4.30216e-12 * assumedAdiabaticCombustionTemperature) ^
-            (4 + -1.50641e-15 * assumedAdiabaticCombustionTemperature) ^
-            5) +
+            0.000000244654 * assumedAdiabaticCombustionTemperature ** 2 +
+            -0.000000000156126 * assumedAdiabaticCombustionTemperature ** 3 +
+            4.36681e-14 * assumedAdiabaticCombustionTemperature ** 4 +
+            -5.05709e-18 * assumedAdiabaticCombustionTemperature ** 5) +
+        lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalNitrogenVolume *
+          (1.29747332 +
+            -0.000010563 * assumedAdiabaticCombustionTemperature +
+            0.00000024181 * assumedAdiabaticCombustionTemperature ** 2 +
+            -0.000000000183389 * assumedAdiabaticCombustionTemperature ** 3 +
+            5.85924e-14 * assumedAdiabaticCombustionTemperature ** 4 +
+            -7.03381e-18 * assumedAdiabaticCombustionTemperature ** 5) +
         lastAlphaFurnaceAvgCombustionMaterialBalance.theoreticalOxygenVolume *
-          ((1.285314861 +
-            0.0001585 * assumedAdiabaticCombustionTemperature +
-            -4.77872e-7 * assumedAdiabaticCombustionTemperature) ^
-            (2 + 7.55826e-10 * assumedAdiabaticCombustionTemperature) ^
-            (3 + -5.20124e-13 * assumedAdiabaticCombustionTemperature) ^
-            (4 + 1.33782e-16 * assumedAdiabaticCombustionTemperature) ^
-            5));
+          (1.306450711 +
+            0.000150251 * assumedAdiabaticCombustionTemperature +
+            0.000000172284 * assumedAdiabaticCombustionTemperature ** 2 +
+            -0.000000000232114 * assumedAdiabaticCombustionTemperature ** 3 +
+            1.01527e-13 * assumedAdiabaticCombustionTemperature ** 4 +
+            -1.53025e-17 * assumedAdiabaticCombustionTemperature ** 5));
 
     const imbalancePercentage = Math.abs(
       ((assumedAdiabaticCombustionTemperature -
@@ -1401,7 +1446,7 @@ export class CalculationsService {
     const correctionCoefficientCs =
       ((1 +
         (2 * firstConvectivePackageCharacteristics.relativeTubePitchInRow - 3) *
-          (1 - firstConvectivePackageCharacteristics.relativeRowPitch / 2)) ^
+          (1 - firstConvectivePackageCharacteristics.relativeRowPitch / 2)) **
         3) **
       -2;
 

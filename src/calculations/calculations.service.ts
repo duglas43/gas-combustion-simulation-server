@@ -1047,8 +1047,7 @@ export class CalculationsService {
       lastTemperatureCharacteristic.combustionAirTemperature;
 
     const airFractionFromAirPreheater =
-      lastAlphaBurnerAirExcessCoefficient.value -
-      lastAirLeakage.actualFurnaceAirLeakage;
+      lastAlphaBurnerAirExcessCoefficient.value;
     const heatInputToFurnaceFromAir =
       airFractionFromAirPreheater * combustionAirEnthalpy +
       lastAirLeakage.actualFurnaceAirLeakage *

@@ -78,6 +78,7 @@ export class CalculationsService {
     await this.createFurnaceHeatBalance();
     await this.createFirstConvectivePackageHeatBalance();
     await this.createSecondConvectivePackageHeatBalance();
+    await this.createEconomizerHeatBalance();
     return 'Ok';
   }
 
@@ -1390,6 +1391,7 @@ export class CalculationsService {
       ((heatBalanceAbsorption + heatReceivedByRadiation) *
         lastHeatBalance.calculatedHourlyFuelConsumption) /
       lastHeatBalance.heatedHeatCarrierFlow;
+
     const heatedMediumTemperature =
       14.46082904 +
       391.6645325 *
@@ -1938,6 +1940,322 @@ export class CalculationsService {
       });
     return await this.convectivePackageHeatBalanceRepository.save(
       convectivePackageHeatBalance,
+    );
+  }
+
+  async createEconomizerHeatBalance() {
+    const economizerCharacteristics =
+      await this.economizerCharacteristicRepository.find({
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+
+    const alphaEconomizerCombustionMaterialBalance =
+      await this.combustionMaterialBalanceRepository.find({
+        where: {
+          airExcessCoefficient: { name: 'alphaEconomizer' },
+        },
+        relations: ['airExcessCoefficient'],
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const heatBalances = await this.heatBalanceRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    const secondConvectivePackageHeatBalances =
+      await this.convectivePackageHeatBalanceRepository.find({
+        where: { convectivePackageId: 2 },
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+    const airLeakages = await this.airLeakageRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    const boilerCharacteristic = await this.boilerCharacteristicRepository.find(
+      {
+        order: { createdAt: 'DESC' },
+        take: 1,
+      },
+    );
+    const alphaFurnaceCombusitonMaterialBalance =
+      await this.combustionMaterialBalanceRepository.find({
+        where: {
+          airExcessCoefficient: { name: 'alphaFurnace' },
+        },
+        relations: ['airExcessCoefficient'],
+        order: { createdAt: 'DESC' },
+        take: 1,
+      });
+
+    const lastBoilerCharacteristic = boilerCharacteristic[0];
+    const lastAirLeakage = airLeakages[0];
+    const lastHeatBalance = heatBalances[0];
+    const lastEconomizerCharacteristics = economizerCharacteristics[0];
+    const lastAlphaEconomizerCombustionMaterialBalance =
+      alphaEconomizerCombustionMaterialBalance[0];
+    const lastSecondConvectivePackageHeatBalance =
+      secondConvectivePackageHeatBalances[0];
+    const lastFurnaceCombustionMaterialBalance =
+      alphaFurnaceCombusitonMaterialBalance[0];
+    const geometricAdjustmentFactor = 1;
+    const heatEfficiencyCoefficient = 0.5;
+    const heatUtilizationCoefficient = 0.8;
+    const economizerExitTemperature = 153.3;
+    const combustionProductEnthalpyExit =
+      (lastAlphaEconomizerCombustionMaterialBalance.theoreticalCO2Volume *
+        (1.604309582 +
+          0.001133138 * economizerExitTemperature +
+          -0.000000860416 * economizerExitTemperature ** 2 +
+          0.000000000468441 * economizerExitTemperature ** 3 +
+          -1.44713e-13 * economizerExitTemperature ** 4 +
+          1.822707e-17 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalSO2Volume *
+          (0.607026715343734 +
+            3.08631797297832e-4 * economizerExitTemperature +
+            -1.59369965554858e-7 * economizerExitTemperature ** 2 +
+            1.63637023130679e-11 * economizerExitTemperature ** 3 +
+            1.25572787709454e-14 * economizerExitTemperature ** 4 +
+            -3.03012265579358e-18 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalWaterVaporVolume *
+          (1.498317949 +
+            0.000102932 * economizerExitTemperature +
+            0.000000244654 * economizerExitTemperature ** 2 +
+            -0.000000000156126 * economizerExitTemperature ** 3 +
+            4.36681e-14 * economizerExitTemperature ** 4 +
+            -5.05709e-18 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalNitrogenVolume *
+          (1.29747332 +
+            -0.000010563 * economizerExitTemperature +
+            0.00000024181 * economizerExitTemperature ** 2 +
+            -0.000000000183389 * economizerExitTemperature ** 3 +
+            5.85924e-14 * economizerExitTemperature ** 4 +
+            -7.03381e-18 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalOxygenVolume *
+          (1.306450711 +
+            0.000150251 * economizerExitTemperature +
+            0.000000172284 * economizerExitTemperature ** 2 +
+            -0.000000000232114 * economizerExitTemperature ** 3 +
+            1.01527e-13 * economizerExitTemperature ** 4 +
+            -1.53025e-17 * economizerExitTemperature ** 5)) *
+      economizerExitTemperature;
+    const economizerHeatAbsorption =
+      lastHeatBalance.heatRetentionCoefficient *
+      (lastSecondConvectivePackageHeatBalance.combustionProductEnthalpyExit -
+        combustionProductEnthalpyExit +
+        lastAirLeakage.actualEconomizerAirLeakage *
+          lastHeatBalance.surroundingAirEnthalpy);
+
+    const maxHeatedMediumTemperature =
+      14.46082904 +
+      391.6643525 *
+        (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 0.5 +
+      -515.7573764 * (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) +
+      467.8491656 *
+        (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 1.5 +
+      -218.8244345 *
+        (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2 +
+      40.22947721 *
+        (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2.5 -
+      20;
+    const averageHeatedMediumTemperature =
+      (lastBoilerCharacteristic.feedWaterTemperature +
+        maxHeatedMediumTemperature) /
+      2;
+    const enthalpyIncrease =
+      (economizerHeatAbsorption *
+        lastHeatBalance.calculatedHourlyFuelConsumption) /
+      lastHeatBalance.heatedHeatCarrierFlow;
+
+    const heatedMediumExitTemperature =
+      enthalpyIncrease / 4.2 + lastBoilerCharacteristic.feedWaterTemperature;
+
+    const averageHeatedMediumExitTemperature =
+      (lastBoilerCharacteristic.feedWaterTemperature +
+        heatedMediumExitTemperature) /
+      2;
+
+    const logarithmicTemperatureDifference =
+      ((lastSecondConvectivePackageHeatBalance.packageExitTemperature -
+        economizerExitTemperature -
+        (economizerExitTemperature -
+          lastBoilerCharacteristic.feedWaterTemperature)) *
+        geometricAdjustmentFactor) /
+      Math.log(
+        (lastSecondConvectivePackageHeatBalance.packageExitTemperature -
+          economizerExitTemperature) /
+          (economizerExitTemperature -
+            lastBoilerCharacteristic.feedWaterTemperature),
+      );
+
+    const averageCombustionTemperature =
+      (lastSecondConvectivePackageHeatBalance.packageExitTemperature +
+        economizerExitTemperature) /
+      2;
+    const averageCombustionVelocity =
+      (lastHeatBalance.calculatedHourlyFuelConsumption *
+        lastFurnaceCombustionMaterialBalance.totalWetCombustionProductsVolume *
+        (averageCombustionTemperature + 273.15)) /
+      (3600 * lastEconomizerCharacteristics.channelCrossSectionArea * 273.15);
+
+    const reynoldsCriterion =
+      (averageCombustionVelocity *
+        lastEconomizerCharacteristics.equivalentChannelDiameter) /
+      (0.0000119686 +
+        0.0000000793511 * averageCombustionTemperature +
+        9.50931e-11 * averageCombustionTemperature ** 2 +
+        -1.8727e-14 * averageCombustionTemperature ** 3 +
+        -2.98081e-18 * averageCombustionTemperature ** 4 +
+        2.03358e-21 * averageCombustionTemperature ** 5);
+
+    const prandtlCriterion =
+      0.738992754 +
+      -0.000431304 * averageCombustionTemperature +
+      0.000000571399 * averageCombustionTemperature ** 2 +
+      -0.000000000435355 * averageCombustionTemperature ** 3 +
+      1.525e-13 * averageCombustionTemperature ** 4 +
+      -1.98029e-17 * averageCombustionTemperature ** 5;
+    const finningCoefficient =
+      (2 *
+        ((lastEconomizerCharacteristics.finSize * 0.001) ** 2 -
+          0.785 *
+            (lastEconomizerCharacteristics.outerCasingTubeDiameter * 0.001) **
+              2 +
+          2 *
+            lastEconomizerCharacteristics.finSize *
+            0.001 *
+            lastEconomizerCharacteristics.finThickness *
+            0.001)) /
+        (3.14159 *
+          lastEconomizerCharacteristics.outerCasingTubeDiameter *
+          0.001 *
+          lastEconomizerCharacteristics.finPitch *
+          0.001) -
+      lastEconomizerCharacteristics.finThickness /
+        lastEconomizerCharacteristics.finPitch +
+      1;
+
+    const parameterPhi = Math.tanh(
+      4 *
+        (finningCoefficient / 7 +
+          2 -
+          lastEconomizerCharacteristics.relativeRowPitch),
+    );
+
+    const correctionCoefficientCs =
+      (1.36 - parameterPhi) * (11 / (parameterPhi + 8) - 0.14);
+
+    const correctionCoefficientCz = 1;
+
+    const convectiveHeatTransferCoefficient =
+      ((0.113 *
+        (0.081620792 +
+          0.000316982 * averageCombustionTemperature +
+          -0.000000020208 * averageCombustionTemperature ** 2 +
+          7.29755e-12 * averageCombustionTemperature ** 3 +
+          8.71812e-15 * averageCombustionTemperature ** 4 +
+          -3.60461e-18 * averageCombustionTemperature ** 5)) /
+        (lastEconomizerCharacteristics.outerCasingTubeDiameter * 0.001)) *
+      reynoldsCriterion **
+        (0.7 + 0.08 * parameterPhi + 0.005 * finningCoefficient) *
+      prandtlCriterion ** 0.33 *
+      correctionCoefficientCs *
+      correctionCoefficientCz;
+
+    const heatTransferCoefficient =
+      heatEfficiencyCoefficient *
+      heatUtilizationCoefficient *
+      convectiveHeatTransferCoefficient;
+
+    const heatTransferByEquation =
+      (heatTransferCoefficient *
+        lastEconomizerCharacteristics.totalHeatTransferSurfaceArea *
+        logarithmicTemperatureDifference) /
+      lastHeatBalance.calculatedHourlyFuelConsumption;
+
+    const controlExitTemperature =
+      (lastSecondConvectivePackageHeatBalance.combustionProductEnthalpyExit -
+        heatTransferByEquation / lastHeatBalance.heatRetentionCoefficient +
+        lastAirLeakage.actualEconomizerAirLeakage *
+          lastHeatBalance.surroundingAirEnthalpy) /
+      (lastAlphaEconomizerCombustionMaterialBalance.theoreticalCO2Volume *
+        (1.604309582 +
+          0.001133138 * economizerExitTemperature -
+          0.000000860416 * economizerExitTemperature ** 2 +
+          0.000000000468441 * economizerExitTemperature ** 3 -
+          1.44713e-13 * economizerExitTemperature ** 4 +
+          1.822707e-17 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalSO2Volume *
+          (0.607026715343734 +
+            3.08631797297832e-4 * economizerExitTemperature -
+            1.59369965554858e-7 * economizerExitTemperature ** 2 +
+            1.63637023130679e-11 * economizerExitTemperature ** 3 +
+            1.25572787709454e-14 * economizerExitTemperature ** 4 -
+            3.03012265579358e-18 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalWaterVaporVolume *
+          (1.498317949 +
+            0.000102932 * economizerExitTemperature +
+            0.000000244654 * economizerExitTemperature ** 2 -
+            0.000000000156126 * economizerExitTemperature ** 3 +
+            4.36681e-14 * economizerExitTemperature ** 4 -
+            5.05709e-18 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalNitrogenVolume *
+          (1.29747332 -
+            0.000010563 * economizerExitTemperature +
+            0.00000024181 * economizerExitTemperature ** 2 -
+            0.000000000183389 * economizerExitTemperature ** 3 +
+            5.85924e-14 * economizerExitTemperature ** 4 -
+            7.03381e-18 * economizerExitTemperature ** 5) +
+        lastAlphaEconomizerCombustionMaterialBalance.theoreticalOxygenVolume *
+          (1.306450711 +
+            0.000150251 * economizerExitTemperature +
+            0.000000172284 * economizerExitTemperature ** 2 -
+            0.000000000232114 * economizerExitTemperature ** 3 +
+            1.01527e-13 * economizerExitTemperature ** 4 -
+            1.53025e-17 * economizerExitTemperature ** 5));
+
+    const heatBalanceImbalance = Math.abs(
+      ((economizerHeatAbsorption - heatTransferByEquation) * 100) /
+        heatTransferByEquation,
+    );
+
+    const specificHeatTransferEconomizer =
+      (lastHeatBalance.calculatedHourlyFuelConsumption *
+        economizerHeatAbsorption) /
+      lastEconomizerCharacteristics.totalHeatTransferSurfaceArea;
+
+    const economizerHeatBalance = this.economizerHeatBalanceRepository.create({
+      geometricAdjustmentFactor,
+      heatEfficiencyCoefficient,
+      heatUtilizationCoefficient,
+      economizerExitTemperature,
+      combustionProductEnthalpyExit,
+      economizerHeatAbsorption,
+      maxHeatedMediumTemperature,
+      averageHeatedMediumTemperature,
+      enthalpyIncrease,
+      heatedMediumExitTemperature,
+      averageHeatedMediumExitTemperature,
+      logarithmicTemperatureDifference,
+      averageCombustionTemperature,
+      averageCombustionVelocity,
+      reynoldsCriterion,
+      prandtlCriterion,
+      finningCoefficient,
+      parameterPhi,
+      correctionCoefficientCs,
+      correctionCoefficientCz,
+      convectiveHeatTransferCoefficient,
+      heatTransferCoefficient,
+      heatTransferByEquation,
+      controlExitTemperature,
+      heatBalanceImbalance,
+      specificHeatTransferEconomizer,
+    });
+
+    return await this.economizerHeatBalanceRepository.save(
+      economizerHeatBalance,
     );
   }
 }

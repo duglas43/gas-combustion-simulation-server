@@ -3,7 +3,6 @@ import { CreateCalculationDto } from './dto/create-calculation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AirLeakage } from './entity/air-leakage.entity';
 import { AirExcessCoefficient } from './entity/air-excess-coefficient.entity';
-import { BoilerCharacteristic } from './entity/boiler-characteristic.entity';
 import { CombustionMaterialBalance } from './entity/combustion-material-balance.entity';
 import { CombustionMaterialBalanceTemperature } from './entity/combustion-material-balance-temperature.entity';
 import { ConvectivePackage } from './entity/convective-package.entity';
@@ -16,6 +15,8 @@ import { HeatBalance } from './entity/heat-balance.entity';
 import { TemperatureCharacteristic } from './entity/temperature-characteristic.entity';
 import { EconomizerCharacteristicRepository } from 'src/economizer-characteristics/repositories';
 import { EconomizerCharacteristicsService } from 'src/economizer-characteristics/economizer-characteristics.service';
+import { BoilerCharacteristicRepository } from 'src/boiler-characteristics/repositories';
+import { BoilerCharacteristicsService } from 'src/boiler-characteristics/boiler-characteristics.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -26,8 +27,8 @@ export class CalculationsService {
     private airLeakageRepository: Repository<AirLeakage>,
     @InjectRepository(AirExcessCoefficient)
     private airExcessCoefficientRepository: Repository<AirExcessCoefficient>,
-    @InjectRepository(BoilerCharacteristic)
-    private boilerCharacteristicRepository: Repository<BoilerCharacteristic>,
+    private boilerCharacteristicRepository: BoilerCharacteristicRepository,
+    private boilerCharacteristicsService: BoilerCharacteristicsService,
     @InjectRepository(CombustionMaterialBalance)
     private combustionMaterialBalanceRepository: Repository<CombustionMaterialBalance>,
     @InjectRepository(CombustionMaterialBalanceTemperature)
@@ -72,7 +73,13 @@ export class CalculationsService {
     await this.economizerCharacteristicRepository.save(
       economizerCharacteristic,
     );
-    await this.createBoilerCharacteristic(dto);
+
+    const boilerCharacteristic =
+      await this.boilerCharacteristicsService.calculate(
+        dto.boilerCharacteristics,
+      );
+    await this.boilerCharacteristicRepository.save(boilerCharacteristic);
+
     await this.createFuelComposition(dto);
     await this.createFurnaceCharacteristic(dto);
     await this.createConvectivePackages(dto);
@@ -87,45 +94,6 @@ export class CalculationsService {
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createEconomizerCharacteristic() {
-    const economizerCharacteristic =
-      this.economizerCharacteristicRepository.create({
-        outerCasingTubeDiameter: 76,
-        finThickness: 5,
-        finPitch: 25,
-        finSize: 146,
-        tubePitchInRow: 150,
-        rowPitch: 150,
-        tubesPerRow: 7,
-        numberOfRows: 16,
-        averageTubeLength: 3,
-        heatTransferSurfaceAreaPerTube: 4.49,
-        finHeight: 35,
-        relativeTubePitchInRow: 1.974,
-        relativeRowPitch: 1.974,
-        totalEconomizerTubes: 112,
-        numberOfColumns: 2,
-        totalHeatTransferSurfaceArea: 502.9,
-        channelCrossSectionArea: 1.26,
-        equivalentChannelDiameter: 0.0304,
-      });
-    return await this.economizerCharacteristicRepository.save(
-      economizerCharacteristic,
-    );
-  }
-
-  async createBoilerCharacteristic(dto: CreateCalculationDto) {
-    const { nominalSteamProduction, loadPercentage } =
-      dto.boilerCharacteristics;
-
-    const boilerCharacteristic = this.boilerCharacteristicRepository.create({
-      ...dto.boilerCharacteristics,
-      actualSteamProduction: (nominalSteamProduction * loadPercentage) / 100,
-    });
-
-    return await this.boilerCharacteristicRepository.save(boilerCharacteristic);
   }
 
   async createFuelComposition(dto: CreateCalculationDto) {

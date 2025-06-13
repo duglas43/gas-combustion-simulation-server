@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { Allow, IsNumber, Max, ValidateNested } from 'class-validator';
+import { IsNumber, Max, ValidateNested } from 'class-validator';
+import { CreateBoilerCharacteristicDto } from 'src/boiler-characteristics/dtos';
 
 class CreateFurnaceCharacteristicCalculationDto {
   firstScreenArea: number = 5.94;
@@ -64,30 +65,6 @@ class CreateExternalConditionsCalculationDto {
   @ApiProperty()
   @IsNumber()
   flueGasPressure: number;
-}
-
-export class CreateBoilerCharacteristicsCalculationDto {
-  nominalSteamProduction: number = 10;
-  loadPercentage: number;
-  blowdownPercentage: number = 2.1;
-  excessPressureInBoiler: number = 1.3;
-  airHumidityForCombustion: number;
-  gasHumidityForCombustion: number;
-  feedWaterTemperature: number;
-  roomAirTemperature: number;
-  gasInletTemperature: number;
-  excessAirCoefficient: number = 1.1;
-  flueGasAbsolutePressure: number = 0.1;
-
-  constructor(externalConditions?: CreateExternalConditionsCalculationDto) {
-    if (!externalConditions) return;
-    this.loadPercentage = externalConditions.boilerLoadPercentage;
-    this.airHumidityForCombustion = externalConditions.airHumidityForCombustion;
-    this.gasHumidityForCombustion = externalConditions.gasHumidityForCombustion;
-    this.feedWaterTemperature = externalConditions.feedWaterTemperature;
-    this.roomAirTemperature = externalConditions.boilerRoomAirTemperature;
-    this.gasInletTemperature = externalConditions.gasInletTemperature;
-  }
 }
 
 class CreateFuelCompositionCalculationDto {
@@ -211,10 +188,10 @@ export class CreateCalculationDto {
   @Type(() => CreateExternalConditionsCalculationDto)
   externalConditions: CreateExternalConditionsCalculationDto;
 
-  @Allow()
-  @Type(() => CreateBoilerCharacteristicsCalculationDto)
-  boilerCharacteristics: CreateBoilerCharacteristicsCalculationDto =
-    new CreateBoilerCharacteristicsCalculationDto();
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => CreateBoilerCharacteristicDto)
+  boilerCharacteristics: CreateBoilerCharacteristicDto;
 
   @ApiProperty({ type: CreateFurnaceCharacteristicCalculationDto })
   @ValidateNested()

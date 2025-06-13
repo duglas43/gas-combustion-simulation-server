@@ -10,13 +10,13 @@ import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-b
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
 import { HeatBalance } from './entity/heat-balance.entity';
-import { TemperatureCharacteristic } from './entity/temperature-characteristic.entity';
 import { EconomizerCharacteristicsModule } from 'src/economizer-characteristics/economizer-characteristics.module';
 import { BoilerCharacteristicsModule } from 'src/boiler-characteristics/boiler-characteristics.module';
 import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.module';
 import { FurnaceCharacteristicsModule } from 'src/furnace-characteristics/furnace-characteristics.module';
 import { ConvectivePackagesModule } from 'src/convective-packages/convective-packages.module';
 import { AirLeakagesModule } from 'src/air-leakages/air-leakages.module';
+import { TemperatureCharacteristicsModule } from 'src/temperature-characteristics/temparature-characteristics.module';
 
 @Module({
   imports: [
@@ -28,7 +28,6 @@ import { AirLeakagesModule } from 'src/air-leakages/air-leakages.module';
       EconomizerHeatBalance,
       FurnaceHeatBalance,
       HeatBalance,
-      TemperatureCharacteristic,
     ]),
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
@@ -36,6 +35,7 @@ import { AirLeakagesModule } from 'src/air-leakages/air-leakages.module';
     FurnaceCharacteristicsModule,
     ConvectivePackagesModule,
     AirLeakagesModule,
+    TemperatureCharacteristicsModule,
   ],
   controllers: [CalculationsController],
   providers: [CalculationsService],

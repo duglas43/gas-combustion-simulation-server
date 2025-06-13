@@ -8,7 +8,6 @@ import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-b
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
 import { HeatBalance } from './entity/heat-balance.entity';
-import { TemperatureCharacteristic } from './entity/temperature-characteristic.entity';
 import { EconomizerCharacteristicRepository } from 'src/economizer-characteristics/repositories';
 import { EconomizerCharacteristicsService } from 'src/economizer-characteristics/economizer-characteristics.service';
 import { BoilerCharacteristicRepository } from 'src/boiler-characteristics/repositories';
@@ -21,6 +20,8 @@ import { ConvectivePackagesService } from 'src/convective-packages/convective-pa
 import { ConvectivePackageRepository } from 'src/convective-packages/repositories';
 import { AirLeakagesService } from 'src/air-leakages/air-leakages.service';
 import { AirLeakageRepository } from 'src/air-leakages/repositories';
+import { TemperatureCharacteristicsService } from 'src/temperature-characteristics/temparature-characteristics.service';
+import { TemperatureCharacteristicRepository } from 'src/temperature-characteristics/repositories';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -39,6 +40,8 @@ export class CalculationsService {
     private convectivePackageRepository: ConvectivePackageRepository,
     private airLeakagesService: AirLeakagesService,
     private airLeakageRepository: AirLeakageRepository,
+    private temperatureCharacteristicsService: TemperatureCharacteristicsService,
+    private temperatureCharacteristicRepository: TemperatureCharacteristicRepository,
     @InjectRepository(CombustionMaterialBalance)
     private combustionMaterialBalanceRepository: Repository<CombustionMaterialBalance>,
     @InjectRepository(CombustionMaterialBalanceTemperature)
@@ -51,8 +54,6 @@ export class CalculationsService {
     private furnaceHeatBalanceRepository: Repository<FurnaceHeatBalance>,
     @InjectRepository(HeatBalance)
     private heatBalanceRepository: Repository<HeatBalance>,
-    @InjectRepository(TemperatureCharacteristic)
-    private temperatureCharacteristicRepository: Repository<TemperatureCharacteristic>,
     private economizerCharacteristicsService: EconomizerCharacteristicsService,
   ) {}
 
@@ -111,7 +112,17 @@ export class CalculationsService {
     });
     await this.airLeakageRepository.save(airLeakage);
 
-    await this.createTemperatureCharacteristic();
+    const temperatureCharacteristic =
+      await this.temperatureCharacteristicsService.calculate({
+        boilerCharacteristics: {
+          roomAirTemperature: boilerCharacteristic.roomAirTemperature,
+        },
+        fuelComposition,
+      });
+    await this.temperatureCharacteristicRepository.save(
+      temperatureCharacteristic,
+    );
+
     await this.createCombustionMaterialBalanceTemperature();
     await this.createAirExcessCoefficients();
     await this.createCombustionMaterialBalance();
@@ -121,76 +132,6 @@ export class CalculationsService {
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createTemperatureCharacteristic() {
-    const fuelComposition = await this.fuelCompositionRepository.find({
-      order: { createdAt: 'DESC' },
-    });
-    const lastFuelComposition = fuelComposition[0];
-
-    const boilerCharacteristics =
-      await this.boilerCharacteristicRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-    const lastBoilerCharacteristic = boilerCharacteristics[0];
-
-    const temperatureCharacteristic =
-      this.temperatureCharacteristicRepository.create({
-        recirculationRate: 0,
-        combustionAirTemperature: lastBoilerCharacteristic.roomAirTemperature,
-        gasMixtureHeatCapacity:
-          (lastFuelComposition.methanePercentage *
-            lastFuelComposition.methaneHeatCapacity +
-            lastFuelComposition.ethanePercentage *
-              lastFuelComposition.ethaneHeatCapacity +
-            lastFuelComposition.propanePercentage *
-              lastFuelComposition.propaneHeatCapacity +
-            lastFuelComposition.nButanePercentage *
-              lastFuelComposition.nButaneHeatCapacity +
-            lastFuelComposition.isoButanePercentage *
-              lastFuelComposition.isoButaneHeatCapacity +
-            lastFuelComposition.pentanePercentage *
-              lastFuelComposition.pentaneHeatCapacity +
-            lastFuelComposition.hydrogenPercentage *
-              lastFuelComposition.hydrogenHeatCapacity +
-            lastFuelComposition.ethylenePercentage *
-              lastFuelComposition.ethyleneHeatCapacity +
-            lastFuelComposition.propylenePercentage *
-              lastFuelComposition.propyleneHeatCapacity +
-            lastFuelComposition.butylenePercentage *
-              lastFuelComposition.butyleneHeatCapacity +
-            lastFuelComposition.acetylenePercentage *
-              lastFuelComposition.acetyleneHeatCapacity +
-            lastFuelComposition.hydrogenSulfidePercentage *
-              lastFuelComposition.hydrogenSulfideHeatCapacity +
-            lastFuelComposition.carbonMonoxidePercentage *
-              lastFuelComposition.carbonMonoxideHeatCapacity +
-            lastFuelComposition.carbonDioxidePercentage *
-              lastFuelComposition.carbonDioxideHeatCapacity +
-            lastFuelComposition.nitrogenPercentage *
-              lastFuelComposition.nitrogenHeatCapacity +
-            lastFuelComposition.oxygenPercentage *
-              lastFuelComposition.oxygenHeatCapacity) /
-          100,
-        boilerRoomAirHeatCapacity:
-          1.323305621 +
-          2.32677e-5 * lastBoilerCharacteristic.roomAirTemperature +
-          2.40222e-7 * lastBoilerCharacteristic.roomAirTemperature ** 2 +
-          -2.12806e-10 * lastBoilerCharacteristic.roomAirTemperature ** 3 +
-          7.96863e-14 * lastBoilerCharacteristic.roomAirTemperature ** 4 +
-          -1.14303e-17 * lastBoilerCharacteristic.roomAirTemperature ** 5,
-        combustionAirHeatCapacity:
-          1.323305621 +
-          2.32677e-5 * lastBoilerCharacteristic.roomAirTemperature +
-          2.40222e-7 * lastBoilerCharacteristic.roomAirTemperature ** 2 +
-          -2.12806e-10 * lastBoilerCharacteristic.roomAirTemperature ** 3 +
-          7.96863e-14 * lastBoilerCharacteristic.roomAirTemperature ** 4 +
-          -1.14303e-17 * lastBoilerCharacteristic.roomAirTemperature ** 5,
-      });
-    return await this.temperatureCharacteristicRepository.save(
-      temperatureCharacteristic,
-    );
   }
 
   async createCombustionMaterialBalanceTemperature() {

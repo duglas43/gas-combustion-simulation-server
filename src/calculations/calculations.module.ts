@@ -3,7 +3,6 @@ import { CalculationsService } from './calculations.service';
 import { CalculationsController } from './calculations.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CombustionMaterialBalance } from './entity/combustion-material-balance.entity';
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
@@ -17,11 +16,11 @@ import { AirLeakagesModule } from 'src/air-leakages/air-leakages.module';
 import { TemperatureCharacteristicsModule } from 'src/temperature-characteristics/temparature-characteristics.module';
 import { CombustionMaterialBalanceTemperaturesModule } from 'src/combustion-material-balance-temperatures/combustion-material-balance-temperatures.module';
 import { AirExcessCoefficientsModule } from 'src/air-excess-coefficients/air-excess-coefficients.module';
+import { CombustionMaterialBalancesModule } from 'src/combustion-material-balances/combustion-material-balances.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      CombustionMaterialBalance,
       ConvectivePackageHeatBalance,
       EconomizerHeatBalance,
       FurnaceHeatBalance,
@@ -36,6 +35,7 @@ import { AirExcessCoefficientsModule } from 'src/air-excess-coefficients/air-exc
     TemperatureCharacteristicsModule,
     CombustionMaterialBalanceTemperaturesModule,
     AirExcessCoefficientsModule,
+    CombustionMaterialBalancesModule,
   ],
   controllers: [CalculationsController],
   providers: [CalculationsService],

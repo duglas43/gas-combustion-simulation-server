@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { AirExcessCoefficient } from './air-excess-coefficient.entity';
+import { AirExcessCoefficient } from 'src/air-excess-coefficients/entities';
 
 @Entity()
 export class CombustionMaterialBalance {

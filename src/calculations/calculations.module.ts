@@ -10,13 +10,13 @@ import { CombustionMaterialBalanceTemperature } from './entity/combustion-materi
 import { ConvectivePackage } from './entity/convective-package.entity';
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
-import { FurnaceCharacteristic } from './entity/furnace-characteristic.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
 import { HeatBalance } from './entity/heat-balance.entity';
 import { TemperatureCharacteristic } from './entity/temperature-characteristic.entity';
 import { EconomizerCharacteristicsModule } from 'src/economizer-characteristics/economizer-characteristics.module';
 import { BoilerCharacteristicsModule } from 'src/boiler-characteristics/boiler-characteristics.module';
 import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.module';
+import { FurnaceCharacteristicsModule } from 'src/furnace-characteristics/furnace-characteristics.module';
 
 @Module({
   imports: [
@@ -28,7 +28,6 @@ import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.
       ConvectivePackage,
       ConvectivePackageHeatBalance,
       EconomizerHeatBalance,
-      FurnaceCharacteristic,
       FurnaceHeatBalance,
       HeatBalance,
       TemperatureCharacteristic,
@@ -36,6 +35,7 @@ import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
     FuelCompositionsModule,
+    FurnaceCharacteristicsModule,
   ],
   controllers: [CalculationsController],
   providers: [CalculationsService],

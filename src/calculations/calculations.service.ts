@@ -18,6 +18,8 @@ import { BoilerCharacteristicRepository } from 'src/boiler-characteristics/repos
 import { BoilerCharacteristicsService } from 'src/boiler-characteristics/boiler-characteristics.service';
 import { FuelCompositionRepository } from 'src/fuel-compositions/repositories';
 import { FuelCompositionsService } from 'src/fuel-compositions/fuel-compositions.service';
+import { FurnaceCharacteristicsService } from 'src/furnace-characteristics/furnace-characteristics.service';
+import { FurnaceCharacteristicRepository } from 'src/furnace-characteristics/repositories';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -32,6 +34,8 @@ export class CalculationsService {
     private boilerCharacteristicsService: BoilerCharacteristicsService,
     private fuelCompositionRepository: FuelCompositionRepository,
     private fuelCompositionsService: FuelCompositionsService,
+    private furnaceCharacteristicsService: FurnaceCharacteristicsService,
+    private furnaceCharacteristicRepository: FurnaceCharacteristicRepository,
     @InjectRepository(CombustionMaterialBalance)
     private combustionMaterialBalanceRepository: Repository<CombustionMaterialBalance>,
     @InjectRepository(CombustionMaterialBalanceTemperature)
@@ -42,9 +46,6 @@ export class CalculationsService {
     private convectivePackageHeatBalanceRepository: Repository<ConvectivePackageHeatBalance>,
     @InjectRepository(EconomizerHeatBalance)
     private economizerHeatBalanceRepository: Repository<EconomizerHeatBalance>,
-
-    @InjectRepository(FurnaceCharacteristic)
-    private furnaceCharacteristicRepository: Repository<FurnaceCharacteristic>,
     @InjectRepository(FurnaceHeatBalance)
     private furnaceHeatBalanceRepository: Repository<FurnaceHeatBalance>,
     @InjectRepository(HeatBalance)
@@ -90,7 +91,12 @@ export class CalculationsService {
     });
     await this.fuelCompositionRepository.save(fuelComposition);
 
-    await this.createFurnaceCharacteristic(dto);
+    const furnaceCharacteristic =
+      await this.furnaceCharacteristicsService.calculate({
+        createFurnaceCharacteristicDto: dto.furnaceCharacteristics,
+      });
+    await this.furnaceCharacteristicRepository.save(furnaceCharacteristic);
+
     await this.createConvectivePackages(dto);
     await this.createAirLeakage();
     await this.createTemperatureCharacteristic();
@@ -103,15 +109,6 @@ export class CalculationsService {
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createFurnaceCharacteristic(dto: CreateCalculationDto) {
-    const furnaceCharacteristic = this.furnaceCharacteristicRepository.create({
-      ...dto.furnaceCharacteristics,
-    });
-    return await this.furnaceCharacteristicRepository.save(
-      furnaceCharacteristic,
-    );
   }
 
   async createConvectivePackages(dto: CreateCalculationDto) {

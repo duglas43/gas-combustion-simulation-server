@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
-import { HeatBalance } from './entity/heat-balance.entity';
 import { EconomizerCharacteristicRepository } from 'src/economizer-characteristics/repositories';
 import { EconomizerCharacteristicsService } from 'src/economizer-characteristics/economizer-characteristics.service';
 import { BoilerCharacteristicRepository } from 'src/boiler-characteristics/repositories';
@@ -25,6 +24,8 @@ import { AirExcessCoefficientRepository } from 'src/air-excess-coefficients/repo
 import { AirExcessCoefficientsService } from 'src/air-excess-coefficients/air-excess-coefficients.service';
 import { CombustionMaterialBalancesService } from 'src/combustion-material-balances/combustion-material-balances.service';
 import { CombustionMaterialBalanceRepository } from 'src/combustion-material-balances/repositories';
+import { HeatBalancesService } from 'src/heat-balances/heat-balances.service';
+import { HeatBalanceRepository } from 'src/heat-balances/repositories';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -49,14 +50,14 @@ export class CalculationsService {
     private airExcessCoefficientsService: AirExcessCoefficientsService,
     private combustionMaterialBalancesService: CombustionMaterialBalancesService,
     private combustionMaterialBalanceRepository: CombustionMaterialBalanceRepository,
+    private heatBalancesService: HeatBalancesService,
+    private heatBalanceRepository: HeatBalanceRepository,
     @InjectRepository(ConvectivePackageHeatBalance)
     private convectivePackageHeatBalanceRepository: Repository<ConvectivePackageHeatBalance>,
     @InjectRepository(EconomizerHeatBalance)
     private economizerHeatBalanceRepository: Repository<EconomizerHeatBalance>,
     @InjectRepository(FurnaceHeatBalance)
     private furnaceHeatBalanceRepository: Repository<FurnaceHeatBalance>,
-    @InjectRepository(HeatBalance)
-    private heatBalanceRepository: Repository<HeatBalance>,
     private economizerCharacteristicsService: EconomizerCharacteristicsService,
   ) {}
 
@@ -175,234 +176,45 @@ export class CalculationsService {
     await this.combustionMaterialBalanceRepository.save(
       combustionMaterialBalances,
     );
+    const alphaFlueGasCoefficient = airExcessCoefficients.find(
+      (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFlueGas',
+    );
+    const alphaFlueGasCombustionMaterialBalance =
+      combustionMaterialBalances.find(
+        (combustionMaterialBalance) =>
+          combustionMaterialBalance.airExcessCoefficientId ===
+          alphaFlueGasCoefficient.id,
+      );
 
-    await this.createHeatBalance();
+    const heatBalance = await this.heatBalancesService.calculate({
+      alphaFlueGasCoefficient: alphaFlueGasCoefficient.value,
+      alphaFlueGasCombustionMaterialBalance,
+      boilerCharacteristics: {
+        actualSteamProduction: boilerCharacteristic.actualSteamProduction,
+        blowdownPercentage: boilerCharacteristic.blowdownPercentage,
+        excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
+        feedWaterTemperature: boilerCharacteristic.feedWaterTemperature,
+        gasInletTemperature: boilerCharacteristic.gasInletTemperature,
+        loadPercentage: boilerCharacteristic.loadPercentage,
+        nominalSteamProduction: boilerCharacteristic.nominalSteamProduction,
+        roomAirTemperature: boilerCharacteristic.roomAirTemperature,
+      },
+      combustionMaterialBalanceTemperature,
+      fuelComposition,
+      temperatureCharacteristics: {
+        boilerRoomAirHeatCapacity:
+          temperatureCharacteristic.boilerRoomAirHeatCapacity,
+        gasMixtureHeatCapacity:
+          temperatureCharacteristic.gasMixtureHeatCapacity,
+      },
+    });
+    await this.heatBalanceRepository.save(heatBalance);
+
     await this.createFurnaceHeatBalance();
     await this.createFirstConvectivePackageHeatBalance();
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createHeatBalance() {
-    const boilerCharacteristics =
-      await this.boilerCharacteristicRepository.find({
-        order: { createdAt: 'DESC' },
-        take: 1,
-      });
-    const temperatureCharacteristics =
-      await this.temperatureCharacteristicRepository.find({
-        order: { createdAt: 'DESC' },
-        take: 1,
-      });
-    const combustionMaterialBalanceTemperatures =
-      await this.combustionMaterialBalanceTemperatureRepository.find({
-        order: { createdAt: 'DESC' },
-        take: 1,
-      });
-    const alphaFlueGasCoefficient =
-      await this.airExcessCoefficientRepository.find({
-        where: { name: 'alphaFlueGas' },
-        order: { createdAt: 'DESC' },
-        take: 1,
-      });
-    const alphaFlueGasCombustionMaterialBalance =
-      await this.combustionMaterialBalanceRepository.find({
-        where: { airExcessCoefficient: { name: 'alphaFlueGas' } },
-        relations: ['airExcessCoefficient'],
-        order: { createdAt: 'DESC' },
-        take: 1,
-      });
-
-    const lastBoilerCharacteristic = boilerCharacteristics[0];
-    const lastTemperatureCharacteristic = temperatureCharacteristics[0];
-    const heatLossDueToChemicalIncompleteCombustionPercentage = 0;
-    const lastCombustionMaterialBalanceTemperature =
-      combustionMaterialBalanceTemperatures[0];
-    const lastAlphaFlueGasCombustionMaterialBalance =
-      alphaFlueGasCombustionMaterialBalance[0];
-    const lastAlphaFlueGasCoefficient = alphaFlueGasCoefficient[0];
-
-    const heatInputFromFuel =
-      lastTemperatureCharacteristic.gasMixtureHeatCapacity *
-      lastBoilerCharacteristic.gasInletTemperature;
-    const heatInputFromAir = 0;
-    const availableHeatInputToBoiler =
-      heatInputFromFuel +
-      heatInputFromAir +
-      lastCombustionMaterialBalanceTemperature.lowerHeatingValue;
-    const flueGasTemperature = 153;
-    const flueGasEnthalpy =
-      (lastAlphaFlueGasCombustionMaterialBalance.theoreticalCO2Volume *
-        (1.604309582 +
-          0.001133138 * flueGasTemperature -
-          8.60416e-7 * flueGasTemperature ** 2 +
-          4.68441e-10 * flueGasTemperature ** 3 -
-          1.44713e-13 * flueGasTemperature ** 4 +
-          1.82271e-17 * flueGasTemperature ** 5) +
-        lastAlphaFlueGasCombustionMaterialBalance.theoreticalSO2Volume *
-          (1.498317949 +
-            0.000102932 * flueGasTemperature +
-            2.44654e-7 * flueGasTemperature ** 2 -
-            1.56126e-10 * flueGasTemperature ** 3 +
-            4.36681e-14 * flueGasTemperature ** 4 -
-            5.05709e-18 * flueGasTemperature ** 5) +
-        lastAlphaFlueGasCombustionMaterialBalance.theoreticalWaterVaporVolume *
-          (1.29747332 -
-            0.000010563 * flueGasTemperature +
-            2.4181e-7 * flueGasTemperature ** 2 -
-            1.83389e-10 * flueGasTemperature ** 3 +
-            5.85924e-14 * flueGasTemperature ** 4 -
-            7.03381e-18 * flueGasTemperature ** 5) +
-        lastAlphaFlueGasCombustionMaterialBalance.theoreticalNitrogenVolume *
-          (1.306450711 +
-            0.000150251 * flueGasTemperature +
-            1.72284e-7 * flueGasTemperature ** 2 -
-            2.32114e-10 * flueGasTemperature ** 3 +
-            1.01527e-13 * flueGasTemperature ** 4 -
-            1.53025e-17 * flueGasTemperature ** 5) +
-        lastAlphaFlueGasCombustionMaterialBalance.theoreticalOxygenVolume *
-          (1.285314861 +
-            0.0001585 * flueGasTemperature -
-            4.77872e-7 * flueGasTemperature ** 2 +
-            7.55826e-10 * flueGasTemperature ** 3 -
-            5.20124e-13 * flueGasTemperature ** 4 +
-            1.33782e-16 * flueGasTemperature ** 5)) *
-      flueGasTemperature;
-    const surroundingAirEnthalpy =
-      lastCombustionMaterialBalanceTemperature.theoreticalWetAirConsumption *
-      lastTemperatureCharacteristic.boilerRoomAirHeatCapacity *
-      lastBoilerCharacteristic.roomAirTemperature;
-    const heatLossWithFlueGases =
-      flueGasEnthalpy -
-      (lastAlphaFlueGasCoefficient.value - 1) * surroundingAirEnthalpy;
-    const heatLossWithFlueGasesPercentage =
-      (heatLossWithFlueGases * 100) / availableHeatInputToBoiler;
-
-    const heatLossDueToChemicalIncompleteCombustion =
-      (heatLossDueToChemicalIncompleteCombustionPercentage *
-        availableHeatInputToBoiler) /
-      100;
-
-    const heatLossThroughOuterWallsPercentage =
-      ((0.255252565 +
-        47.36314226 / lastBoilerCharacteristic.nominalSteamProduction +
-        -834.3872002 / lastBoilerCharacteristic.nominalSteamProduction ** 2 +
-        8019.779143 / lastBoilerCharacteristic.nominalSteamProduction ** 3 +
-        -32277.77998 / lastBoilerCharacteristic.nominalSteamProduction ** 4 +
-        44135.89981 / lastBoilerCharacteristic.nominalSteamProduction ** 5) *
-        100) /
-      lastBoilerCharacteristic.loadPercentage;
-    const heatLossThroughOuterWalls =
-      (availableHeatInputToBoiler * heatLossThroughOuterWallsPercentage) / 100;
-
-    const boilerEfficiencyGross =
-      100 -
-      heatLossWithFlueGasesPercentage -
-      heatLossDueToChemicalIncompleteCombustionPercentage -
-      heatLossThroughOuterWallsPercentage;
-
-    const totalHeatLoss =
-      heatLossWithFlueGases +
-      heatLossDueToChemicalIncompleteCombustion +
-      heatLossThroughOuterWalls;
-
-    const blowdownWaterFlow =
-      (0.01 *
-        lastBoilerCharacteristic.blowdownPercentage *
-        lastBoilerCharacteristic.nominalSteamProduction *
-        lastBoilerCharacteristic.loadPercentage) /
-      100;
-
-    const usefulHeatUtilized =
-      (((lastBoilerCharacteristic.nominalSteamProduction *
-        lastBoilerCharacteristic.loadPercentage) /
-        100) *
-        (2529.561501 +
-          689.7698653 *
-            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 0.5 +
-          -945.4105533 *
-            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) +
-          798.3009619 *
-            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 1.5 +
-          -357.523749 *
-            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2 +
-          63.1843854 *
-            (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2.5 -
-          (4.21728893897003 +
-            -4.24888399827776e-4 *
-              lastBoilerCharacteristic.feedWaterTemperature +
-            -1.90766415583401e-5 *
-              lastBoilerCharacteristic.feedWaterTemperature ** 2 +
-            3.73685094570715e-7 *
-              lastBoilerCharacteristic.feedWaterTemperature ** 3 +
-            -1.82785185562934e-9 *
-              lastBoilerCharacteristic.feedWaterTemperature ** 4 +
-            3.30764930384364e-12 *
-              lastBoilerCharacteristic.feedWaterTemperature ** 5) *
-            lastBoilerCharacteristic.feedWaterTemperature) +
-        blowdownWaterFlow *
-          (63.3125516389845 +
-            1600.35159333891 *
-              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 0.5 +
-            -2000.28710382556 *
-              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) +
-            1744.33493642283 *
-              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 1.5 +
-            -785.768886299272 *
-              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2 +
-            140.026972257752 *
-              (lastBoilerCharacteristic.excessPressureInBoiler + 0.1) ** 2.5 -
-            (4.21728893897003 +
-              -4.24888399827776e-4 *
-                lastBoilerCharacteristic.feedWaterTemperature +
-              -1.90766415583401e-5 *
-                lastBoilerCharacteristic.feedWaterTemperature ** 2 +
-              3.73685094570715e-7 *
-                lastBoilerCharacteristic.feedWaterTemperature ** 3 +
-              -1.82785185562934e-9 *
-                lastBoilerCharacteristic.feedWaterTemperature ** 4 +
-              3.30764930384364e-12 *
-                lastBoilerCharacteristic.feedWaterTemperature ** 5) *
-              lastBoilerCharacteristic.feedWaterTemperature)) *
-      1000;
-
-    const calculatedHourlyFuelConsumption =
-      (usefulHeatUtilized * 100) /
-      (availableHeatInputToBoiler * boilerEfficiencyGross);
-
-    const heatedHeatCarrierFlow =
-      (lastBoilerCharacteristic.actualSteamProduction + blowdownWaterFlow) *
-      1000;
-
-    const heatRetentionCoefficient =
-      1 -
-      heatLossThroughOuterWallsPercentage /
-        (heatLossThroughOuterWallsPercentage + boilerEfficiencyGross);
-
-    const heatBalance = this.heatBalanceRepository.create({
-      heatLossDueToChemicalIncompleteCombustionPercentage,
-      heatInputFromFuel,
-      heatInputFromAir,
-      availableHeatInputToBoiler,
-      flueGasTemperature,
-      flueGasEnthalpy,
-      surroundingAirEnthalpy,
-      heatLossWithFlueGases,
-      heatLossWithFlueGasesPercentage,
-      heatLossDueToChemicalIncompleteCombustion,
-      heatLossThroughOuterWallsPercentage,
-      heatLossThroughOuterWalls,
-      boilerEfficiencyGross,
-      totalHeatLoss,
-      blowdownWaterFlow,
-      usefulHeatUtilized,
-      calculatedHourlyFuelConsumption,
-      heatedHeatCarrierFlow,
-      heatRetentionCoefficient,
-    });
-
-    return await this.heatBalanceRepository.save(heatBalance);
   }
 
   async createFurnaceHeatBalance() {

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCalculationDto } from './dto/create-calculation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AirLeakage } from './entity/air-leakage.entity';
 import { AirExcessCoefficient } from './entity/air-excess-coefficient.entity';
 import { CombustionMaterialBalance } from './entity/combustion-material-balance.entity';
 import { CombustionMaterialBalanceTemperature } from './entity/combustion-material-balance-temperature.entity';
@@ -20,14 +19,14 @@ import { FurnaceCharacteristicsService } from 'src/furnace-characteristics/furna
 import { FurnaceCharacteristicRepository } from 'src/furnace-characteristics/repositories';
 import { ConvectivePackagesService } from 'src/convective-packages/convective-packages.service';
 import { ConvectivePackageRepository } from 'src/convective-packages/repositories';
+import { AirLeakagesService } from 'src/air-leakages/air-leakages.service';
+import { AirLeakageRepository } from 'src/air-leakages/repositories';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class CalculationsService {
   constructor(
     private economizerCharacteristicRepository: EconomizerCharacteristicRepository,
-    @InjectRepository(AirLeakage)
-    private airLeakageRepository: Repository<AirLeakage>,
     @InjectRepository(AirExcessCoefficient)
     private airExcessCoefficientRepository: Repository<AirExcessCoefficient>,
     private boilerCharacteristicRepository: BoilerCharacteristicRepository,
@@ -38,6 +37,8 @@ export class CalculationsService {
     private furnaceCharacteristicRepository: FurnaceCharacteristicRepository,
     private convectivePackagesService: ConvectivePackagesService,
     private convectivePackageRepository: ConvectivePackageRepository,
+    private airLeakagesService: AirLeakagesService,
+    private airLeakageRepository: AirLeakageRepository,
     @InjectRepository(CombustionMaterialBalance)
     private combustionMaterialBalanceRepository: Repository<CombustionMaterialBalance>,
     @InjectRepository(CombustionMaterialBalanceTemperature)
@@ -102,7 +103,14 @@ export class CalculationsService {
     });
     await this.convectivePackageRepository.save(convectivePackages);
 
-    await this.createAirLeakage();
+    const airLeakage = await this.airLeakagesService.calculate({
+      boilerCharacreristics: {
+        actualSteamProduction: boilerCharacteristic.actualSteamProduction,
+        nominalSteamProduction: boilerCharacteristic.nominalSteamProduction,
+      },
+    });
+    await this.airLeakageRepository.save(airLeakage);
+
     await this.createTemperatureCharacteristic();
     await this.createCombustionMaterialBalanceTemperature();
     await this.createAirExcessCoefficients();
@@ -113,31 +121,6 @@ export class CalculationsService {
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createAirLeakage() {
-    const boilerCharacteristics =
-      await this.boilerCharacteristicRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-    const lastBoilerCharacteristic = boilerCharacteristics[0];
-    const { nominalSteamProduction, actualSteamProduction } =
-      lastBoilerCharacteristic;
-    const airLeakage = this.airLeakageRepository.create({
-      nominalFurnaceAirLeakage: 0.05,
-      actualFurnaceAirLeakage:
-        0.05 * (nominalSteamProduction / actualSteamProduction),
-      nominalFirstConvectiveAirLeakage: 0.05,
-      actualFirstConvectiveAirLeakage:
-        0.05 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
-      nominalSecondConvectiveAirLeakage: 0.1,
-      actualSecondConvectiveAirLeakage:
-        0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
-      nominalEconomizerAirLeakage: 0.1,
-      actualEconomizerAirLeakage:
-        0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
-    });
-    return await this.airLeakageRepository.save(airLeakage);
   }
 
   async createTemperatureCharacteristic() {

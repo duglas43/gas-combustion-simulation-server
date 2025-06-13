@@ -7,7 +7,6 @@ import { AirExcessCoefficient } from './entity/air-excess-coefficient.entity';
 import { AirLeakage } from './entity/air-leakage.entity';
 import { CombustionMaterialBalance } from './entity/combustion-material-balance.entity';
 import { CombustionMaterialBalanceTemperature } from './entity/combustion-material-balance-temperature.entity';
-import { ConvectivePackage } from './entity/convective-package.entity';
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
@@ -17,6 +16,7 @@ import { EconomizerCharacteristicsModule } from 'src/economizer-characteristics/
 import { BoilerCharacteristicsModule } from 'src/boiler-characteristics/boiler-characteristics.module';
 import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.module';
 import { FurnaceCharacteristicsModule } from 'src/furnace-characteristics/furnace-characteristics.module';
+import { ConvectivePackagesModule } from 'src/convective-packages/convective-packages.module';
 
 @Module({
   imports: [
@@ -25,7 +25,6 @@ import { FurnaceCharacteristicsModule } from 'src/furnace-characteristics/furnac
       AirLeakage,
       CombustionMaterialBalance,
       CombustionMaterialBalanceTemperature,
-      ConvectivePackage,
       ConvectivePackageHeatBalance,
       EconomizerHeatBalance,
       FurnaceHeatBalance,
@@ -36,6 +35,7 @@ import { FurnaceCharacteristicsModule } from 'src/furnace-characteristics/furnac
     BoilerCharacteristicsModule,
     FuelCompositionsModule,
     FurnaceCharacteristicsModule,
+    ConvectivePackagesModule,
   ],
   controllers: [CalculationsController],
   providers: [CalculationsService],

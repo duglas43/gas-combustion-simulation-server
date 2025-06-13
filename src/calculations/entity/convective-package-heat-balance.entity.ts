@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToOne,
 } from 'typeorm';
-import { ConvectivePackage } from './convective-package.entity';
+import { ConvectivePackage } from 'src/convective-packages/entities';
 
 @Entity()
 export class ConvectivePackageHeatBalance {

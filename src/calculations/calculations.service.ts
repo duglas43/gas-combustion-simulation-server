@@ -5,10 +5,8 @@ import { AirLeakage } from './entity/air-leakage.entity';
 import { AirExcessCoefficient } from './entity/air-excess-coefficient.entity';
 import { CombustionMaterialBalance } from './entity/combustion-material-balance.entity';
 import { CombustionMaterialBalanceTemperature } from './entity/combustion-material-balance-temperature.entity';
-import { ConvectivePackage } from './entity/convective-package.entity';
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
-import { FurnaceCharacteristic } from './entity/furnace-characteristic.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
 import { HeatBalance } from './entity/heat-balance.entity';
 import { TemperatureCharacteristic } from './entity/temperature-characteristic.entity';
@@ -20,6 +18,8 @@ import { FuelCompositionRepository } from 'src/fuel-compositions/repositories';
 import { FuelCompositionsService } from 'src/fuel-compositions/fuel-compositions.service';
 import { FurnaceCharacteristicsService } from 'src/furnace-characteristics/furnace-characteristics.service';
 import { FurnaceCharacteristicRepository } from 'src/furnace-characteristics/repositories';
+import { ConvectivePackagesService } from 'src/convective-packages/convective-packages.service';
+import { ConvectivePackageRepository } from 'src/convective-packages/repositories';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -36,12 +36,12 @@ export class CalculationsService {
     private fuelCompositionsService: FuelCompositionsService,
     private furnaceCharacteristicsService: FurnaceCharacteristicsService,
     private furnaceCharacteristicRepository: FurnaceCharacteristicRepository,
+    private convectivePackagesService: ConvectivePackagesService,
+    private convectivePackageRepository: ConvectivePackageRepository,
     @InjectRepository(CombustionMaterialBalance)
     private combustionMaterialBalanceRepository: Repository<CombustionMaterialBalance>,
     @InjectRepository(CombustionMaterialBalanceTemperature)
     private combustionMaterialBalanceTemperatureRepository: Repository<CombustionMaterialBalanceTemperature>,
-    @InjectRepository(ConvectivePackage)
-    private convectivePackageRepository: Repository<ConvectivePackage>,
     @InjectRepository(ConvectivePackageHeatBalance)
     private convectivePackageHeatBalanceRepository: Repository<ConvectivePackageHeatBalance>,
     @InjectRepository(EconomizerHeatBalance)
@@ -97,7 +97,11 @@ export class CalculationsService {
       });
     await this.furnaceCharacteristicRepository.save(furnaceCharacteristic);
 
-    await this.createConvectivePackages(dto);
+    const convectivePackages = await this.convectivePackagesService.calculate({
+      createConvectivePackageDtos: dto.convectivePackagesParameters,
+    });
+    await this.convectivePackageRepository.save(convectivePackages);
+
     await this.createAirLeakage();
     await this.createTemperatureCharacteristic();
     await this.createCombustionMaterialBalanceTemperature();
@@ -109,58 +113,6 @@ export class CalculationsService {
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createConvectivePackages(dto: CreateCalculationDto) {
-    for (const convectivePackage of dto.convectivePackagesParameters) {
-      const relativeTubePitchInRow =
-        convectivePackage.tubePitchInRow / convectivePackage.outerTubeDiameter;
-      const relativeRowPitch =
-        convectivePackage.rowPitch / convectivePackage.outerTubeDiameter;
-      const effectiveRadiatingLayerThickness =
-        0.9 *
-        convectivePackage.outerTubeDiameter *
-        0.001 *
-        ((4 * relativeTubePitchInRow * relativeRowPitch) / Math.PI - 1);
-      const convectivePackageHeatSurfaceArea =
-        Math.PI *
-        convectivePackage.outerTubeDiameter *
-        0.001 *
-        convectivePackage.averageTubeLength *
-        convectivePackage.numberOfRows *
-        convectivePackage.tubesPerRow;
-      const totalNumberOfTubes =
-        convectivePackage.tubesPerRow * convectivePackage.numberOfRows;
-      const channelCrossSectionArea =
-        convectivePackage.minCrossSectionDimension *
-          convectivePackage.maxCrossSectionDimension -
-        convectivePackage.outerTubeDiameter *
-          0.001 *
-          convectivePackage.averageTubeLength *
-          convectivePackage.tubesPerRow;
-      const equivalentChannelDiameter =
-        (4 * channelCrossSectionArea) /
-        ((convectivePackage.minCrossSectionDimension -
-          convectivePackage.outerTubeDiameter *
-            0.001 *
-            convectivePackage.tubesPerRow) *
-          2 +
-          2.6 * (convectivePackage.tubesPerRow * 2 + 2));
-
-      const convectivePackageEntity = this.convectivePackageRepository.create({
-        ...convectivePackage,
-        id: convectivePackage.id,
-        packageNumber: convectivePackage.id,
-        relativeTubePitchInRow,
-        relativeRowPitch,
-        effectiveRadiatingLayerThickness,
-        convectivePackageHeatSurfaceArea,
-        totalNumberOfTubes,
-        channelCrossSectionArea,
-        equivalentChannelDiameter,
-      });
-      await this.convectivePackageRepository.save(convectivePackageEntity);
-    }
   }
 
   async createAirLeakage() {

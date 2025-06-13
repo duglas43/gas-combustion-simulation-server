@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCalculationDto } from './dto/create-calculation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AirExcessCoefficient } from './entity/air-excess-coefficient.entity';
 import { CombustionMaterialBalance } from './entity/combustion-material-balance.entity';
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
@@ -23,14 +22,14 @@ import { TemperatureCharacteristicsService } from 'src/temperature-characteristi
 import { TemperatureCharacteristicRepository } from 'src/temperature-characteristics/repositories';
 import { CombustionMaterialBalanceTemperatureRepository } from 'src/combustion-material-balance-temperatures/repositories';
 import { CombustionMaterialBalanceTemperaturesService } from 'src/combustion-material-balance-temperatures/combustion-material-balance-temperatures.service';
+import { AirExcessCoefficientRepository } from 'src/air-excess-coefficients/repositories';
+import { AirExcessCoefficientsService } from 'src/air-excess-coefficients/air-excess-coefficients.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class CalculationsService {
   constructor(
     private economizerCharacteristicRepository: EconomizerCharacteristicRepository,
-    @InjectRepository(AirExcessCoefficient)
-    private airExcessCoefficientRepository: Repository<AirExcessCoefficient>,
     private boilerCharacteristicRepository: BoilerCharacteristicRepository,
     private boilerCharacteristicsService: BoilerCharacteristicsService,
     private fuelCompositionRepository: FuelCompositionRepository,
@@ -45,6 +44,8 @@ export class CalculationsService {
     private temperatureCharacteristicRepository: TemperatureCharacteristicRepository,
     private combustionMaterialBalanceTemperatureRepository: CombustionMaterialBalanceTemperatureRepository,
     private combustionMaterialBalanceTemperaturesService: CombustionMaterialBalanceTemperaturesService,
+    private airExcessCoefficientRepository: AirExcessCoefficientRepository,
+    private airExcessCoefficientsService: AirExcessCoefficientsService,
     @InjectRepository(CombustionMaterialBalance)
     private combustionMaterialBalanceRepository: Repository<CombustionMaterialBalance>,
     @InjectRepository(ConvectivePackageHeatBalance)
@@ -136,7 +137,22 @@ export class CalculationsService {
       combustionMaterialBalanceTemperature,
     );
 
-    await this.createAirExcessCoefficients();
+    const airExcessCoefficients =
+      await this.airExcessCoefficientsService.calculate({
+        airLeakage: {
+          actualEconomizerAirLeakage: airLeakage.actualEconomizerAirLeakage,
+          actualFirstConvectiveAirLeakage:
+            airLeakage.actualFirstConvectiveAirLeakage,
+          actualFurnaceAirLeakage: airLeakage.actualFurnaceAirLeakage,
+          actualSecondConvectiveAirLeakage:
+            airLeakage.actualSecondConvectiveAirLeakage,
+        },
+        boilerCharacteristic: {
+          excessAirCoefficient: boilerCharacteristic.excessAirCoefficient,
+        },
+      });
+    await this.airExcessCoefficientRepository.save(airExcessCoefficients);
+
     await this.createCombustionMaterialBalance();
     await this.createHeatBalance();
     await this.createFurnaceHeatBalance();
@@ -144,103 +160,6 @@ export class CalculationsService {
     await this.createSecondConvectivePackageHeatBalance();
     await this.createEconomizerHeatBalance();
     return 'Ok';
-  }
-
-  async createAirExcessCoefficients() {
-    const boilerCharacteristics =
-      await this.boilerCharacteristicRepository.find({
-        order: { createdAt: 'DESC' },
-      });
-    const lastBoilerCharacteristic = boilerCharacteristics[0];
-    const airLeakages = await this.airLeakageRepository.find({
-      order: { createdAt: 'DESC' },
-    });
-    const lastAirLeakage = airLeakages[0];
-
-    const airExcessCoefficients: AirExcessCoefficient[] = [];
-    const alphaAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alpha',
-        value: 1,
-      });
-    const alphaBurnerAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaBurner',
-        value: lastBoilerCharacteristic.excessAirCoefficient,
-      });
-    const alphaFurnaceAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaFurnace',
-        value:
-          alphaBurnerAirExcessCoefficient.value +
-          lastAirLeakage.actualFurnaceAirLeakage,
-      });
-    const alphaFurnaceAvgAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaFurnaceAvg',
-        value:
-          (alphaBurnerAirExcessCoefficient.value +
-            alphaFurnaceAirExcessCoefficient.value) /
-          2,
-      });
-    const alphaConvectivePackage1AirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaConvectivePackage1',
-        value:
-          alphaFurnaceAirExcessCoefficient.value +
-          lastAirLeakage.actualFirstConvectiveAirLeakage,
-      });
-    const alphaConvectivePackage1AvgAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaConvectivePackage1Avg',
-        value:
-          (alphaFurnaceAirExcessCoefficient.value +
-            alphaConvectivePackage1AirExcessCoefficient.value) /
-          2,
-      });
-    const alphaConvectivePackage2AirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaConvectivePackage2',
-        value:
-          alphaFurnaceAirExcessCoefficient.value +
-          lastAirLeakage.actualSecondConvectiveAirLeakage,
-      });
-    const alphaConvectivePackage2AvgAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaConvectivePackage2Avg',
-        value:
-          (alphaFurnaceAirExcessCoefficient.value +
-            alphaConvectivePackage2AirExcessCoefficient.value) /
-          2,
-      });
-    const alphaEconomizerAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaEconomizer',
-        value:
-          alphaFurnaceAirExcessCoefficient.value +
-          lastAirLeakage.actualEconomizerAirLeakage,
-      });
-    const alphaFlueGasAirExcessCoefficient =
-      this.airExcessCoefficientRepository.create({
-        name: 'alphaFlueGas',
-        value: alphaEconomizerAirExcessCoefficient.value,
-      });
-
-    airExcessCoefficients.push(
-      alphaAirExcessCoefficient,
-      alphaBurnerAirExcessCoefficient,
-      alphaFurnaceAirExcessCoefficient,
-      alphaFurnaceAvgAirExcessCoefficient,
-      alphaConvectivePackage1AirExcessCoefficient,
-      alphaConvectivePackage1AvgAirExcessCoefficient,
-      alphaConvectivePackage2AirExcessCoefficient,
-      alphaConvectivePackage2AvgAirExcessCoefficient,
-      alphaEconomizerAirExcessCoefficient,
-      alphaFlueGasAirExcessCoefficient,
-    );
-    return await this.airExcessCoefficientRepository.save(
-      airExcessCoefficients,
-    );
   }
 
   async createCombustionMaterialBalance() {

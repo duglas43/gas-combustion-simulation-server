@@ -5,8 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ConvectivePackageHeatBalance } from './entity/convective-package-heat-balance.entity';
 import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
-import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
-import { HeatBalance } from './entity/heat-balance.entity';
 import { EconomizerCharacteristicsModule } from 'src/economizer-characteristics/economizer-characteristics.module';
 import { BoilerCharacteristicsModule } from 'src/boiler-characteristics/boiler-characteristics.module';
 import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.module';
@@ -17,14 +15,14 @@ import { TemperatureCharacteristicsModule } from 'src/temperature-characteristic
 import { CombustionMaterialBalanceTemperaturesModule } from 'src/combustion-material-balance-temperatures/combustion-material-balance-temperatures.module';
 import { AirExcessCoefficientsModule } from 'src/air-excess-coefficients/air-excess-coefficients.module';
 import { CombustionMaterialBalancesModule } from 'src/combustion-material-balances/combustion-material-balances.module';
+import { HeatBalancesModule } from 'src/heat-balances/heat-balances.module';
+import { FurnaceHeatBalancesModule } from 'src/furnace-heat-balances/furnace-heat-balances.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       ConvectivePackageHeatBalance,
       EconomizerHeatBalance,
-      FurnaceHeatBalance,
-      HeatBalance,
     ]),
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
@@ -36,6 +34,8 @@ import { CombustionMaterialBalancesModule } from 'src/combustion-material-balanc
     CombustionMaterialBalanceTemperaturesModule,
     AirExcessCoefficientsModule,
     CombustionMaterialBalancesModule,
+    HeatBalancesModule,
+    FurnaceHeatBalancesModule,
   ],
   controllers: [CalculationsController],
   providers: [CalculationsService],

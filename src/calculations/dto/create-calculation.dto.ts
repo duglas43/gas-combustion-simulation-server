@@ -185,11 +185,6 @@ export class CreateCalculationDto {
 
   @ApiProperty()
   @ValidateNested()
-  @Type(() => CreateExternalConditionsCalculationDto)
-  externalConditions: CreateExternalConditionsCalculationDto;
-
-  @ApiProperty()
-  @ValidateNested()
   @Type(() => CreateBoilerCharacteristicDto)
   boilerCharacteristics: CreateBoilerCharacteristicDto;
 

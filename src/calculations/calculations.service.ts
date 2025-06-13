@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCalculationDto } from './dto/create-calculation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EconomizerCharacteristic } from './entity/economizer-characteristic.entity';
 import { AirLeakage } from './entity/air-leakage.entity';
 import { AirExcessCoefficient } from './entity/air-excess-coefficient.entity';
 import { BoilerCharacteristic } from './entity/boiler-characteristic.entity';
@@ -15,13 +14,14 @@ import { FurnaceCharacteristic } from './entity/furnace-characteristic.entity';
 import { FurnaceHeatBalance } from './entity/furnace-heat-balance.entity';
 import { HeatBalance } from './entity/heat-balance.entity';
 import { TemperatureCharacteristic } from './entity/temperature-characteristic.entity';
+import { EconomizerCharacteristicRepository } from 'src/economizer-characteristics/repositories';
+import { EconomizerCharacteristicsService } from 'src/economizer-characteristics/economizer-characteristics.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class CalculationsService {
   constructor(
-    @InjectRepository(EconomizerCharacteristic)
-    private economizerCharacteristicRepository: Repository<EconomizerCharacteristic>,
+    private economizerCharacteristicRepository: EconomizerCharacteristicRepository,
     @InjectRepository(AirLeakage)
     private airLeakageRepository: Repository<AirLeakage>,
     @InjectRepository(AirExcessCoefficient)
@@ -48,6 +48,7 @@ export class CalculationsService {
     private heatBalanceRepository: Repository<HeatBalance>,
     @InjectRepository(TemperatureCharacteristic)
     private temperatureCharacteristicRepository: Repository<TemperatureCharacteristic>,
+    private economizerCharacteristicsService: EconomizerCharacteristicsService,
   ) {}
 
   async create(dto: CreateCalculationDto) {
@@ -66,7 +67,11 @@ export class CalculationsService {
     await this.temperatureCharacteristicRepository.delete({});
     await this.economizerCharacteristicRepository.delete({});
 
-    await this.createEconomizerCharacteristic();
+    const economizerCharacteristic =
+      await this.economizerCharacteristicsService.calculate();
+    await this.economizerCharacteristicRepository.save(
+      economizerCharacteristic,
+    );
     await this.createBoilerCharacteristic(dto);
     await this.createFuelComposition(dto);
     await this.createFurnaceCharacteristic(dto);

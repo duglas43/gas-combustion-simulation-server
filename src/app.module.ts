@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { validate } from './env.validation';
 import { APP_PIPE } from '@nestjs/core';
+import { EconomizerCharacteristicsModule } from './economizer-characteristics/economizer-characteristics.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { APP_PIPE } from '@nestjs/core';
       },
       inject: [ConfigService],
     }),
+    EconomizerCharacteristicsModule,
   ],
   controllers: [AppController],
   providers: [

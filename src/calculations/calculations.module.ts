@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CalculationsService } from './calculations.service';
 import { CalculationsController } from './calculations.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { EconomizerHeatBalance } from './entity/economizer-heat-balance.entity';
 import { EconomizerCharacteristicsModule } from 'src/economizer-characteristics/economizer-characteristics.module';
 import { BoilerCharacteristicsModule } from 'src/boiler-characteristics/boiler-characteristics.module';
 import { FuelCompositionsModule } from 'src/fuel-compositions/fuel-compositions.module';
@@ -17,10 +15,10 @@ import { CombustionMaterialBalancesModule } from 'src/combustion-material-balanc
 import { HeatBalancesModule } from 'src/heat-balances/heat-balances.module';
 import { FurnaceHeatBalancesModule } from 'src/furnace-heat-balances/furnace-heat-balances.module';
 import { ConvectivePackageHeatBalancesModule } from 'src/convective-package-heat-balances/convective-package-heat-balances.module';
+import { EconomizerHeatBalancesModule } from 'src/economizer-heat-balances/economizer-heat-balances.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EconomizerHeatBalance]),
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
     FuelCompositionsModule,
@@ -34,6 +32,7 @@ import { ConvectivePackageHeatBalancesModule } from 'src/convective-package-heat
     HeatBalancesModule,
     FurnaceHeatBalancesModule,
     ConvectivePackageHeatBalancesModule,
+    EconomizerHeatBalancesModule,
   ],
   controllers: [CalculationsController],
   providers: [CalculationsService],

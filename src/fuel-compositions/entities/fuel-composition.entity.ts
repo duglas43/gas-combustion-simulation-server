@@ -1,115 +1,100 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-@Entity()
 export class FuelComposition {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ type: 'float' })
   methanePercentage: number;
 
-  @Column({ type: 'float' })
   methaneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   ethanePercentage: number;
 
-  @Column({ type: 'float' })
   ethaneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   propanePercentage: number;
 
-  @Column({ type: 'float' })
   propaneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   nButanePercentage: number;
 
-  @Column({ type: 'float' })
   nButaneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   isoButanePercentage: number;
 
-  @Column({ type: 'float' })
   isoButaneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   pentanePercentage: number;
 
-  @Column({ type: 'float' })
   pentaneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   hydrogenPercentage: number;
 
-  @Column({ type: 'float' })
   hydrogenHeatCapacity: number;
 
-  @Column({ type: 'float' })
   ethylenePercentage: number;
 
-  @Column({ type: 'float' })
   ethyleneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   propylenePercentage: number;
 
-  @Column({ type: 'float' })
   propyleneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   butylenePercentage: number;
 
-  @Column({ type: 'float' })
   butyleneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   acetylenePercentage: number;
 
-  @Column({ type: 'float' })
   acetyleneHeatCapacity: number;
 
-  @Column({ type: 'float' })
   hydrogenSulfidePercentage: number;
 
-  @Column({ type: 'float' })
   hydrogenSulfideHeatCapacity: number;
 
-  @Column({ type: 'float' })
   carbonMonoxidePercentage: number;
 
-  @Column({ type: 'float' })
   carbonMonoxideHeatCapacity: number;
 
-  @Column({ type: 'float' })
   carbonDioxidePercentage: number;
 
-  @Column({ type: 'float' })
   carbonDioxideHeatCapacity: number;
 
-  @Column({ type: 'float' })
   nitrogenPercentage: number;
 
-  @Column({ type: 'float' })
   nitrogenHeatCapacity: number;
 
-  @Column({ type: 'float' })
   oxygenPercentage: number;
 
-  @Column({ type: 'float' })
   oxygenHeatCapacity: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  constructor(model: FuelComposition) {
+    this.methanePercentage = model.methanePercentage;
+    this.methaneHeatCapacity = model.methaneHeatCapacity;
+    this.ethanePercentage = model.ethanePercentage;
+    this.ethaneHeatCapacity = model.ethaneHeatCapacity;
+    this.propanePercentage = model.propanePercentage;
+    this.propaneHeatCapacity = model.propaneHeatCapacity;
+    this.nButanePercentage = model.nButanePercentage;
+    this.nButaneHeatCapacity = model.nButaneHeatCapacity;
+    this.isoButanePercentage = model.isoButanePercentage;
+    this.isoButaneHeatCapacity = model.isoButaneHeatCapacity;
+    this.pentanePercentage = model.pentanePercentage;
+    this.pentaneHeatCapacity = model.pentaneHeatCapacity;
+    this.hydrogenPercentage = model.hydrogenPercentage;
+    this.hydrogenHeatCapacity = model.hydrogenHeatCapacity;
+    this.ethylenePercentage = model.ethylenePercentage;
+    this.ethyleneHeatCapacity = model.ethyleneHeatCapacity;
+    this.butylenePercentage = model.butylenePercentage;
+    this.butyleneHeatCapacity = model.butyleneHeatCapacity;
+    this.acetylenePercentage = model.acetylenePercentage;
+    this.acetyleneHeatCapacity = model.acetyleneHeatCapacity;
+    this.hydrogenSulfidePercentage = model.hydrogenSulfidePercentage;
+    this.hydrogenSulfideHeatCapacity = model.hydrogenSulfideHeatCapacity;
+    this.carbonMonoxidePercentage = model.carbonMonoxidePercentage;
+    this.carbonMonoxideHeatCapacity = model.carbonMonoxideHeatCapacity;
+    this.carbonDioxidePercentage = model.carbonDioxidePercentage;
+    this.carbonDioxideHeatCapacity = model.carbonDioxideHeatCapacity;
+    this.nitrogenPercentage = model.nitrogenPercentage;
+    this.nitrogenHeatCapacity = model.nitrogenHeatCapacity;
+    this.oxygenPercentage = model.oxygenPercentage;
+    this.oxygenHeatCapacity = model.oxygenHeatCapacity;
+    this.propylenePercentage = model.propylenePercentage;
+    this.propyleneHeatCapacity = model.propyleneHeatCapacity;
+  }
 }

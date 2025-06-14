@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { FurnaceHeatBalanceRepository } from './repositories';
 import { CalculateFurnaceHeatBalanceParams } from './interfaces';
+import { FurnaceHeatBalance } from './entities';
 
 @Injectable()
 export class FurnaceHeatBalancesService {
-  constructor(
-    private readonly furnaceHeatBalanceRepository: FurnaceHeatBalanceRepository,
-  ) {}
-
   public async calculate(params: CalculateFurnaceHeatBalanceParams) {
     const parameterM0 = 0.4;
     const luminousFlameFillingCoefficient = 0.1;
@@ -255,7 +251,7 @@ export class FurnaceHeatBalancesService {
         (heatAbsorbedByRadiativeScreens - 0)) /
       params.heatBalance.heatedHeatCarrierFlow;
 
-    const furnaceHeatBalance = this.furnaceHeatBalanceRepository.create({
+    const furnaceHeatBalance = new FurnaceHeatBalance({
       blackBodyRadiationCoefficient,
       screenPollutionCoefficient,
       parameterM0,

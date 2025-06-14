@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CombustionMaterialBalanceTemperatureRepository } from './repositories';
 import { CalculateCombustionMaterialBalanceTemperatureParams } from './interfaces';
+import { CombustionMaterialBalanceTemperature } from './entities';
 
 @Injectable()
 export class CombustionMaterialBalanceTemperaturesService {
-  constructor(
-    private readonly combustionMaterialBalanceTemperatureRepository: CombustionMaterialBalanceTemperatureRepository,
-  ) {}
-
   public async calculate(
     params: CalculateCombustionMaterialBalanceTemperatureParams,
   ) {
@@ -61,7 +57,7 @@ export class CombustionMaterialBalanceTemperaturesService {
         theoreticalDryAirConsumption;
 
     const combustionMaterialBalanceTemperature =
-      this.combustionMaterialBalanceTemperatureRepository.create({
+      new CombustionMaterialBalanceTemperature({
         lowerHeatingValue,
         higherHeatingValue,
         theoreticalDryAirConsumption,

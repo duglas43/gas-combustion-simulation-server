@@ -1,67 +1,56 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-@Entity()
 export class CombustionMaterialBalance {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
   airExcessCoefficientName: string;
 
-  @Column({ type: 'float' })
   actualWetAirConsumption: number;
 
-  @Column({ type: 'float' })
   theoreticalCO2Volume: number;
 
-  @Column({ type: 'float' })
   theoreticalSO2Volume: number;
 
-  @Column({ type: 'float' })
   theoreticalWaterVaporVolume: number;
 
-  @Column({ type: 'float' })
   theoreticalNitrogenVolume: number;
 
-  @Column({ type: 'float' })
   theoreticalOxygenVolume: number;
 
-  @Column({ type: 'float' })
   totalWetCombustionProductsVolume: number;
 
-  @Column({ type: 'float' })
   specificVolumeFractionRO2: number;
 
-  @Column({ type: 'float' })
   specificVolumeFractionWaterVapor: number;
 
-  @Column({ type: 'float' })
   specificVolumeFractionTriatomicGases: number;
 
-  @Column({ type: 'float' })
   partialPressureRO2: number;
 
-  @Column({ type: 'float' })
   partialPressureWaterVapor: number;
 
-  @Column({ type: 'float' })
   partialPressureTriatomicGases: number;
 
-  @Column({ type: 'float' })
   recirculationRate: number;
 
-  @Column({ type: 'float' })
   specificMassOfCombustionProducts: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  constructor(model: CombustionMaterialBalance) {
+    this.airExcessCoefficientName = model.airExcessCoefficientName;
+    this.actualWetAirConsumption = model.actualWetAirConsumption;
+    this.theoreticalCO2Volume = model.theoreticalCO2Volume;
+    this.theoreticalSO2Volume = model.theoreticalSO2Volume;
+    this.theoreticalWaterVaporVolume = model.theoreticalWaterVaporVolume;
+    this.theoreticalNitrogenVolume = model.theoreticalNitrogenVolume;
+    this.theoreticalOxygenVolume = model.theoreticalOxygenVolume;
+    this.totalWetCombustionProductsVolume =
+      model.totalWetCombustionProductsVolume;
+    this.specificVolumeFractionRO2 = model.specificVolumeFractionRO2;
+    this.specificVolumeFractionWaterVapor =
+      model.specificVolumeFractionWaterVapor;
+    this.specificVolumeFractionTriatomicGases =
+      model.specificVolumeFractionTriatomicGases;
+    this.partialPressureRO2 = model.partialPressureRO2;
+    this.partialPressureWaterVapor = model.partialPressureWaterVapor;
+    this.partialPressureTriatomicGases = model.partialPressureTriatomicGases;
+    this.recirculationRate = model.recirculationRate;
+    this.specificMassOfCombustionProducts =
+      model.specificMassOfCombustionProducts;
+  }
 }

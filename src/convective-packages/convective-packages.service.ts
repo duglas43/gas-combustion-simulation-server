@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ConvectivePackageRepository } from './repositories';
 import { CalculateConvectivePackageParams } from './interfaces';
 import { ConvectivePackage } from './entities';
 
 @Injectable()
 export class ConvectivePackagesService {
-  constructor(
-    private readonly convectivePackageRepository: ConvectivePackageRepository,
-  ) {}
-
   public async calculate(params: CalculateConvectivePackageParams) {
     const convectivePackages: ConvectivePackage[] = [];
     for (const convectivePackage of params.createConvectivePackageDtos) {
@@ -46,9 +41,8 @@ export class ConvectivePackagesService {
           2 +
           2.6 * (convectivePackage.tubesPerRow * 2 + 2));
 
-      const convectivePackageEntity = this.convectivePackageRepository.create({
+      const convectivePackageEntity = new ConvectivePackage({
         ...convectivePackage,
-        id: convectivePackage.id,
         packageNumber: convectivePackage.id,
         relativeTubePitchInRow,
         relativeRowPitch,

@@ -1,115 +1,112 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-@Entity()
 export class FurnaceHeatBalance {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ type: 'float' })
   blackBodyRadiationCoefficient: number;
 
-  @Column({ type: 'float' })
   screenPollutionCoefficient: number;
 
-  @Column({ type: 'float' })
   parameterM0: number;
 
-  @Column({ type: 'float' })
   luminousFlameFillingCoefficient: number;
 
-  @Column({ type: 'float' })
   furnaceExitTemperatureSet: number;
 
-  @Column({ type: 'float' })
   combustionProductEnthalpyExit: number;
 
-  @Column({ type: 'float' })
   combustionAirEnthalpy: number;
 
-  @Column({ type: 'float' })
   airFractionFromAirPreheater: number;
 
-  @Column({ type: 'float' })
   heatInputToFurnaceFromAir: number;
 
-  @Column({ type: 'float' })
   usefulHeatReleaseInFurnace: number;
 
-  @Column({ type: 'float' })
   assumedAdiabaticCombustionTemperature: number;
 
-  @Column({ type: 'float' })
   actualAdiabaticCombustionTemperature: number;
 
-  @Column({ type: 'float' })
   imbalancePercentage: number;
 
-  @Column({ type: 'float' })
   averageHeatCapacityProductsInFurnace: number;
 
-  @Column({ type: 'float' })
   averageThermalEfficiencyCoefficient: number;
 
-  @Column({ type: 'float' })
   boltzmannCriterion: number;
 
-  @Column({ type: 'float' })
   maxTemperatureZoneHeight: number;
 
-  @Column({ type: 'float' })
   relativeMaxTemperatureZonePosition: number;
 
-  @Column({ type: 'float' })
   furnaceGasDilutionCoefficient: number;
 
-  @Column({ type: 'float' })
   calculatedParameterM: number;
 
-  @Column({ type: 'float' })
   rayAttenuationCoefficientThreeAtomGases: number;
 
-  @Column({ type: 'float' })
   carbonToHydrogenMassRatio: number;
 
-  @Column({ type: 'float' })
   sootRayAttenuationCoefficient: number;
 
-  @Column({ type: 'float' })
   furnaceMediumAbsorptionCoefficient: number;
 
-  @Column({ type: 'float' })
   bugerCriterion: number;
 
-  @Column({ type: 'float' })
   effectiveBugerCriterion: number;
 
-  @Column({ type: 'float' })
   combustionProductExitTemperature: number;
 
-  @Column({ type: 'float' })
   calculatedImbalance: number;
 
-  @Column({ type: 'float' })
   heatAbsorbedByRadiativeScreens: number;
 
-  @Column({ type: 'float' })
   specificHeatLoadRadiativeScreens: number;
 
-  @Column({ type: 'float' })
   specificHeatTensionFurnaceVolume: number;
 
-  @Column({ type: 'float' })
   enthalpyIncrementHeatedHeatCarrier: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  constructor(model: FurnaceHeatBalance) {
+    this.blackBodyRadiationCoefficient = model.blackBodyRadiationCoefficient;
+    this.screenPollutionCoefficient = model.screenPollutionCoefficient;
+    this.parameterM0 = model.parameterM0;
+    this.luminousFlameFillingCoefficient =
+      model.luminousFlameFillingCoefficient;
+    this.furnaceExitTemperatureSet = model.furnaceExitTemperatureSet;
+    this.combustionProductEnthalpyExit = model.combustionProductEnthalpyExit;
+    this.combustionAirEnthalpy = model.combustionAirEnthalpy;
+    this.airFractionFromAirPreheater = model.airFractionFromAirPreheater;
+    this.heatInputToFurnaceFromAir = model.heatInputToFurnaceFromAir;
+    this.usefulHeatReleaseInFurnace = model.usefulHeatReleaseInFurnace;
+    this.assumedAdiabaticCombustionTemperature =
+      model.assumedAdiabaticCombustionTemperature;
+    this.actualAdiabaticCombustionTemperature =
+      model.actualAdiabaticCombustionTemperature;
+    this.imbalancePercentage = model.imbalancePercentage;
+    this.averageHeatCapacityProductsInFurnace =
+      model.averageHeatCapacityProductsInFurnace;
+    this.averageThermalEfficiencyCoefficient =
+      model.averageThermalEfficiencyCoefficient;
+    this.boltzmannCriterion = model.boltzmannCriterion;
+    this.maxTemperatureZoneHeight = model.maxTemperatureZoneHeight;
+    this.relativeMaxTemperatureZonePosition =
+      model.relativeMaxTemperatureZonePosition;
+    this.furnaceGasDilutionCoefficient = model.furnaceGasDilutionCoefficient;
+    this.calculatedParameterM = model.calculatedParameterM;
+    this.rayAttenuationCoefficientThreeAtomGases =
+      model.rayAttenuationCoefficientThreeAtomGases;
+    this.carbonToHydrogenMassRatio = model.carbonToHydrogenMassRatio;
+    this.sootRayAttenuationCoefficient = model.sootRayAttenuationCoefficient;
+    this.furnaceMediumAbsorptionCoefficient =
+      model.furnaceMediumAbsorptionCoefficient;
+    this.bugerCriterion = model.bugerCriterion;
+    this.effectiveBugerCriterion = model.effectiveBugerCriterion;
+    this.combustionProductExitTemperature =
+      model.combustionProductExitTemperature;
+    this.calculatedImbalance = model.calculatedImbalance;
+    this.heatAbsorbedByRadiativeScreens = model.heatAbsorbedByRadiativeScreens;
+    this.specificHeatLoadRadiativeScreens =
+      model.specificHeatLoadRadiativeScreens;
+    this.specificHeatTensionFurnaceVolume =
+      model.specificHeatTensionFurnaceVolume;
+    this.enthalpyIncrementHeatedHeatCarrier =
+      model.enthalpyIncrementHeatedHeatCarrier;
+  }
 }

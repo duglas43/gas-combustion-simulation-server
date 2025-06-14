@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CombustionMaterialBalanceRepository } from './repositories';
 import { CalculateCombustionMaterialBalanceParams } from './interfaces';
 import { CombustionMaterialBalance } from './entities';
 
 @Injectable()
 export class CombustionMaterialBalancesService {
-  constructor(
-    private readonly combustionMaterialBalanceRepository: CombustionMaterialBalanceRepository,
-  ) {}
-
   public async calculate(params: CalculateCombustionMaterialBalanceParams) {
     const alphaNames = [
       'alpha',
@@ -124,28 +119,27 @@ export class CombustionMaterialBalancesService {
               airExcessCoefficient.value * recirculationRate)) *
         totalWetCombustionProductsVolume;
 
-      const combustionMaterialBalance =
-        this.combustionMaterialBalanceRepository.create({
-          airExcessCoefficientName: airExcessCoefficient.name,
-          actualWetAirConsumption:
-            airExcessCoefficient.value *
-            params.combustionMaterialBalanceTemperature
-              .theoreticalWetAirConsumption,
-          theoreticalCO2Volume,
-          theoreticalSO2Volume: 0,
-          theoreticalWaterVaporVolume,
-          theoreticalNitrogenVolume,
-          theoreticalOxygenVolume,
-          totalWetCombustionProductsVolume,
-          specificVolumeFractionRO2,
-          specificVolumeFractionWaterVapor,
-          specificVolumeFractionTriatomicGases,
-          partialPressureRO2,
-          partialPressureWaterVapor,
-          partialPressureTriatomicGases,
-          recirculationRate,
-          specificMassOfCombustionProducts,
-        });
+      const combustionMaterialBalance = new CombustionMaterialBalance({
+        airExcessCoefficientName: airExcessCoefficient.name,
+        actualWetAirConsumption:
+          airExcessCoefficient.value *
+          params.combustionMaterialBalanceTemperature
+            .theoreticalWetAirConsumption,
+        theoreticalCO2Volume,
+        theoreticalSO2Volume: 0,
+        theoreticalWaterVaporVolume,
+        theoreticalNitrogenVolume,
+        theoreticalOxygenVolume,
+        totalWetCombustionProductsVolume,
+        specificVolumeFractionRO2,
+        specificVolumeFractionWaterVapor,
+        specificVolumeFractionTriatomicGases,
+        partialPressureRO2,
+        partialPressureWaterVapor,
+        partialPressureTriatomicGases,
+        recirculationRate,
+        specificMassOfCombustionProducts,
+      });
       combustionMaterialBalances.push(combustionMaterialBalance);
     }
     return combustionMaterialBalances;

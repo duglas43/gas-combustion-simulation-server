@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { FuelCompositionRepository } from './repositories';
 import { CalculateFuelCompositionParams } from './interfaces';
+import { FuelComposition } from './entities';
 
 @Injectable()
 export class FuelCompositionsService {
-  constructor(
-    private readonly fuelCompositionRepository: FuelCompositionRepository,
-  ) {}
-
   public async calculate(params: CalculateFuelCompositionParams) {
     const { boilerCharacreristics } = params;
-    const fuelComposition = this.fuelCompositionRepository.create({
+    const fuelComposition = new FuelComposition({
       ...params.createFuelCompositionDto,
       methaneHeatCapacity:
         1.54908042 +
@@ -125,6 +121,6 @@ export class FuelCompositionsService {
         -1.34105e-12 * boilerCharacreristics.gasInletTemperature ** 4 +
         8.8141e-16 * boilerCharacreristics.gasInletTemperature ** 5,
     });
-    return this.fuelCompositionRepository.save(fuelComposition);
+    return fuelComposition;
   }
 }

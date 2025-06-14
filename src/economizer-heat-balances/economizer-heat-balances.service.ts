@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { EconomizerHeatBalanceRepository } from './repositories';
 import { CalculateEconomizerHeatBalanceParams } from './interfaces';
+import { EconomizerHeatBalance } from './entities';
 
 @Injectable()
 export class EconomizerHeatBalancesService {
-  constructor(
-    private readonly economizerHeatBalanceRepository: EconomizerHeatBalanceRepository,
-  ) {}
-
   public async calculate(params: CalculateEconomizerHeatBalanceParams) {
     const geometricAdjustmentFactor = 1;
     const heatEfficiencyCoefficient = 0.5;
@@ -243,7 +239,7 @@ export class EconomizerHeatBalancesService {
         economizerHeatAbsorption) /
       params.economizerCharacteristic.totalHeatTransferSurfaceArea;
 
-    const economizerHeatBalance = this.economizerHeatBalanceRepository.create({
+    const economizerHeatBalance = new EconomizerHeatBalance({
       geometricAdjustmentFactor,
       heatEfficiencyCoefficient,
       heatUtilizationCoefficient,

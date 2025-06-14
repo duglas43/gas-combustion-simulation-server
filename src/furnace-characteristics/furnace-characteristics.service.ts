@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { FurnaceCharacteristicRepository } from './repositories';
 import { CalculateFurnaceCharacteristicsParams } from './interfaces';
+import { FurnaceCharacteristic } from './entities';
 
 @Injectable()
 export class FurnaceCharacteristicsService {
-  constructor(
-    private readonly furnaceCharacteristicRepository: FurnaceCharacteristicRepository,
-  ) {}
-
   public async calculate(params: CalculateFurnaceCharacteristicsParams) {
-    const furnaceCharacteristic = this.furnaceCharacteristicRepository.create({
+    const furnaceCharacteristic = new FurnaceCharacteristic({
       ...params.createFurnaceCharacteristicDto,
     });
     return furnaceCharacteristic;

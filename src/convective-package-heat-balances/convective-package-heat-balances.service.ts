@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ConvectivePackageHeatBalanceRepository } from './repositories';
 import { CalculateConvectivePackageHeatBalanceParams } from './interfaces';
+import { ConvectivePackageHeatBalance } from './entities';
 
 @Injectable()
 export class ConvectivePackageHeatBalancesService {
-  constructor(
-    private readonly convectivePackageHeatBalanceRepository: ConvectivePackageHeatBalanceRepository,
-  ) {}
-
   public async calculate(params: CalculateConvectivePackageHeatBalanceParams) {
     const averageHeatAbsorptionCoefficient = 0.7;
     const sumAngularCoefficients = 0.949;
@@ -269,42 +265,41 @@ export class ConvectivePackageHeatBalancesService {
         heatBalanceAbsorption) /
       params.convectivePackageCharacteristics.convectivePackageHeatSurfaceArea;
 
-    const convectivePackageHeatBalance =
-      this.convectivePackageHeatBalanceRepository.create({
-        convectivePackageId: 1,
-        averageHeatAbsorptionCoefficient,
-        sumAngularCoefficients,
-        furnaceExitWindowArea,
-        geometricAdjustmentFactor,
-        screenWallBlacknessDegree,
-        heatEfficiencyCoefficient,
-        heatUtilizationCoefficient,
-        packageExitTemperature,
-        combustionProductEnthalpyExit,
-        heatBalanceAbsorption,
-        radiativeHeatLoad,
-        heatReceivedByRadiation,
-        enthalpyIncrease,
-        heatedMediumTemperature,
-        logarithmicTemperatureDifference,
-        averageCombustionTemperature,
-        averageCombustionVelocity,
-        reynoldsCriterion,
-        prandtlCriterion,
-        correctionCoefficientCs,
-        correctionCoefficientCz,
-        convectiveHeatTransferCoefficient,
-        threeAtomGasRayAttenuationCoefficient,
-        radiativeLayerOpticalThickness,
-        effectiveBlacknessDegree,
-        averageWallTemperature,
-        radiativeHeatTransferCoefficient,
-        heatTransferCoefficient,
-        heatTransferByEquation,
-        exitTemperatureControlValue,
-        heatBalanceImbalance,
-        specificHeatTransferred,
-      });
+    const convectivePackageHeatBalance = new ConvectivePackageHeatBalance({
+      convectivePackageId: 1,
+      averageHeatAbsorptionCoefficient,
+      sumAngularCoefficients,
+      furnaceExitWindowArea,
+      geometricAdjustmentFactor,
+      screenWallBlacknessDegree,
+      heatEfficiencyCoefficient,
+      heatUtilizationCoefficient,
+      packageExitTemperature,
+      combustionProductEnthalpyExit,
+      heatBalanceAbsorption,
+      radiativeHeatLoad,
+      heatReceivedByRadiation,
+      enthalpyIncrease,
+      heatedMediumTemperature,
+      logarithmicTemperatureDifference,
+      averageCombustionTemperature,
+      averageCombustionVelocity,
+      reynoldsCriterion,
+      prandtlCriterion,
+      correctionCoefficientCs,
+      correctionCoefficientCz,
+      convectiveHeatTransferCoefficient,
+      threeAtomGasRayAttenuationCoefficient,
+      radiativeLayerOpticalThickness,
+      effectiveBlacknessDegree,
+      averageWallTemperature,
+      radiativeHeatTransferCoefficient,
+      heatTransferCoefficient,
+      heatTransferByEquation,
+      exitTemperatureControlValue,
+      heatBalanceImbalance,
+      specificHeatTransferred,
+    });
 
     return convectivePackageHeatBalance;
   }

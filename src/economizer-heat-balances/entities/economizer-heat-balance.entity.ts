@@ -1,97 +1,85 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-@Entity()
 export class EconomizerHeatBalance {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ type: 'float' })
   geometricAdjustmentFactor: number;
 
-  @Column({ type: 'float' })
   heatEfficiencyCoefficient: number;
 
-  @Column({ type: 'float' })
   heatUtilizationCoefficient: number;
 
-  @Column({ type: 'float' })
   economizerExitTemperature: number;
 
-  @Column({ type: 'float' })
   combustionProductEnthalpyExit: number;
 
-  @Column({ type: 'float' })
   economizerHeatAbsorption: number;
 
-  @Column({ type: 'float' })
   maxHeatedMediumTemperature: number;
 
-  @Column({ type: 'float' })
   averageHeatedMediumTemperature: number;
 
-  @Column({ type: 'float' })
   enthalpyIncrease: number;
 
-  @Column({ type: 'float' })
   heatedMediumExitTemperature: number;
 
-  @Column({ type: 'float' })
   averageHeatedMediumExitTemperature: number;
 
-  @Column({ type: 'float' })
   logarithmicTemperatureDifference: number;
 
-  @Column({ type: 'float' })
   averageCombustionTemperature: number;
 
-  @Column({ type: 'float' })
   averageCombustionVelocity: number;
 
-  @Column({ type: 'float' })
   reynoldsCriterion: number;
 
-  @Column({ type: 'float' })
   prandtlCriterion: number;
 
-  @Column({ type: 'float' })
   finningCoefficient: number;
 
-  @Column({ type: 'float' })
   parameterPhi: number;
 
-  @Column({ type: 'float' })
   correctionCoefficientCs: number;
 
-  @Column({ type: 'float' })
   correctionCoefficientCz: number;
 
-  @Column({ type: 'float' })
   convectiveHeatTransferCoefficient: number;
 
-  @Column({ type: 'float' })
   heatTransferCoefficient: number;
 
-  @Column({ type: 'float' })
   heatTransferByEquation: number;
 
-  @Column({ type: 'float' })
   controlExitTemperature: number;
 
-  @Column({ type: 'float' })
   heatBalanceImbalance: number;
 
-  @Column({ type: 'float' })
   specificHeatTransferEconomizer: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  constructor(model: EconomizerHeatBalance) {
+    this.geometricAdjustmentFactor = model.geometricAdjustmentFactor;
+    this.heatEfficiencyCoefficient = model.heatEfficiencyCoefficient;
+    this.heatUtilizationCoefficient = model.heatUtilizationCoefficient;
+    this.economizerExitTemperature = model.economizerExitTemperature;
+    this.combustionProductEnthalpyExit = model.combustionProductEnthalpyExit;
+    this.economizerHeatAbsorption = model.economizerHeatAbsorption;
+    this.maxHeatedMediumTemperature = model.maxHeatedMediumTemperature;
+    this.averageHeatedMediumTemperature = model.averageHeatedMediumTemperature;
+    this.enthalpyIncrease = model.enthalpyIncrease;
+    this.heatedMediumExitTemperature = model.heatedMediumExitTemperature;
+    this.averageHeatedMediumExitTemperature =
+      model.averageHeatedMediumExitTemperature;
+    this.logarithmicTemperatureDifference =
+      model.logarithmicTemperatureDifference;
+    this.averageCombustionTemperature = model.averageCombustionTemperature;
+    this.averageCombustionVelocity = model.averageCombustionVelocity;
+    this.reynoldsCriterion = model.reynoldsCriterion;
+    this.prandtlCriterion = model.prandtlCriterion;
+    this.finningCoefficient = model.finningCoefficient;
+    this.parameterPhi = model.parameterPhi;
+    this.correctionCoefficientCs = model.correctionCoefficientCs;
+    this.correctionCoefficientCz = model.correctionCoefficientCz;
+    this.convectiveHeatTransferCoefficient =
+      model.convectiveHeatTransferCoefficient;
+    this.heatTransferCoefficient = model.heatTransferCoefficient;
+    this.heatTransferByEquation = model.heatTransferByEquation;
+    this.controlExitTemperature = model.controlExitTemperature;
+    this.heatBalanceImbalance = model.heatBalanceImbalance;
+    this.specificHeatTransferEconomizer = model.specificHeatTransferEconomizer;
+  }
 }

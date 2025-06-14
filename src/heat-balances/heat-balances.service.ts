@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { HeatBalanceRepository } from './repositories';
 import { CalculateHeatBalanceParams } from './interfaces';
+import { HeatBalance } from './entities';
 
 @Injectable()
 export class HeatBalancesService {
-  constructor(private readonly heatBalanceRepository: HeatBalanceRepository) {}
-
   public async calculate(params: CalculateHeatBalanceParams) {
     const heatLossDueToChemicalIncompleteCombustionPercentage = 0;
     const heatInputFromFuel =
@@ -172,7 +170,7 @@ export class HeatBalancesService {
       heatLossThroughOuterWallsPercentage /
         (heatLossThroughOuterWallsPercentage + boilerEfficiencyGross);
 
-    const heatBalance = this.heatBalanceRepository.create({
+    const heatBalance = new HeatBalance({
       heatLossDueToChemicalIncompleteCombustionPercentage,
       heatInputFromFuel,
       heatInputFromAir,

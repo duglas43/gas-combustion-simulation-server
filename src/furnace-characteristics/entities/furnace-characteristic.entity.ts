@@ -1,103 +1,89 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-@Entity()
 export class FurnaceCharacteristic {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ type: 'float' })
   firstScreenArea: number;
 
-  @Column({ type: 'float' })
   firstScreenAngleCoefficient: number;
 
-  @Column({ type: 'float' })
   secondScreenArea: number;
 
-  @Column({ type: 'float' })
   secondScreenAngleCoefficient: number;
 
-  @Column({ type: 'float' })
   thirdScreenArea: number;
 
-  @Column({ type: 'float' })
   thirdScreenAngleCoefficient: number;
 
-  @Column({ type: 'float' })
   fourthScreenArea: number;
 
-  @Column({ type: 'float' })
   fourthScreenAngleCoefficient: number;
 
-  @Column({ type: 'float' })
   fifthScreenArea: number;
 
-  @Column({ type: 'float' })
   fifthScreenAngleCoefficient: number;
 
-  @Column({ type: 'float' })
   nonScreenedFurnaceArea: number;
 
-  @Column({ type: 'float' })
   furnaceVolume: number;
 
-  @Column({ type: 'float' })
   furnaceHeight: number;
 
-  @Column({ type: 'float' })
   firstBurnerRowHeight: number;
 
-  @Column({ type: 'int' })
   burnersInFirstRow: number;
 
-  @Column({ type: 'float' })
   secondBurnerRowHeight: number;
 
-  @Column({ type: 'int' })
   burnersInSecondRow: number;
 
-  @Column({ type: 'float' })
   firstScreenRadiantHeatSurface: number;
 
-  @Column({ type: 'float' })
   secondScreenRadiantHeatSurface: number;
 
-  @Column({ type: 'float' })
   thirdScreenRadiantHeatSurface: number;
 
-  @Column({ type: 'float' })
   fourthScreenRadiantHeatSurface: number;
 
-  @Column({ type: 'float' })
   fifthScreenRadiantHeatSurface: number;
 
-  @Column({ type: 'float' })
   totalRadiantHeatSurfaceArea: number;
 
-  @Column({ type: 'float' })
   totalWallSurfaceArea: number;
 
-  @Column({ type: 'float' })
   furnaceScreeningDegree: number;
 
-  @Column({ type: 'float' })
   effectiveRadiatingLayerThickness: number;
 
-  @Column({ type: 'int' })
   totalBurnersInBoiler: number;
 
-  @Column({ type: 'float' })
   screenContaminationFactor: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  constructor(model: FurnaceCharacteristic) {
+    this.firstScreenArea = model.firstScreenArea;
+    this.firstScreenAngleCoefficient = model.firstScreenAngleCoefficient;
+    this.secondScreenArea = model.secondScreenArea;
+    this.secondScreenAngleCoefficient = model.secondScreenAngleCoefficient;
+    this.thirdScreenArea = model.thirdScreenArea;
+    this.thirdScreenAngleCoefficient = model.thirdScreenAngleCoefficient;
+    this.fourthScreenArea = model.fourthScreenArea;
+    this.fourthScreenAngleCoefficient = model.fourthScreenAngleCoefficient;
+    this.fifthScreenArea = model.fifthScreenArea;
+    this.fifthScreenAngleCoefficient = model.fifthScreenAngleCoefficient;
+    this.nonScreenedFurnaceArea = model.nonScreenedFurnaceArea;
+    this.furnaceVolume = model.furnaceVolume;
+    this.furnaceHeight = model.furnaceHeight;
+    this.firstBurnerRowHeight = model.firstBurnerRowHeight;
+    this.burnersInFirstRow = model.burnersInFirstRow;
+    this.secondBurnerRowHeight = model.secondBurnerRowHeight;
+    this.burnersInSecondRow = model.burnersInSecondRow;
+    this.firstScreenRadiantHeatSurface = model.firstScreenRadiantHeatSurface;
+    this.secondScreenRadiantHeatSurface = model.secondScreenRadiantHeatSurface;
+    this.thirdScreenRadiantHeatSurface = model.thirdScreenRadiantHeatSurface;
+    this.fourthScreenRadiantHeatSurface = model.fourthScreenRadiantHeatSurface;
+    this.fifthScreenRadiantHeatSurface = model.fifthScreenRadiantHeatSurface;
+    this.totalRadiantHeatSurfaceArea = model.totalRadiantHeatSurfaceArea;
+    this.totalWallSurfaceArea = model.totalWallSurfaceArea;
+    this.furnaceScreeningDegree = model.furnaceScreeningDegree;
+    this.effectiveRadiatingLayerThickness =
+      model.effectiveRadiatingLayerThickness;
+    this.totalBurnersInBoiler = model.totalBurnersInBoiler;
+    this.screenContaminationFactor = model.screenContaminationFactor;
+  }
 }

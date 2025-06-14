@@ -4,10 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
-import { AirExcessCoefficient } from 'src/air-excess-coefficients/entities';
 
 @Entity()
 export class CombustionMaterialBalance {
@@ -15,11 +12,7 @@ export class CombustionMaterialBalance {
   id: number;
 
   @Column()
-  airExcessCoefficientId: number;
-
-  @ManyToOne(() => AirExcessCoefficient, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  airExcessCoefficient: AirExcessCoefficient;
+  airExcessCoefficientName: string;
 
   @Column({ type: 'float' })
   actualWetAirConsumption: number;

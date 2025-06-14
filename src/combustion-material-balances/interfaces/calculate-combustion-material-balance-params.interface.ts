@@ -15,5 +15,5 @@ export interface CalculateCombustionMaterialBalanceParams {
     CombustionMaterialBalanceTemperature,
     'theoreticalWetAirConsumption' | 'theoreticalDryAirConsumption'
   >;
-  airExcessCoefficients: Pick<AirExcessCoefficient, 'name' | 'value' | 'id'>[];
+  airExcessCoefficients: Pick<AirExcessCoefficient, 'name' | 'value'>[];
 }

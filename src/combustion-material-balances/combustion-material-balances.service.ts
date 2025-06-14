@@ -126,7 +126,7 @@ export class CombustionMaterialBalancesService {
 
       const combustionMaterialBalance =
         this.combustionMaterialBalanceRepository.create({
-          airExcessCoefficientId: airExcessCoefficient.id,
+          airExcessCoefficientName: airExcessCoefficient.name,
           actualWetAirConsumption:
             airExcessCoefficient.value *
             params.combustionMaterialBalanceTemperature

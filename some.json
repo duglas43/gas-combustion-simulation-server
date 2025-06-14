@@ -17,14 +17,13 @@
     "nitrogenPercentage": 1,
     "oxygenPercentage": 0
   },
-  "externalConditions": {
-    "boilerLoadPercentage": 97,
+  "boilerCharacteristics": {
+    "loadPercentage": 97,
     "airHumidityForCombustion": 13,
     "gasHumidityForCombustion": 0,
     "feedWaterTemperature": 85,
-    "boilerRoomAirTemperature": 25,
-    "gasInletTemperature": 16,
-    "flueGasPressure": 0.1
+    "roomAirTemperature": 25,
+    "gasInletTemperature": 16
   },
   "furnaceCharacteristics": {
     "screenContaminationFactor": 0.65

@@ -7,6 +7,7 @@ import { validate } from './env.validation';
 import { APP_PIPE } from '@nestjs/core';
 import { EconomizerCharacteristicsModule } from './economizer-characteristics/economizer-characteristics.module';
 import { BoilerCharacteristicsModule } from './boiler-characteristics/boiler-characteristics.module';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BoilerCharacteristicsModule } from './boiler-characteristics/boiler-cha
     CalculationsModule,
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [

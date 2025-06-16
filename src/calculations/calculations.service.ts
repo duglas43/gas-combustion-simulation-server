@@ -14,6 +14,8 @@ import { HeatBalancesService } from 'src/heat-balances/heat-balances.service';
 import { FurnaceHeatBalancesService } from 'src/furnace-heat-balances/furnace-heat-balances.service';
 import { ConvectivePackageHeatBalancesService } from 'src/convective-package-heat-balances/convective-package-heat-balances.service';
 import { EconomizerHeatBalancesService } from 'src/economizer-heat-balances/economizer-heat-balances.service';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import { BoilerCharacteristic } from 'src/boiler-characteristics/entities';
 
 @Injectable()
 export class CalculationsService {
@@ -32,6 +34,8 @@ export class CalculationsService {
     private convectivePackageHeatBalancesService: ConvectivePackageHeatBalancesService,
     private economizerCharacteristicsService: EconomizerCharacteristicsService,
     private economizerHeatBalancesService: EconomizerHeatBalancesService,
+    @InjectPinoLogger(CalculationsService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   async create(dto: CreateCalculationDto) {
@@ -290,24 +294,58 @@ export class CalculationsService {
       });
 
     const result = {
-      boilerCharacteristic,
-      fuelComposition,
-      furnaceCharacteristic,
-      convectivePackages,
-      airLeakage,
-      temperatureCharacteristic,
-      combustionMaterialBalanceTemperature,
-      airExcessCoefficients,
-      combustionMaterialBalances,
-      heatBalance,
-      furnaceHeatBalance,
-      firstConvectivePackageHeatBalance,
-      secondConvectivePackageHeatBalance,
-      economizerCharacteristic,
-      economizerHeatBalance,
+      boilerCharacteristic: this.convertIntToFloat(boilerCharacteristic),
+      fuelComposition: this.convertIntToFloat(fuelComposition),
+      furnaceCharacteristic: this.convertIntToFloat(furnaceCharacteristic),
+      convectivePackages: convectivePackages.map((cp) =>
+        this.convertIntToFloat(cp),
+      ),
+      airLeakage: this.convertIntToFloat(airLeakage),
+      temperatureCharacteristic: this.convertIntToFloat(
+        temperatureCharacteristic,
+      ),
+      combustionMaterialBalanceTemperature: this.convertIntToFloat(
+        combustionMaterialBalanceTemperature,
+      ),
+      airExcessCoefficients: airExcessCoefficients.map((aec) =>
+        this.convertIntToFloat(aec),
+      ),
+      combustionMaterialBalances: combustionMaterialBalances.map((cmb) =>
+        this.convertIntToFloat(cmb),
+      ),
+      heatBalance: this.convertIntToFloat(heatBalance),
+      furnaceHeatBalance: this.convertIntToFloat(furnaceHeatBalance),
+      firstConvectivePackageHeatBalance: this.convertIntToFloat(
+        firstConvectivePackageHeatBalance,
+      ),
+      secondConvectivePackageHeatBalance: this.convertIntToFloat(
+        secondConvectivePackageHeatBalance,
+      ),
+      economizerCharacteristic: this.convertIntToFloat(
+        economizerCharacteristic,
+      ),
+      economizerHeatBalance: this.convertIntToFloat(economizerHeatBalance),
     };
-    console.log('Calculation result:', result);
 
+    this.logger.info({
+      result,
+      message: 'Calculation result',
+    });
+
+    return result;
+  }
+
+  private convertIntToFloat(obj: object): Record<string, any> {
+    const result: Record<string, any> = {};
+
+    for (const key of Object.keys(obj)) {
+      const val = (obj as any)[key];
+      if (typeof val === 'number' && Number.isInteger(val)) {
+        result[key] = val + 0.0;
+      } else {
+        result[key] = val;
+      }
+    }
     return result;
   }
 }

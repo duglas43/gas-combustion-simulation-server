@@ -15,7 +15,6 @@ import { FurnaceHeatBalancesService } from 'src/furnace-heat-balances/furnace-he
 import { ConvectivePackageHeatBalancesService } from 'src/convective-package-heat-balances/convective-package-heat-balances.service';
 import { EconomizerHeatBalancesService } from 'src/economizer-heat-balances/economizer-heat-balances.service';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
-import { BoilerCharacteristic } from 'src/boiler-characteristics/entities';
 
 @Injectable()
 export class CalculationsService {
@@ -328,7 +327,7 @@ export class CalculationsService {
     };
 
     this.logger.info({
-      result,
+      ...result,
       message: 'Calculation result',
     });
 

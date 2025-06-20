@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         pinoHttp: {
           level: 'info',
           autoLogging: false,
+          quietReqLogger: true,
           transport: {
             targets: [
               {

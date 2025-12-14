@@ -4,7 +4,7 @@ import { HeatBalance } from './entities';
 
 @Injectable()
 export class HeatBalancesService {
-  public async calculate(params: CalculateHeatBalanceParams) {
+  public calculate(params: CalculateHeatBalanceParams) {
     const heatLossDueToChemicalIncompleteCombustionPercentage = 0;
     const heatInputFromFuel =
       params.temperatureCharacteristics.gasMixtureHeatCapacity *
@@ -14,45 +14,45 @@ export class HeatBalancesService {
       heatInputFromFuel +
       heatInputFromAir +
       params.combustionMaterialBalanceTemperature.lowerHeatingValue;
-    const flueGasTemperature = 153;
+    const flueGasTemperatureSet = params.flueGasTemperatureSet;
     const flueGasEnthalpy =
       (params.alphaFlueGasCombustionMaterialBalance.theoreticalCO2Volume *
         (1.604309582 +
-          0.001133138 * flueGasTemperature -
-          8.60416e-7 * flueGasTemperature ** 2 +
-          4.68441e-10 * flueGasTemperature ** 3 -
-          1.44713e-13 * flueGasTemperature ** 4 +
-          1.82271e-17 * flueGasTemperature ** 5) +
+          0.001133138 * flueGasTemperatureSet -
+          8.60416e-7 * flueGasTemperatureSet ** 2 +
+          4.68441e-10 * flueGasTemperatureSet ** 3 -
+          1.44713e-13 * flueGasTemperatureSet ** 4 +
+          1.82271e-17 * flueGasTemperatureSet ** 5) +
         params.alphaFlueGasCombustionMaterialBalance.theoreticalSO2Volume *
           (1.498317949 +
-            0.000102932 * flueGasTemperature +
-            2.44654e-7 * flueGasTemperature ** 2 -
-            1.56126e-10 * flueGasTemperature ** 3 +
-            4.36681e-14 * flueGasTemperature ** 4 -
-            5.05709e-18 * flueGasTemperature ** 5) +
+            0.000102932 * flueGasTemperatureSet +
+            2.44654e-7 * flueGasTemperatureSet ** 2 -
+            1.56126e-10 * flueGasTemperatureSet ** 3 +
+            4.36681e-14 * flueGasTemperatureSet ** 4 -
+            5.05709e-18 * flueGasTemperatureSet ** 5) +
         params.alphaFlueGasCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.29747332 -
-            0.000010563 * flueGasTemperature +
-            2.4181e-7 * flueGasTemperature ** 2 -
-            1.83389e-10 * flueGasTemperature ** 3 +
-            5.85924e-14 * flueGasTemperature ** 4 -
-            7.03381e-18 * flueGasTemperature ** 5) +
+            0.000010563 * flueGasTemperatureSet +
+            2.4181e-7 * flueGasTemperatureSet ** 2 -
+            1.83389e-10 * flueGasTemperatureSet ** 3 +
+            5.85924e-14 * flueGasTemperatureSet ** 4 -
+            7.03381e-18 * flueGasTemperatureSet ** 5) +
         params.alphaFlueGasCombustionMaterialBalance.theoreticalNitrogenVolume *
           (1.306450711 +
-            0.000150251 * flueGasTemperature +
-            1.72284e-7 * flueGasTemperature ** 2 -
-            2.32114e-10 * flueGasTemperature ** 3 +
-            1.01527e-13 * flueGasTemperature ** 4 -
-            1.53025e-17 * flueGasTemperature ** 5) +
+            0.000150251 * flueGasTemperatureSet +
+            1.72284e-7 * flueGasTemperatureSet ** 2 -
+            2.32114e-10 * flueGasTemperatureSet ** 3 +
+            1.01527e-13 * flueGasTemperatureSet ** 4 -
+            1.53025e-17 * flueGasTemperatureSet ** 5) +
         params.alphaFlueGasCombustionMaterialBalance.theoreticalOxygenVolume *
           (1.285314861 +
-            0.0001585 * flueGasTemperature -
-            4.77872e-7 * flueGasTemperature ** 2 +
-            7.55826e-10 * flueGasTemperature ** 3 -
-            5.20124e-13 * flueGasTemperature ** 4 +
-            1.33782e-16 * flueGasTemperature ** 5)) *
-      flueGasTemperature;
+            0.0001585 * flueGasTemperatureSet -
+            4.77872e-7 * flueGasTemperatureSet ** 2 +
+            7.55826e-10 * flueGasTemperatureSet ** 3 -
+            5.20124e-13 * flueGasTemperatureSet ** 4 +
+            1.33782e-16 * flueGasTemperatureSet ** 5)) *
+      flueGasTemperatureSet;
     const surroundingAirEnthalpy =
       params.combustionMaterialBalanceTemperature.theoreticalWetAirConsumption *
       params.temperatureCharacteristics.boilerRoomAirHeatCapacity *
@@ -175,7 +175,7 @@ export class HeatBalancesService {
       heatInputFromFuel,
       heatInputFromAir,
       availableHeatInputToBoiler,
-      flueGasTemperature,
+      flueGasTemperatureSet,
       flueGasEnthalpy,
       surroundingAirEnthalpy,
       heatLossWithFlueGases,

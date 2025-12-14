@@ -4,51 +4,52 @@ import { EconomizerHeatBalance } from './entities';
 
 @Injectable()
 export class EconomizerHeatBalancesService {
-  public async calculate(params: CalculateEconomizerHeatBalanceParams) {
+  public calculate(params: CalculateEconomizerHeatBalanceParams) {
     const geometricAdjustmentFactor = 1;
     const heatEfficiencyCoefficient = 0.5;
     const heatUtilizationCoefficient = 0.8;
-    const economizerExitTemperature = 153.3;
+    const acceptedEconomizerExitTemperature =
+      params.acceptedEconomizerExitTemperature;
     const combustionProductEnthalpyExit =
       (params.alphaEconomizerCombustionMaterialBalance.theoreticalCO2Volume *
         (1.604309582 +
-          0.001133138 * economizerExitTemperature +
-          -0.000000860416 * economizerExitTemperature ** 2 +
-          0.000000000468441 * economizerExitTemperature ** 3 +
-          -1.44713e-13 * economizerExitTemperature ** 4 +
-          1.822707e-17 * economizerExitTemperature ** 5) +
+          0.001133138 * acceptedEconomizerExitTemperature +
+          -0.000000860416 * acceptedEconomizerExitTemperature ** 2 +
+          0.000000000468441 * acceptedEconomizerExitTemperature ** 3 +
+          -1.44713e-13 * acceptedEconomizerExitTemperature ** 4 +
+          1.822707e-17 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance.theoreticalSO2Volume *
           (0.607026715343734 +
-            3.08631797297832e-4 * economizerExitTemperature +
-            -1.59369965554858e-7 * economizerExitTemperature ** 2 +
-            1.63637023130679e-11 * economizerExitTemperature ** 3 +
-            1.25572787709454e-14 * economizerExitTemperature ** 4 +
-            -3.03012265579358e-18 * economizerExitTemperature ** 5) +
+            3.08631797297832e-4 * acceptedEconomizerExitTemperature +
+            -1.59369965554858e-7 * acceptedEconomizerExitTemperature ** 2 +
+            1.63637023130679e-11 * acceptedEconomizerExitTemperature ** 3 +
+            1.25572787709454e-14 * acceptedEconomizerExitTemperature ** 4 +
+            -3.03012265579358e-18 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.498317949 +
-            0.000102932 * economizerExitTemperature +
-            0.000000244654 * economizerExitTemperature ** 2 +
-            -0.000000000156126 * economizerExitTemperature ** 3 +
-            4.36681e-14 * economizerExitTemperature ** 4 +
-            -5.05709e-18 * economizerExitTemperature ** 5) +
+            0.000102932 * acceptedEconomizerExitTemperature +
+            0.000000244654 * acceptedEconomizerExitTemperature ** 2 +
+            -0.000000000156126 * acceptedEconomizerExitTemperature ** 3 +
+            4.36681e-14 * acceptedEconomizerExitTemperature ** 4 +
+            -5.05709e-18 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance
           .theoreticalNitrogenVolume *
           (1.29747332 +
-            -0.000010563 * economizerExitTemperature +
-            0.00000024181 * economizerExitTemperature ** 2 +
-            -0.000000000183389 * economizerExitTemperature ** 3 +
-            5.85924e-14 * economizerExitTemperature ** 4 +
-            -7.03381e-18 * economizerExitTemperature ** 5) +
+            -0.000010563 * acceptedEconomizerExitTemperature +
+            0.00000024181 * acceptedEconomizerExitTemperature ** 2 +
+            -0.000000000183389 * acceptedEconomizerExitTemperature ** 3 +
+            5.85924e-14 * acceptedEconomizerExitTemperature ** 4 +
+            -7.03381e-18 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance
           .theoreticalOxygenVolume *
           (1.306450711 +
-            0.000150251 * economizerExitTemperature +
-            0.000000172284 * economizerExitTemperature ** 2 +
-            -0.000000000232114 * economizerExitTemperature ** 3 +
-            1.01527e-13 * economizerExitTemperature ** 4 +
-            -1.53025e-17 * economizerExitTemperature ** 5)) *
-      economizerExitTemperature;
+            0.000150251 * acceptedEconomizerExitTemperature +
+            0.000000172284 * acceptedEconomizerExitTemperature ** 2 +
+            -0.000000000232114 * acceptedEconomizerExitTemperature ** 3 +
+            1.01527e-13 * acceptedEconomizerExitTemperature ** 4 +
+            -1.53025e-17 * acceptedEconomizerExitTemperature ** 5)) *
+      acceptedEconomizerExitTemperature;
     const economizerHeatAbsorption =
       params.heatBalance.heatRetentionCoefficient *
       (params.convectivePackageHeatBalance.combustionProductEnthalpyExit -
@@ -87,21 +88,21 @@ export class EconomizerHeatBalancesService {
       2;
 
     const logarithmicTemperatureDifference =
-      ((params.convectivePackageHeatBalance.packageExitTemperature -
-        economizerExitTemperature -
-        (economizerExitTemperature -
+      ((params.convectivePackageHeatBalance.acceptedPackageExitTemperature -
+        acceptedEconomizerExitTemperature -
+        (acceptedEconomizerExitTemperature -
           params.boilerCharacteristic.feedWaterTemperature)) *
         geometricAdjustmentFactor) /
       Math.log(
-        (params.convectivePackageHeatBalance.packageExitTemperature -
-          economizerExitTemperature) /
-          (economizerExitTemperature -
+        (params.convectivePackageHeatBalance.acceptedPackageExitTemperature -
+          acceptedEconomizerExitTemperature) /
+          (acceptedEconomizerExitTemperature -
             params.boilerCharacteristic.feedWaterTemperature),
       );
 
     const averageCombustionTemperature =
-      (params.convectivePackageHeatBalance.packageExitTemperature +
-        economizerExitTemperature) /
+      (params.convectivePackageHeatBalance.acceptedPackageExitTemperature +
+        acceptedEconomizerExitTemperature) /
       2;
     const averageCombustionVelocity =
       (params.heatBalance.calculatedHourlyFuelConsumption *
@@ -185,49 +186,49 @@ export class EconomizerHeatBalancesService {
         logarithmicTemperatureDifference) /
       params.heatBalance.calculatedHourlyFuelConsumption;
 
-    const controlExitTemperature =
+    const calculatedEconomizerExitTemperature =
       (params.convectivePackageHeatBalance.combustionProductEnthalpyExit -
         heatTransferByEquation / params.heatBalance.heatRetentionCoefficient +
         params.airLeakage.actualEconomizerAirLeakage *
           params.heatBalance.surroundingAirEnthalpy) /
       (params.alphaEconomizerCombustionMaterialBalance.theoreticalCO2Volume *
         (1.604309582 +
-          0.001133138 * economizerExitTemperature -
-          0.000000860416 * economizerExitTemperature ** 2 +
-          0.000000000468441 * economizerExitTemperature ** 3 -
-          1.44713e-13 * economizerExitTemperature ** 4 +
-          1.822707e-17 * economizerExitTemperature ** 5) +
+          0.001133138 * acceptedEconomizerExitTemperature -
+          0.000000860416 * acceptedEconomizerExitTemperature ** 2 +
+          0.000000000468441 * acceptedEconomizerExitTemperature ** 3 -
+          1.44713e-13 * acceptedEconomizerExitTemperature ** 4 +
+          1.822707e-17 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance.theoreticalSO2Volume *
           (0.607026715343734 +
-            3.08631797297832e-4 * economizerExitTemperature -
-            1.59369965554858e-7 * economizerExitTemperature ** 2 +
-            1.63637023130679e-11 * economizerExitTemperature ** 3 +
-            1.25572787709454e-14 * economizerExitTemperature ** 4 -
-            3.03012265579358e-18 * economizerExitTemperature ** 5) +
+            3.08631797297832e-4 * acceptedEconomizerExitTemperature -
+            1.59369965554858e-7 * acceptedEconomizerExitTemperature ** 2 +
+            1.63637023130679e-11 * acceptedEconomizerExitTemperature ** 3 +
+            1.25572787709454e-14 * acceptedEconomizerExitTemperature ** 4 -
+            3.03012265579358e-18 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.498317949 +
-            0.000102932 * economizerExitTemperature +
-            0.000000244654 * economizerExitTemperature ** 2 -
-            0.000000000156126 * economizerExitTemperature ** 3 +
-            4.36681e-14 * economizerExitTemperature ** 4 -
-            5.05709e-18 * economizerExitTemperature ** 5) +
+            0.000102932 * acceptedEconomizerExitTemperature +
+            0.000000244654 * acceptedEconomizerExitTemperature ** 2 -
+            0.000000000156126 * acceptedEconomizerExitTemperature ** 3 +
+            4.36681e-14 * acceptedEconomizerExitTemperature ** 4 -
+            5.05709e-18 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance
           .theoreticalNitrogenVolume *
           (1.29747332 -
-            0.000010563 * economizerExitTemperature +
-            0.00000024181 * economizerExitTemperature ** 2 -
-            0.000000000183389 * economizerExitTemperature ** 3 +
-            5.85924e-14 * economizerExitTemperature ** 4 -
-            7.03381e-18 * economizerExitTemperature ** 5) +
+            0.000010563 * acceptedEconomizerExitTemperature +
+            0.00000024181 * acceptedEconomizerExitTemperature ** 2 -
+            0.000000000183389 * acceptedEconomizerExitTemperature ** 3 +
+            5.85924e-14 * acceptedEconomizerExitTemperature ** 4 -
+            7.03381e-18 * acceptedEconomizerExitTemperature ** 5) +
         params.alphaEconomizerCombustionMaterialBalance
           .theoreticalOxygenVolume *
           (1.306450711 +
-            0.000150251 * economizerExitTemperature +
-            0.000000172284 * economizerExitTemperature ** 2 -
-            0.000000000232114 * economizerExitTemperature ** 3 +
-            1.01527e-13 * economizerExitTemperature ** 4 -
-            1.53025e-17 * economizerExitTemperature ** 5));
+            0.000150251 * acceptedEconomizerExitTemperature +
+            0.000000172284 * acceptedEconomizerExitTemperature ** 2 -
+            0.000000000232114 * acceptedEconomizerExitTemperature ** 3 +
+            1.01527e-13 * acceptedEconomizerExitTemperature ** 4 -
+            1.53025e-17 * acceptedEconomizerExitTemperature ** 5));
 
     const heatBalanceImbalance = Math.abs(
       ((economizerHeatAbsorption - heatTransferByEquation) * 100) /
@@ -243,7 +244,7 @@ export class EconomizerHeatBalancesService {
       geometricAdjustmentFactor,
       heatEfficiencyCoefficient,
       heatUtilizationCoefficient,
-      economizerExitTemperature,
+      acceptedEconomizerExitTemperature,
       combustionProductEnthalpyExit,
       economizerHeatAbsorption,
       maxHeatedMediumTemperature,
@@ -263,7 +264,7 @@ export class EconomizerHeatBalancesService {
       convectiveHeatTransferCoefficient,
       heatTransferCoefficient,
       heatTransferByEquation,
-      controlExitTemperature,
+      calculatedEconomizerExitTemperature,
       heatBalanceImbalance,
       specificHeatTransferEconomizer,
     });

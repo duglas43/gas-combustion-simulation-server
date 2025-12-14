@@ -4,7 +4,7 @@ import { BoilerCharacteristic } from './entities';
 
 @Injectable()
 export class BoilerCharacteristicsService {
-  public async calculate(dto: CreateBoilerCharacteristicDto) {
+  public calculate(dto: CreateBoilerCharacteristicDto) {
     const { nominalSteamProduction, loadPercentage } = dto;
     const boilerCharacteristic = new BoilerCharacteristic({
       ...dto,

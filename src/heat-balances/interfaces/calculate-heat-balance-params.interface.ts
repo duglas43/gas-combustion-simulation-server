@@ -6,6 +6,7 @@ import { TemperatureCharacteristic } from 'src/temperature-characteristics/entit
 
 export interface CalculateHeatBalanceParams {
   fuelComposition: FuelComposition;
+  flueGasTemperatureSet: number;
   boilerCharacteristics: Pick<
     BoilerCharacteristic,
     | 'gasInletTemperature'

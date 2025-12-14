@@ -7,7 +7,7 @@ export class HeatBalance {
 
   availableHeatInputToBoiler: number;
 
-  flueGasTemperature: number;
+  flueGasTemperatureSet: number;
 
   flueGasEnthalpy: number;
 
@@ -43,7 +43,7 @@ export class HeatBalance {
     this.heatInputFromFuel = model.heatInputFromFuel;
     this.heatInputFromAir = model.heatInputFromAir;
     this.availableHeatInputToBoiler = model.availableHeatInputToBoiler;
-    this.flueGasTemperature = model.flueGasTemperature;
+    this.flueGasTemperatureSet = model.flueGasTemperatureSet;
     this.flueGasEnthalpy = model.flueGasEnthalpy;
     this.surroundingAirEnthalpy = model.surroundingAirEnthalpy;
     this.heatLossWithFlueGases = model.heatLossWithFlueGases;

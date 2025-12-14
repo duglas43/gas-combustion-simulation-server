@@ -6,7 +6,7 @@ import { AirExcessCoefficient } from './entities';
 export class AirExcessCoefficientsService {
   constructor() {}
 
-  public async calculate(params: CalculateAirExcessCoefficientParams) {
+  public calculate(params: CalculateAirExcessCoefficientParams) {
     const airExcessCoefficients: AirExcessCoefficient[] = [];
     const alphaAirExcessCoefficient = new AirExcessCoefficient({
       name: 'alpha',

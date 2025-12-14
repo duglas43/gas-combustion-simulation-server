@@ -4,7 +4,7 @@ import { CombustionMaterialBalanceTemperature } from './entities';
 
 @Injectable()
 export class CombustionMaterialBalanceTemperaturesService {
-  public async calculate(
+  public calculate(
     params: CalculateCombustionMaterialBalanceTemperatureParams,
   ) {
     const lowerHeatingValue =

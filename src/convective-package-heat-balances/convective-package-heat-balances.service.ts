@@ -4,7 +4,7 @@ import { ConvectivePackageHeatBalance } from './entities';
 
 @Injectable()
 export class ConvectivePackageHeatBalancesService {
-  public async calculate(params: CalculateConvectivePackageHeatBalanceParams) {
+  public calculate(params: CalculateConvectivePackageHeatBalanceParams) {
     const averageHeatAbsorptionCoefficient = 0.7;
     const sumAngularCoefficients = 0.949;
     const furnaceExitWindowArea = 2.327;
@@ -12,50 +12,51 @@ export class ConvectivePackageHeatBalancesService {
     const screenWallBlacknessDegree = 0.8;
     const heatEfficiencyCoefficient = 0.8;
     const heatUtilizationCoefficient = 0.95;
-    const packageExitTemperature = 291.4;
+    const acceptedPackageExitTemperature =
+      params.acceptedPackageExitTemperature;
 
     const combustionProductEnthalpyExit =
       (params.alphaConvectivePackageCombustionMaterialBalance
         .theoreticalCO2Volume *
         (1.604309582 +
-          0.001133138 * packageExitTemperature +
-          -8.60416e-7 * packageExitTemperature ** 2 +
-          4.68441e-10 * packageExitTemperature ** 3 +
-          -1.44713e-13 * packageExitTemperature ** 4 +
-          1.82271e-17 * packageExitTemperature ** 5) +
+          0.001133138 * acceptedPackageExitTemperature +
+          -8.60416e-7 * acceptedPackageExitTemperature ** 2 +
+          4.68441e-10 * acceptedPackageExitTemperature ** 3 +
+          -1.44713e-13 * acceptedPackageExitTemperature ** 4 +
+          1.82271e-17 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.498317949 +
-            0.000109232 * packageExitTemperature +
-            -2.44654e-7 * packageExitTemperature ** 2 +
-            2.46157e-10 * packageExitTemperature ** 3 +
-            -1.56162e-13 * packageExitTemperature ** 4 +
-            -5.57059e-18 * packageExitTemperature ** 5) +
+            0.000109232 * acceptedPackageExitTemperature +
+            -2.44654e-7 * acceptedPackageExitTemperature ** 2 +
+            2.46157e-10 * acceptedPackageExitTemperature ** 3 +
+            -1.56162e-13 * acceptedPackageExitTemperature ** 4 +
+            -5.57059e-18 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalOxygenVolume *
           (1.306450711 +
-            0.000150251 * packageExitTemperature +
-            1.72284e-7 * packageExitTemperature ** 2 +
-            -2.32114e-10 * packageExitTemperature ** 3 +
-            1.01527e-13 * packageExitTemperature ** 4 +
-            -1.53025e-17 * packageExitTemperature ** 5) +
+            0.000150251 * acceptedPackageExitTemperature +
+            1.72284e-7 * acceptedPackageExitTemperature ** 2 +
+            -2.32114e-10 * acceptedPackageExitTemperature ** 3 +
+            1.01527e-13 * acceptedPackageExitTemperature ** 4 +
+            -1.53025e-17 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalNitrogenVolume *
           (1.29747332 +
-            -0.000010563 * packageExitTemperature +
-            2.4181e-7 * packageExitTemperature ** 2 +
-            -1.83389e-10 * packageExitTemperature ** 3 +
-            5.85924e-14 * packageExitTemperature ** 4 +
-            -7.03381e-18 * packageExitTemperature ** 5) +
+            -0.000010563 * acceptedPackageExitTemperature +
+            2.4181e-7 * acceptedPackageExitTemperature ** 2 +
+            -1.83389e-10 * acceptedPackageExitTemperature ** 3 +
+            5.85924e-14 * acceptedPackageExitTemperature ** 4 +
+            -7.03381e-18 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalSO2Volume *
           (0.607026715 +
-            0.000308632 * packageExitTemperature +
-            -1.5937e-7 * packageExitTemperature ** 2 +
-            1.63367e-11 * packageExitTemperature ** 3 +
-            1.25573e-14 * packageExitTemperature ** 4 +
-            -3.03012e-18 * packageExitTemperature ** 5)) *
-      packageExitTemperature;
+            0.000308632 * acceptedPackageExitTemperature +
+            -1.5937e-7 * acceptedPackageExitTemperature ** 2 +
+            1.63367e-11 * acceptedPackageExitTemperature ** 3 +
+            1.25573e-14 * acceptedPackageExitTemperature ** 4 +
+            -3.03012e-18 * acceptedPackageExitTemperature ** 5)) *
+      acceptedPackageExitTemperature;
 
     const heatBalanceAbsorption =
       params.heatBalance.heatRetentionCoefficient *
@@ -90,18 +91,18 @@ export class ConvectivePackageHeatBalancesService {
         (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 2.5;
 
     const logarithmicTemperatureDifference =
-      ((params.furnaceHeatBalance.combustionProductExitTemperature -
+      ((params.furnaceHeatBalance.calculatedFurnaceExitTemperature -
         heatedMediumTemperature -
-        (packageExitTemperature - heatedMediumTemperature)) *
+        (acceptedPackageExitTemperature - heatedMediumTemperature)) *
         geometricAdjustmentFactor) /
       Math.log(
-        (params.furnaceHeatBalance.combustionProductExitTemperature -
+        (params.furnaceHeatBalance.calculatedFurnaceExitTemperature -
           heatedMediumTemperature) /
-          (packageExitTemperature - heatedMediumTemperature),
+          (acceptedPackageExitTemperature - heatedMediumTemperature),
       );
     const averageCombustionTemperature =
-      (params.furnaceHeatBalance.combustionProductExitTemperature +
-        packageExitTemperature) /
+      (params.furnaceHeatBalance.calculatedFurnaceExitTemperature +
+        acceptedPackageExitTemperature) /
       2;
 
     const averageCombustionVelocity =
@@ -167,7 +168,7 @@ export class ConvectivePackageHeatBalancesService {
                 .effectiveRadiatingLayerThickness,
           )) -
         1) *
-      (1 - (0.37 * (packageExitTemperature + 273.15)) / 1000) *
+      (1 - (0.37 * (acceptedPackageExitTemperature + 273.15)) / 1000) *
       params.alphaConvectiveAvgCombustionMaterialBalance
         .specificVolumeFractionTriatomicGases;
 
@@ -207,7 +208,7 @@ export class ConvectivePackageHeatBalancesService {
         logarithmicTemperatureDifference) /
       params.heatBalance.calculatedHourlyFuelConsumption;
 
-    const exitTemperatureControlValue =
+    const calculatedPackageExitTemperature =
       (params.furnaceHeatBalance.combustionProductEnthalpyExit -
         heatTransferByEquation / params.heatBalance.heatRetentionCoefficient +
         (params.convecivePackageNumber === 1
@@ -217,43 +218,43 @@ export class ConvectivePackageHeatBalancesService {
       (params.alphaConvectivePackageCombustionMaterialBalance
         .theoreticalCO2Volume *
         (1.604309582 +
-          0.001133138 * packageExitTemperature +
-          -8.60416e-7 * packageExitTemperature ** 2 +
-          4.68441e-10 * packageExitTemperature ** 3 +
-          -1.44713e-13 * packageExitTemperature ** 4 +
-          1.82271e-17 * packageExitTemperature ** 5) +
+          0.001133138 * acceptedPackageExitTemperature +
+          -8.60416e-7 * acceptedPackageExitTemperature ** 2 +
+          4.68441e-10 * acceptedPackageExitTemperature ** 3 +
+          -1.44713e-13 * acceptedPackageExitTemperature ** 4 +
+          1.82271e-17 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalSO2Volume *
           (0.607026715 +
-            0.003008632 * packageExitTemperature +
-            -1.5937e-7 * packageExitTemperature ** 2 +
-            1.63637e-11 * packageExitTemperature ** 3 +
-            -2.57357e-14 * packageExitTemperature ** 4 +
-            -3.03012e-18 * packageExitTemperature ** 5) +
+            0.003008632 * acceptedPackageExitTemperature +
+            -1.5937e-7 * acceptedPackageExitTemperature ** 2 +
+            1.63637e-11 * acceptedPackageExitTemperature ** 3 +
+            -2.57357e-14 * acceptedPackageExitTemperature ** 4 +
+            -3.03012e-18 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.306704025 +
-            -6.71883e-6 * packageExitTemperature +
-            2.59388e-7 * packageExitTemperature ** 2 +
-            -1.60902e-10 * packageExitTemperature ** 3 +
-            1.14164e-14 * packageExitTemperature ** 4 +
-            1.04936e-17 * packageExitTemperature ** 5) +
+            -6.71883e-6 * acceptedPackageExitTemperature +
+            2.59388e-7 * acceptedPackageExitTemperature ** 2 +
+            -1.60902e-10 * acceptedPackageExitTemperature ** 3 +
+            1.14164e-14 * acceptedPackageExitTemperature ** 4 +
+            1.04936e-17 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalNitrogenVolume *
           (1.306450711 +
-            0.000150251 * packageExitTemperature +
-            1.72284e-7 * packageExitTemperature ** 2 +
-            -2.32114e-10 * packageExitTemperature ** 3 +
-            1.01527e-13 * packageExitTemperature ** 4 +
-            -1.53025e-17 * packageExitTemperature ** 5) +
+            0.000150251 * acceptedPackageExitTemperature +
+            1.72284e-7 * acceptedPackageExitTemperature ** 2 +
+            -2.32114e-10 * acceptedPackageExitTemperature ** 3 +
+            1.01527e-13 * acceptedPackageExitTemperature ** 4 +
+            -1.53025e-17 * acceptedPackageExitTemperature ** 5) +
         params.alphaConvectivePackageCombustionMaterialBalance
           .theoreticalOxygenVolume *
           (1.498317949 +
-            0.0001585 * packageExitTemperature +
-            -4.77872e-7 * packageExitTemperature ** 2 +
-            7.55826e-10 * packageExitTemperature ** 3 +
-            -5.20124e-13 * packageExitTemperature ** 4 +
-            1.33782e-16 * packageExitTemperature ** 5));
+            0.0001585 * acceptedPackageExitTemperature +
+            -4.77872e-7 * acceptedPackageExitTemperature ** 2 +
+            7.55826e-10 * acceptedPackageExitTemperature ** 3 +
+            -5.20124e-13 * acceptedPackageExitTemperature ** 4 +
+            1.33782e-16 * acceptedPackageExitTemperature ** 5));
 
     const heatBalanceImbalance = Math.abs(
       ((heatBalanceAbsorption - heatTransferByEquation) * 100) /
@@ -274,7 +275,7 @@ export class ConvectivePackageHeatBalancesService {
       screenWallBlacknessDegree,
       heatEfficiencyCoefficient,
       heatUtilizationCoefficient,
-      packageExitTemperature,
+      acceptedPackageExitTemperature,
       combustionProductEnthalpyExit,
       heatBalanceAbsorption,
       radiativeHeatLoad,
@@ -296,7 +297,7 @@ export class ConvectivePackageHeatBalancesService {
       radiativeHeatTransferCoefficient,
       heatTransferCoefficient,
       heatTransferByEquation,
-      exitTemperatureControlValue,
+      calculatedPackageExitTemperature,
       heatBalanceImbalance,
       specificHeatTransferred,
     });

@@ -4,7 +4,7 @@ import { FurnaceCharacteristic } from './entities';
 
 @Injectable()
 export class FurnaceCharacteristicsService {
-  public async calculate(params: CalculateFurnaceCharacteristicsParams) {
+  public calculate(params: CalculateFurnaceCharacteristicsParams) {
     const furnaceCharacteristic = new FurnaceCharacteristic({
       ...params.createFurnaceCharacteristicDto,
     });

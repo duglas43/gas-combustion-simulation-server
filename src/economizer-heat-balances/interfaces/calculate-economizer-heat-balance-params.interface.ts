@@ -8,6 +8,7 @@ import { HeatBalance } from 'src/heat-balances/entities';
 
 export interface CalculateEconomizerHeatBalanceParams {
   fuelComposition: FuelComposition;
+  acceptedEconomizerExitTemperature: number;
   boilerCharacteristic: BoilerCharacteristic;
   economizerCharacteristic: EconomizerCharacteristic;
   alphaEconomizerCombustionMaterialBalance: CombustionMaterialBalance;

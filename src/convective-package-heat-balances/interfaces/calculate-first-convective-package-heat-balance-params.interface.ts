@@ -7,6 +7,7 @@ import { HeatBalance } from 'src/heat-balances/entities';
 
 export interface CalculateConvectivePackageHeatBalanceParams {
   convecivePackageNumber: number;
+  acceptedPackageExitTemperature: number;
   convectivePackageCharacteristics: Pick<
     ConvectivePackage,
     | 'channelCrossSectionArea'
@@ -52,7 +53,7 @@ export interface CalculateConvectivePackageHeatBalanceParams {
   >;
   furnaceHeatBalance: Pick<
     FurnaceHeatBalance,
-    | 'combustionProductExitTemperature'
+    | 'calculatedFurnaceExitTemperature'
     | 'blackBodyRadiationCoefficient'
     | 'combustionProductEnthalpyExit'
   >;

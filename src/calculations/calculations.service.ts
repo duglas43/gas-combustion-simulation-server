@@ -15,6 +15,20 @@ import { FurnaceHeatBalancesService } from 'src/furnace-heat-balances/furnace-he
 import { ConvectivePackageHeatBalancesService } from 'src/convective-package-heat-balances/convective-package-heat-balances.service';
 import { EconomizerHeatBalancesService } from 'src/economizer-heat-balances/economizer-heat-balances.service';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import { EconomizerCharacteristic } from 'src/economizer-characteristics/entities';
+import { BoilerCharacteristic } from 'src/boiler-characteristics/entities';
+import { FuelComposition } from 'src/fuel-compositions/entities';
+import { FurnaceCharacteristic } from 'src/furnace-characteristics/entities';
+import { ConvectivePackage } from 'src/convective-packages/entities';
+import { AirLeakage } from 'src/air-leakages/entities';
+import { TemperatureCharacteristic } from 'src/temperature-characteristics/entities';
+import { CombustionMaterialBalance } from 'src/combustion-material-balances/entities';
+import { AirExcessCoefficient } from 'src/air-excess-coefficients/entities';
+import { CombustionMaterialBalanceTemperature } from 'src/combustion-material-balance-temperatures/entities';
+import { HeatBalance } from 'src/heat-balances/entities';
+import { FurnaceHeatBalance } from 'src/furnace-heat-balances/entities';
+import { ConvectivePackageHeatBalance } from 'src/convective-package-heat-balances/entities';
+import { EconomizerHeatBalance } from 'src/economizer-heat-balances/entities';
 
 @Injectable()
 export class CalculationsService {
@@ -38,55 +52,83 @@ export class CalculationsService {
   ) {}
 
   async create(dto: CreateCalculationDto) {
-    const economizerCharacteristic =
-      await this.economizerCharacteristicsService.calculate();
+    const acceptedValuesMap = {
+      economizerExitTemperature: 150,
+      firstConvectivePackageExitTemperature: 290,
+      secondConvectivePackageExitTemperature: 215,
+      furnaceExitTemperature: 840,
+      adiabaticCombustionTemperature: 1850,
+    };
+    const discrepancyThreshold = 0.01;
+    const furnaceDichotomyDivisionPercentage = 50;
+    const convectivePackage1DichotomyDivisionPercentage = 20;
+    const convectivePackage2DichotomyDivisionPercentage = 20;
+    const economizerDichotomyDivisionPercentage = 10;
+    let economizerCharacteristic: EconomizerCharacteristic;
+    let boilerCharacteristic: BoilerCharacteristic;
+    let fuelComposition: FuelComposition;
+    let furnaceCharacteristic: FurnaceCharacteristic;
+    let convectivePackages: ConvectivePackage[];
+    let airLeakage: AirLeakage;
+    let temperatureCharacteristic: TemperatureCharacteristic;
+    let combustionMaterialBalanceTemperature: CombustionMaterialBalanceTemperature;
+    let airExcessCoefficients: AirExcessCoefficient[];
+    let combustionMaterialBalances: CombustionMaterialBalance[];
+    let heatBalance: HeatBalance;
+    let furnaceHeatBalance: FurnaceHeatBalance;
+    let firstConvectivePackageHeatBalance: ConvectivePackageHeatBalance;
+    let secondConvectivePackageHeatBalance: ConvectivePackageHeatBalance;
+    let economizerHeatBalance: EconomizerHeatBalance;
 
-    const boilerCharacteristic =
-      await this.boilerCharacteristicsService.calculate(
+    let needRecalculation = true;
+
+    while (needRecalculation) {
+      needRecalculation = false;
+      economizerCharacteristic =
+        this.economizerCharacteristicsService.calculate();
+      boilerCharacteristic = this.boilerCharacteristicsService.calculate(
         dto.boilerCharacteristics,
       );
 
-    const fuelComposition = await this.fuelCompositionsService.calculate({
-      createFuelCompositionDto: dto.fuelComposition,
-      boilerCharacreristics: {
-        gasInletTemperature: boilerCharacteristic.gasInletTemperature,
-      },
-    });
+      fuelComposition = this.fuelCompositionsService.calculate({
+        createFuelCompositionDto: dto.fuelComposition,
+        boilerCharacreristics: {
+          gasInletTemperature: boilerCharacteristic.gasInletTemperature,
+        },
+      });
 
-    const furnaceCharacteristic =
-      await this.furnaceCharacteristicsService.calculate({
+      furnaceCharacteristic = this.furnaceCharacteristicsService.calculate({
         createFurnaceCharacteristicDto: dto.furnaceCharacteristics,
       });
 
-    const convectivePackages = await this.convectivePackagesService.calculate({
-      createConvectivePackageDtos: dto.convectivePackagesParameters,
-    });
-
-    const airLeakage = await this.airLeakagesService.calculate({
-      boilerCharacreristics: {
-        actualSteamProduction: boilerCharacteristic.actualSteamProduction,
-        nominalSteamProduction: boilerCharacteristic.nominalSteamProduction,
-      },
-    });
-
-    const temperatureCharacteristic =
-      await this.temperatureCharacteristicsService.calculate({
-        boilerCharacteristics: {
-          roomAirTemperature: boilerCharacteristic.roomAirTemperature,
-        },
-        fuelComposition,
+      convectivePackages = this.convectivePackagesService.calculate({
+        createConvectivePackageDtos: dto.convectivePackagesParameters,
       });
 
-    const combustionMaterialBalanceTemperature =
-      await this.combustionMaterialBalanceTemperaturesService.calculate({
-        fuelComposition,
-        boilerCharacteristics: {
-          airHumidityForCombustion:
-            boilerCharacteristic.airHumidityForCombustion,
+      airLeakage = this.airLeakagesService.calculate({
+        boilerCharacreristics: {
+          actualSteamProduction: boilerCharacteristic.actualSteamProduction,
+          nominalSteamProduction: boilerCharacteristic.nominalSteamProduction,
         },
       });
-    const airExcessCoefficients =
-      await this.airExcessCoefficientsService.calculate({
+
+      temperatureCharacteristic =
+        this.temperatureCharacteristicsService.calculate({
+          boilerCharacteristics: {
+            roomAirTemperature: boilerCharacteristic.roomAirTemperature,
+          },
+          fuelComposition,
+        });
+
+      combustionMaterialBalanceTemperature =
+        this.combustionMaterialBalanceTemperaturesService.calculate({
+          fuelComposition,
+          boilerCharacteristics: {
+            airHumidityForCombustion:
+              boilerCharacteristic.airHumidityForCombustion,
+          },
+        });
+      airExcessCoefficients = this.airExcessCoefficientsService.calculate({
         airLeakage: {
           actualEconomizerAirLeakage: airLeakage.actualEconomizerAirLeakage,
           actualFirstConvectiveAirLeakage:
@@ -99,190 +141,362 @@ export class CalculationsService {
           excessAirCoefficient: boilerCharacteristic.excessAirCoefficient,
         },
       });
-    const combustionMaterialBalances =
-      await this.combustionMaterialBalancesService.calculate({
-        airExcessCoefficients,
+      combustionMaterialBalances =
+        this.combustionMaterialBalancesService.calculate({
+          airExcessCoefficients,
+          boilerCharacteristics: {
+            airHumidityForCombustion:
+              boilerCharacteristic.airHumidityForCombustion,
+            gasHumidityForCombustion:
+              boilerCharacteristic.gasHumidityForCombustion,
+            flueGasAbsolutePressure:
+              boilerCharacteristic.flueGasAbsolutePressure,
+          },
+          combustionMaterialBalanceTemperature: {
+            theoreticalDryAirConsumption:
+              combustionMaterialBalanceTemperature.theoreticalDryAirConsumption,
+            theoreticalWetAirConsumption:
+              combustionMaterialBalanceTemperature.theoreticalWetAirConsumption,
+          },
+          fuelComposition,
+        });
+      const alphaFlueGasCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFlueGas',
+      );
+      const alphaFlueGasCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            'alphaFlueGas',
+        );
+
+      heatBalance = this.heatBalancesService.calculate({
+        alphaFlueGasCoefficient: alphaFlueGasCoefficient.value,
+        alphaFlueGasCombustionMaterialBalance,
+        flueGasTemperatureSet: acceptedValuesMap.economizerExitTemperature,
         boilerCharacteristics: {
-          airHumidityForCombustion:
-            boilerCharacteristic.airHumidityForCombustion,
-          gasHumidityForCombustion:
-            boilerCharacteristic.gasHumidityForCombustion,
-          flueGasAbsolutePressure: boilerCharacteristic.flueGasAbsolutePressure,
+          actualSteamProduction: boilerCharacteristic.actualSteamProduction,
+          blowdownPercentage: boilerCharacteristic.blowdownPercentage,
+          excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
+          feedWaterTemperature: boilerCharacteristic.feedWaterTemperature,
+          gasInletTemperature: boilerCharacteristic.gasInletTemperature,
+          loadPercentage: boilerCharacteristic.loadPercentage,
+          nominalSteamProduction: boilerCharacteristic.nominalSteamProduction,
+          roomAirTemperature: boilerCharacteristic.roomAirTemperature,
         },
-        combustionMaterialBalanceTemperature: {
-          theoreticalDryAirConsumption:
-            combustionMaterialBalanceTemperature.theoreticalDryAirConsumption,
-          theoreticalWetAirConsumption:
-            combustionMaterialBalanceTemperature.theoreticalWetAirConsumption,
-        },
+        combustionMaterialBalanceTemperature,
         fuelComposition,
+        temperatureCharacteristics: {
+          boilerRoomAirHeatCapacity:
+            temperatureCharacteristic.boilerRoomAirHeatCapacity,
+          gasMixtureHeatCapacity:
+            temperatureCharacteristic.gasMixtureHeatCapacity,
+        },
       });
-    const alphaFlueGasCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFlueGas',
-    );
-    const alphaFlueGasCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName === 'alphaFlueGas',
-      );
 
-    const heatBalance = await this.heatBalancesService.calculate({
-      alphaFlueGasCoefficient: alphaFlueGasCoefficient.value,
-      alphaFlueGasCombustionMaterialBalance,
-      boilerCharacteristics: {
-        actualSteamProduction: boilerCharacteristic.actualSteamProduction,
-        blowdownPercentage: boilerCharacteristic.blowdownPercentage,
-        excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
-        feedWaterTemperature: boilerCharacteristic.feedWaterTemperature,
-        gasInletTemperature: boilerCharacteristic.gasInletTemperature,
-        loadPercentage: boilerCharacteristic.loadPercentage,
-        nominalSteamProduction: boilerCharacteristic.nominalSteamProduction,
-        roomAirTemperature: boilerCharacteristic.roomAirTemperature,
-      },
-      combustionMaterialBalanceTemperature,
-      fuelComposition,
-      temperatureCharacteristics: {
-        boilerRoomAirHeatCapacity:
-          temperatureCharacteristic.boilerRoomAirHeatCapacity,
-        gasMixtureHeatCapacity:
-          temperatureCharacteristic.gasMixtureHeatCapacity,
-      },
-    });
+      const alphaBurnerCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) => airExcessCoefficient.name === 'alphaBurner',
+      );
+      const alphaFurnaceAvgCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) =>
+          airExcessCoefficient.name === 'alphaFurnaceAvg',
+      );
+      const alphaBurnerCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            alphaBurnerCoefficient.name,
+        );
+      const alphaFurnaceAvgCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            alphaFurnaceAvgCoefficient.name,
+        );
 
-    const alphaBurnerCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) => airExcessCoefficient.name === 'alphaBurner',
-    );
-    const alphaFurnaceAvgCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFurnaceAvg',
-    );
-    const alphaBurnerCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          alphaBurnerCoefficient.name,
-      );
-    const alphaFurnaceAvgCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          alphaFurnaceAvgCoefficient.name,
-      );
-
-    const furnaceHeatBalance = await this.furnaceHeatBalancesService.calculate({
-      airLeakage,
-      alphaBurnerCoefficient: alphaBurnerCoefficient.value,
-      alphaBurnerCombustionMaterialBalance,
-      alphaFurnaceAvgCombustionMaterialBalance,
-      boilerCharacteristics: {
-        flueGasAbsolutePressure: boilerCharacteristic.flueGasAbsolutePressure,
-      },
-      combustionMaterialBalanceTemperature,
-      fuelComposition,
-      furnaceCharacteristic,
-      heatBalance,
-      temperatureCharacteristic,
-    });
-
-    const firstAlphaConvectiveAvgCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) =>
-        airExcessCoefficient.name === 'alphaConvectivePackage1Avg',
-    );
-    const firstAlphaConvectivePackageCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) =>
-        airExcessCoefficient.name === 'alphaConvectivePackage1',
-    );
-    const firstAlphaConvectiveAvgCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          firstAlphaConvectiveAvgCoefficient.name,
-      );
-    const firstAlphaConvectivePackageCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          firstAlphaConvectivePackageCoefficient.name,
-      );
-    const secondAlphaConvectiveAvgCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) =>
-        airExcessCoefficient.name === 'alphaConvectivePackage2Avg',
-    );
-    const secondAlphaConvectivePackageCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) =>
-        airExcessCoefficient.name === 'alphaConvectivePackage2',
-    );
-    const secondAlphaConvectiveAvgCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          secondAlphaConvectiveAvgCoefficient.name,
-      );
-    const secondAlphaConvectivePackageCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          secondAlphaConvectivePackageCoefficient.name,
-      );
-
-    const firstConvectivePackageHeatBalance =
-      await this.convectivePackageHeatBalancesService.calculate({
-        convecivePackageNumber: 1,
-        convectivePackageCharacteristics: convectivePackages.find(
-          (cp) => cp.packageNumber === 1,
-        ),
+      furnaceHeatBalance = this.furnaceHeatBalancesService.calculate({
         airLeakage,
-        alphaConvectiveAvgCombustionMaterialBalance:
-          firstAlphaConvectiveAvgCombustionMaterialBalance,
-        alphaConvectivePackageCombustionMaterialBalance:
-          firstAlphaConvectivePackageCombustionMaterialBalance,
+        acceptedFurnaceExitTemperature:
+          acceptedValuesMap.furnaceExitTemperature,
+        acceptedAdiabaticCombustionTemperature:
+          acceptedValuesMap.adiabaticCombustionTemperature,
+        alphaBurnerCoefficient: alphaBurnerCoefficient.value,
+        alphaBurnerCombustionMaterialBalance,
+        alphaFurnaceAvgCombustionMaterialBalance,
         boilerCharacteristics: {
-          excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
           flueGasAbsolutePressure: boilerCharacteristic.flueGasAbsolutePressure,
         },
-        furnaceHeatBalance,
+        combustionMaterialBalanceTemperature,
+        fuelComposition,
+        furnaceCharacteristic,
         heatBalance,
-      });
-    const secondConvectivePackageHeatBalance =
-      await this.convectivePackageHeatBalancesService.calculate({
-        convecivePackageNumber: 2,
-        convectivePackageCharacteristics: convectivePackages.find(
-          (cp) => cp.packageNumber === 2,
-        ),
-        airLeakage,
-        alphaConvectiveAvgCombustionMaterialBalance:
-          secondAlphaConvectiveAvgCombustionMaterialBalance,
-        alphaConvectivePackageCombustionMaterialBalance:
-          secondAlphaConvectivePackageCombustionMaterialBalance,
-        boilerCharacteristics: {
-          excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
-          flueGasAbsolutePressure: boilerCharacteristic.flueGasAbsolutePressure,
-        },
-        furnaceHeatBalance,
-        heatBalance,
+        temperatureCharacteristic,
       });
 
-    const alphaEconomizerCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) => airExcessCoefficient.name === 'alphaEconomizer',
-    );
-    const alphaEconomizerCombustionMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          alphaEconomizerCoefficient.name,
-      );
-    const alphaFurnaceCoefficient = airExcessCoefficients.find(
-      (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFurnace',
-    );
-    const alphaFurnaceCombusitonMaterialBalance =
-      combustionMaterialBalances.find(
-        (combustionMaterialBalance) =>
-          combustionMaterialBalance.airExcessCoefficientName ===
-          alphaFurnaceCoefficient.name,
-      );
+      if (
+        Math.abs(
+          acceptedValuesMap.furnaceExitTemperature -
+            furnaceHeatBalance.calculatedFurnaceExitTemperature,
+        ) >= discrepancyThreshold
+      ) {
+        if (
+          acceptedValuesMap.furnaceExitTemperature <
+          furnaceHeatBalance.calculatedFurnaceExitTemperature
+        ) {
+          acceptedValuesMap.furnaceExitTemperature =
+            acceptedValuesMap.furnaceExitTemperature +
+            Math.abs(
+              acceptedValuesMap.furnaceExitTemperature -
+                furnaceHeatBalance.calculatedFurnaceExitTemperature,
+            ) /
+              2;
+        } else {
+          acceptedValuesMap.furnaceExitTemperature =
+            acceptedValuesMap.furnaceExitTemperature -
+            Math.abs(
+              acceptedValuesMap.furnaceExitTemperature -
+                furnaceHeatBalance.calculatedFurnaceExitTemperature,
+            ) /
+              2;
+        }
+        needRecalculation = true;
+        continue;
+      }
+      if (
+        Math.abs(
+          acceptedValuesMap.adiabaticCombustionTemperature -
+            furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
+        ) >= discrepancyThreshold
+      ) {
+        if (
+          acceptedValuesMap.adiabaticCombustionTemperature <
+          furnaceHeatBalance.calculatedAdiabaticCombustionTemperature
+        ) {
+          acceptedValuesMap.adiabaticCombustionTemperature =
+            acceptedValuesMap.adiabaticCombustionTemperature +
+            Math.abs(
+              acceptedValuesMap.adiabaticCombustionTemperature -
+                furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
+            ) /
+              2;
+        } else {
+          acceptedValuesMap.adiabaticCombustionTemperature =
+            acceptedValuesMap.adiabaticCombustionTemperature -
+            Math.abs(
+              acceptedValuesMap.adiabaticCombustionTemperature -
+                furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
+            ) /
+              2;
+        }
+        needRecalculation = true;
+        continue;
+      }
 
-    const economizerHeatBalance =
-      await this.economizerHeatBalancesService.calculate({
+      const firstAlphaConvectiveAvgCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) =>
+          airExcessCoefficient.name === 'alphaConvectivePackage1Avg',
+      );
+      const firstAlphaConvectivePackageCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) =>
+          airExcessCoefficient.name === 'alphaConvectivePackage1',
+      );
+      const firstAlphaConvectiveAvgCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            firstAlphaConvectiveAvgCoefficient.name,
+        );
+      const firstAlphaConvectivePackageCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            firstAlphaConvectivePackageCoefficient.name,
+        );
+      const secondAlphaConvectiveAvgCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) =>
+          airExcessCoefficient.name === 'alphaConvectivePackage2Avg',
+      );
+      const secondAlphaConvectivePackageCoefficient =
+        airExcessCoefficients.find(
+          (airExcessCoefficient) =>
+            airExcessCoefficient.name === 'alphaConvectivePackage2',
+        );
+      const secondAlphaConvectiveAvgCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            secondAlphaConvectiveAvgCoefficient.name,
+        );
+      const secondAlphaConvectivePackageCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            secondAlphaConvectivePackageCoefficient.name,
+        );
+
+      firstConvectivePackageHeatBalance =
+        this.convectivePackageHeatBalancesService.calculate({
+          convecivePackageNumber: 1,
+          acceptedPackageExitTemperature:
+            acceptedValuesMap.firstConvectivePackageExitTemperature,
+          convectivePackageCharacteristics: convectivePackages.find(
+            (cp) => cp.packageNumber === 1,
+          ),
+          airLeakage,
+          alphaConvectiveAvgCombustionMaterialBalance:
+            firstAlphaConvectiveAvgCombustionMaterialBalance,
+          alphaConvectivePackageCombustionMaterialBalance:
+            firstAlphaConvectivePackageCombustionMaterialBalance,
+          boilerCharacteristics: {
+            excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
+            flueGasAbsolutePressure:
+              boilerCharacteristic.flueGasAbsolutePressure,
+          },
+          furnaceHeatBalance,
+          heatBalance,
+        });
+
+      if (
+        acceptedValuesMap.firstConvectivePackageExitTemperature -
+          firstConvectivePackageHeatBalance.heatedMediumTemperature <=
+        0
+      ) {
+        acceptedValuesMap.adiabaticCombustionTemperature =
+          firstConvectivePackageHeatBalance.heatedMediumTemperature +
+          furnaceDichotomyDivisionPercentage;
+        acceptedValuesMap.firstConvectivePackageExitTemperature =
+          firstConvectivePackageHeatBalance.heatedMediumTemperature +
+          furnaceDichotomyDivisionPercentage;
+        needRecalculation = true;
+        continue;
+      } else {
+        if (
+          Math.abs(
+            acceptedValuesMap.firstConvectivePackageExitTemperature -
+              firstConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+          ) >= discrepancyThreshold
+        ) {
+          if (
+            acceptedValuesMap.firstConvectivePackageExitTemperature -
+              firstConvectivePackageHeatBalance.calculatedPackageExitTemperature <
+            discrepancyThreshold
+          ) {
+            acceptedValuesMap.firstConvectivePackageExitTemperature =
+              acceptedValuesMap.firstConvectivePackageExitTemperature +
+              Math.abs(
+                (acceptedValuesMap.firstConvectivePackageExitTemperature -
+                  firstConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+                  0.01 *
+                  convectivePackage1DichotomyDivisionPercentage,
+              );
+          } else {
+            acceptedValuesMap.firstConvectivePackageExitTemperature =
+              acceptedValuesMap.firstConvectivePackageExitTemperature -
+              Math.abs(
+                (acceptedValuesMap.firstConvectivePackageExitTemperature -
+                  firstConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+                  0.01 *
+                  convectivePackage1DichotomyDivisionPercentage,
+              );
+          }
+          needRecalculation = true;
+          continue;
+        }
+      }
+      secondConvectivePackageHeatBalance =
+        this.convectivePackageHeatBalancesService.calculate({
+          convecivePackageNumber: 2,
+          acceptedPackageExitTemperature:
+            acceptedValuesMap.secondConvectivePackageExitTemperature,
+          convectivePackageCharacteristics: convectivePackages.find(
+            (cp) => cp.packageNumber === 2,
+          ),
+          airLeakage,
+          alphaConvectiveAvgCombustionMaterialBalance:
+            secondAlphaConvectiveAvgCombustionMaterialBalance,
+          alphaConvectivePackageCombustionMaterialBalance:
+            secondAlphaConvectivePackageCombustionMaterialBalance,
+          boilerCharacteristics: {
+            excessPressureInBoiler: boilerCharacteristic.excessPressureInBoiler,
+            flueGasAbsolutePressure:
+              boilerCharacteristic.flueGasAbsolutePressure,
+          },
+          furnaceHeatBalance,
+          heatBalance,
+        });
+
+      if (
+        acceptedValuesMap.secondConvectivePackageExitTemperature -
+          secondConvectivePackageHeatBalance.heatedMediumTemperature <=
+        0
+      ) {
+        acceptedValuesMap.adiabaticCombustionTemperature =
+          secondConvectivePackageHeatBalance.heatedMediumTemperature +
+          furnaceDichotomyDivisionPercentage;
+        acceptedValuesMap.secondConvectivePackageExitTemperature =
+          secondConvectivePackageHeatBalance.heatedMediumTemperature +
+          furnaceDichotomyDivisionPercentage;
+        needRecalculation = true;
+        continue;
+      } else {
+        if (
+          Math.abs(
+            acceptedValuesMap.secondConvectivePackageExitTemperature -
+              secondConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+          ) >= discrepancyThreshold
+        ) {
+          if (
+            acceptedValuesMap.secondConvectivePackageExitTemperature -
+              secondConvectivePackageHeatBalance.calculatedPackageExitTemperature <
+            discrepancyThreshold
+          ) {
+            acceptedValuesMap.secondConvectivePackageExitTemperature =
+              acceptedValuesMap.secondConvectivePackageExitTemperature +
+              Math.abs(
+                (acceptedValuesMap.secondConvectivePackageExitTemperature -
+                  secondConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+                  0.01 *
+                  convectivePackage2DichotomyDivisionPercentage,
+              );
+          } else {
+            acceptedValuesMap.secondConvectivePackageExitTemperature =
+              acceptedValuesMap.secondConvectivePackageExitTemperature -
+              Math.abs(
+                (acceptedValuesMap.secondConvectivePackageExitTemperature -
+                  secondConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+                  0.01 *
+                  convectivePackage2DichotomyDivisionPercentage,
+              );
+          }
+          needRecalculation = true;
+          continue;
+        }
+      }
+
+      const alphaEconomizerCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) =>
+          airExcessCoefficient.name === 'alphaEconomizer',
+      );
+      const alphaEconomizerCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            alphaEconomizerCoefficient.name,
+        );
+      const alphaFurnaceCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFurnace',
+      );
+      const alphaFurnaceCombusitonMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            alphaFurnaceCoefficient.name,
+        );
+
+      economizerHeatBalance = this.economizerHeatBalancesService.calculate({
         airLeakage,
+        acceptedEconomizerExitTemperature:
+          acceptedValuesMap.economizerExitTemperature,
         alphaEconomizerCombustionMaterialBalance,
         alphaFurnaceCombusitonMaterialBalance,
         boilerCharacteristic,
@@ -291,6 +505,39 @@ export class CalculationsService {
         fuelComposition,
         heatBalance,
       });
+      if (
+        Math.abs(
+          acceptedValuesMap.economizerExitTemperature -
+            economizerHeatBalance.calculatedEconomizerExitTemperature,
+        ) >= discrepancyThreshold
+      ) {
+        if (
+          acceptedValuesMap.economizerExitTemperature -
+            economizerHeatBalance.calculatedEconomizerExitTemperature <
+          discrepancyThreshold
+        ) {
+          acceptedValuesMap.economizerExitTemperature =
+            acceptedValuesMap.economizerExitTemperature +
+            Math.abs(
+              (acceptedValuesMap.economizerExitTemperature -
+                economizerHeatBalance.calculatedEconomizerExitTemperature) *
+                0.01 *
+                economizerDichotomyDivisionPercentage,
+            );
+        } else {
+          acceptedValuesMap.economizerExitTemperature =
+            acceptedValuesMap.economizerExitTemperature -
+            Math.abs(
+              (acceptedValuesMap.economizerExitTemperature -
+                economizerHeatBalance.calculatedEconomizerExitTemperature) *
+                0.01 *
+                economizerDichotomyDivisionPercentage,
+            );
+        }
+        needRecalculation = true;
+        continue;
+      }
+    }
 
     const result = {
       boilerCharacteristic: this.convertIntToFloat(boilerCharacteristic),

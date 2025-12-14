@@ -4,7 +4,7 @@ import { CombustionMaterialBalance } from './entities';
 
 @Injectable()
 export class CombustionMaterialBalancesService {
-  public async calculate(params: CalculateCombustionMaterialBalanceParams) {
+  public calculate(params: CalculateCombustionMaterialBalanceParams) {
     const alphaNames = [
       'alpha',
       'alphaBurner',

@@ -9,6 +9,8 @@ import { CombustionMaterialBalanceTemperature } from 'src/combustion-material-ba
 
 export interface CalculateFurnaceHeatBalanceParams {
   fuelComposition: FuelComposition;
+  acceptedAdiabaticCombustionTemperature: number;
+  acceptedFurnaceExitTemperature: number;
   boilerCharacteristics: Pick<BoilerCharacteristic, 'flueGasAbsolutePressure'>;
   heatBalance: Pick<
     HeatBalance,

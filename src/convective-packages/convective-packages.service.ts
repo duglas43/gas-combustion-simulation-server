@@ -4,7 +4,7 @@ import { ConvectivePackage } from './entities';
 
 @Injectable()
 export class ConvectivePackagesService {
-  public async calculate(params: CalculateConvectivePackageParams) {
+  public calculate(params: CalculateConvectivePackageParams) {
     const convectivePackages: ConvectivePackage[] = [];
     for (const convectivePackage of params.createConvectivePackageDtos) {
       const relativeTubePitchInRow =

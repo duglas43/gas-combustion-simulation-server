@@ -7,7 +7,7 @@ export class FurnaceHeatBalance {
 
   luminousFlameFillingCoefficient: number;
 
-  furnaceExitTemperatureSet: number;
+  acceptedFurnaceExitTemperature: number;
 
   combustionProductEnthalpyExit: number;
 
@@ -19,9 +19,9 @@ export class FurnaceHeatBalance {
 
   usefulHeatReleaseInFurnace: number;
 
-  assumedAdiabaticCombustionTemperature: number;
+  acceptedAdiabaticCombustionTemperature: number;
 
-  actualAdiabaticCombustionTemperature: number;
+  calculatedAdiabaticCombustionTemperature: number;
 
   imbalancePercentage: number;
 
@@ -51,7 +51,7 @@ export class FurnaceHeatBalance {
 
   effectiveBugerCriterion: number;
 
-  combustionProductExitTemperature: number;
+  calculatedFurnaceExitTemperature: number;
 
   calculatedImbalance: number;
 
@@ -69,16 +69,16 @@ export class FurnaceHeatBalance {
     this.parameterM0 = model.parameterM0;
     this.luminousFlameFillingCoefficient =
       model.luminousFlameFillingCoefficient;
-    this.furnaceExitTemperatureSet = model.furnaceExitTemperatureSet;
+    this.acceptedFurnaceExitTemperature = model.acceptedFurnaceExitTemperature;
     this.combustionProductEnthalpyExit = model.combustionProductEnthalpyExit;
     this.combustionAirEnthalpy = model.combustionAirEnthalpy;
     this.airFractionFromAirPreheater = model.airFractionFromAirPreheater;
     this.heatInputToFurnaceFromAir = model.heatInputToFurnaceFromAir;
     this.usefulHeatReleaseInFurnace = model.usefulHeatReleaseInFurnace;
-    this.assumedAdiabaticCombustionTemperature =
-      model.assumedAdiabaticCombustionTemperature;
-    this.actualAdiabaticCombustionTemperature =
-      model.actualAdiabaticCombustionTemperature;
+    this.acceptedAdiabaticCombustionTemperature =
+      model.acceptedAdiabaticCombustionTemperature;
+    this.calculatedAdiabaticCombustionTemperature =
+      model.calculatedAdiabaticCombustionTemperature;
     this.imbalancePercentage = model.imbalancePercentage;
     this.averageHeatCapacityProductsInFurnace =
       model.averageHeatCapacityProductsInFurnace;
@@ -98,8 +98,8 @@ export class FurnaceHeatBalance {
       model.furnaceMediumAbsorptionCoefficient;
     this.bugerCriterion = model.bugerCriterion;
     this.effectiveBugerCriterion = model.effectiveBugerCriterion;
-    this.combustionProductExitTemperature =
-      model.combustionProductExitTemperature;
+    this.calculatedFurnaceExitTemperature =
+      model.calculatedFurnaceExitTemperature;
     this.calculatedImbalance = model.calculatedImbalance;
     this.heatAbsorbedByRadiativeScreens = model.heatAbsorbedByRadiativeScreens;
     this.specificHeatLoadRadiativeScreens =

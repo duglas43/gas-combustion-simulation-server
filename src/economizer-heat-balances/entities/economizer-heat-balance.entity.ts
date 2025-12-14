@@ -5,7 +5,7 @@ export class EconomizerHeatBalance {
 
   heatUtilizationCoefficient: number;
 
-  economizerExitTemperature: number;
+  acceptedEconomizerExitTemperature: number;
 
   combustionProductEnthalpyExit: number;
 
@@ -45,7 +45,7 @@ export class EconomizerHeatBalance {
 
   heatTransferByEquation: number;
 
-  controlExitTemperature: number;
+  calculatedEconomizerExitTemperature: number;
 
   heatBalanceImbalance: number;
 
@@ -55,7 +55,8 @@ export class EconomizerHeatBalance {
     this.geometricAdjustmentFactor = model.geometricAdjustmentFactor;
     this.heatEfficiencyCoefficient = model.heatEfficiencyCoefficient;
     this.heatUtilizationCoefficient = model.heatUtilizationCoefficient;
-    this.economizerExitTemperature = model.economizerExitTemperature;
+    this.acceptedEconomizerExitTemperature =
+      model.acceptedEconomizerExitTemperature;
     this.combustionProductEnthalpyExit = model.combustionProductEnthalpyExit;
     this.economizerHeatAbsorption = model.economizerHeatAbsorption;
     this.maxHeatedMediumTemperature = model.maxHeatedMediumTemperature;
@@ -78,7 +79,8 @@ export class EconomizerHeatBalance {
       model.convectiveHeatTransferCoefficient;
     this.heatTransferCoefficient = model.heatTransferCoefficient;
     this.heatTransferByEquation = model.heatTransferByEquation;
-    this.controlExitTemperature = model.controlExitTemperature;
+    this.calculatedEconomizerExitTemperature =
+      model.calculatedEconomizerExitTemperature;
     this.heatBalanceImbalance = model.heatBalanceImbalance;
     this.specificHeatTransferEconomizer = model.specificHeatTransferEconomizer;
   }

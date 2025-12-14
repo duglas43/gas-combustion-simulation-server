@@ -4,7 +4,7 @@ import { TemperatureCharacteristic } from './entities';
 
 @Injectable()
 export class TemperatureCharacteristicsService {
-  public async calculate(params: CalculateTemperatureCharacteristicParams) {
+  public calculate(params: CalculateTemperatureCharacteristicParams) {
     const temperatureCharacteristic = new TemperatureCharacteristic({
       recirculationRate: 0,
       combustionAirTemperature: params.boilerCharacteristics.roomAirTemperature,

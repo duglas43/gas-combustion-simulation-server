@@ -4,7 +4,7 @@ import { AirLeakage } from './entities';
 
 @Injectable()
 export class AirLeakagesService {
-  public async calculate(params: CalculateAirLeakageParams) {
+  public calculate(params: CalculateAirLeakageParams) {
     const { nominalSteamProduction, actualSteamProduction } =
       params.boilerCharacreristics;
     const airLeakage = new AirLeakage({

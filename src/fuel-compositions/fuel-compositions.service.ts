@@ -4,7 +4,7 @@ import { FuelComposition } from './entities';
 
 @Injectable()
 export class FuelCompositionsService {
-  public async calculate(params: CalculateFuelCompositionParams) {
+  public calculate(params: CalculateFuelCompositionParams) {
     const { boilerCharacreristics } = params;
     const fuelComposition = new FuelComposition({
       ...params.createFuelCompositionDto,

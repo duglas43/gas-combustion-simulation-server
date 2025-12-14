@@ -15,7 +15,7 @@ export class ConvectivePackageHeatBalance {
 
   heatUtilizationCoefficient: number;
 
-  packageExitTemperature: number;
+  acceptedPackageExitTemperature: number;
 
   combustionProductEnthalpyExit: number;
 
@@ -59,7 +59,7 @@ export class ConvectivePackageHeatBalance {
 
   heatTransferByEquation: number;
 
-  exitTemperatureControlValue: number;
+  calculatedPackageExitTemperature: number;
 
   heatBalanceImbalance: number;
 
@@ -75,7 +75,7 @@ export class ConvectivePackageHeatBalance {
     this.screenWallBlacknessDegree = model.screenWallBlacknessDegree;
     this.heatEfficiencyCoefficient = model.heatEfficiencyCoefficient;
     this.heatUtilizationCoefficient = model.heatUtilizationCoefficient;
-    this.packageExitTemperature = model.packageExitTemperature;
+    this.acceptedPackageExitTemperature = model.acceptedPackageExitTemperature;
     this.combustionProductEnthalpyExit = model.combustionProductEnthalpyExit;
     this.heatBalanceAbsorption = model.heatBalanceAbsorption;
     this.radiativeHeatLoad = model.radiativeHeatLoad;
@@ -101,7 +101,8 @@ export class ConvectivePackageHeatBalance {
       model.radiativeHeatTransferCoefficient;
     this.heatTransferCoefficient = model.heatTransferCoefficient;
     this.heatTransferByEquation = model.heatTransferByEquation;
-    this.exitTemperatureControlValue = model.exitTemperatureControlValue;
+    this.calculatedPackageExitTemperature =
+      model.calculatedPackageExitTemperature;
     this.heatBalanceImbalance = model.heatBalanceImbalance;
     this.specificHeatTransferred = model.specificHeatTransferred;
   }

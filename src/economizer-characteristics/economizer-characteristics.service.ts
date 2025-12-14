@@ -3,7 +3,7 @@ import { EconomizerCharacteristic } from './entities';
 
 @Injectable()
 export class EconomizerCharacteristicsService {
-  public async calculate() {
+  public calculate() {
     const economizerCharacteristic = new EconomizerCharacteristic({
       outerCasingTubeDiameter: 76,
       finThickness: 5,

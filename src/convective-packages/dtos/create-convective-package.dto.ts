@@ -18,11 +18,15 @@ export class CreateConvectivePackageDto {
 
   rowPitch: number = 110;
 
-  tubesPerRow: number = 16;
+  @ApiProperty()
+  @IsNumber()
+  tubesPerRow: number;
 
   numberOfRows: number = 22;
 
-  minCrossSectionDimension: number = 1.64;
+  @ApiProperty()
+  @IsNumber()
+  minCrossSectionDimension: number;
 
   maxCrossSectionDimension: number = 2.6;
 

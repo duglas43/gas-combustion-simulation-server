@@ -70,6 +70,7 @@ export interface CalculateFurnaceHeatBalanceParams {
     | 'theoreticalWaterVaporVolume'
     | 'specificVolumeFractionWaterVapor'
     | 'specificVolumeFractionTriatomicGases'
+    | 'partialPressureTriatomicGases'
     | 'totalWetCombustionProductsVolume'
   >;
   combustionMaterialBalanceTemperature: Pick<

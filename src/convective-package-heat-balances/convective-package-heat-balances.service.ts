@@ -5,6 +5,7 @@ import { ConvectivePackageHeatBalance } from './entities';
 @Injectable()
 export class ConvectivePackageHeatBalancesService {
   public calculate(params: CalculateConvectivePackageHeatBalanceParams) {
+    const convectivePackageId = params.convecivePackageNumber;
     const averageHeatAbsorptionCoefficient = 0.7;
     const sumAngularCoefficients = 0.949;
     const furnaceExitWindowArea = 2.327;
@@ -83,7 +84,7 @@ export class ConvectivePackageHeatBalancesService {
         (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 0.5 +
       -515.7577364 *
         (params.boilerCharacteristics.excessPressureInBoiler + 0.1) +
-      380.9431696 *
+      467.8491656 *
         (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 1.5 +
       -218.8244384 *
         (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 2 +
@@ -118,11 +119,11 @@ export class ConvectivePackageHeatBalancesService {
       (averageCombustionVelocity *
         params.convectivePackageCharacteristics.equivalentChannelDiameter) /
       (1.196865e-5 +
-        2.791535e-8 * averageCombustionTemperature +
-        -3.514694e-11 * averageCombustionTemperature ** 2 +
-        2.273281e-14 * averageCombustionTemperature ** 3 +
-        -7.561365e-18 * averageCombustionTemperature ** 4 +
-        1.046736e-21 * averageCombustionTemperature ** 5);
+        7.93511e-8 * averageCombustionTemperature +
+        9.50931e-11 * averageCombustionTemperature ** 2 +
+        -1.8727e-14 * averageCombustionTemperature ** 3 +
+        -2.98081e-18 * averageCombustionTemperature ** 4 +
+        2.03358e-21 * averageCombustionTemperature ** 5);
 
     const prandtlCriterion =
       0.738892754 +
@@ -133,22 +134,22 @@ export class ConvectivePackageHeatBalancesService {
       5.29942e-16 * averageCombustionTemperature ** 5;
 
     const correctionCoefficientCs =
-      ((1 +
+      (1 +
         (2 * params.convectivePackageCharacteristics.relativeTubePitchInRow -
           3) *
-          (1 - params.convectivePackageCharacteristics.relativeRowPitch / 2)) **
-        3) **
+          (1 - params.convectivePackageCharacteristics.relativeRowPitch / 2) **
+            3) **
       -2;
 
     const correctionCoefficientCz = 1;
     const convectiveHeatTransferCoefficient =
       ((0.2 *
         (0.081620792 +
-          0.000057156 * averageCombustionTemperature +
-          -7.139937e-8 * averageCombustionTemperature ** 2 +
-          9.573195e-11 * averageCombustionTemperature ** 3 +
-          -1.042761e-13 * averageCombustionTemperature ** 4 +
-          4.124561e-17 * averageCombustionTemperature ** 5)) /
+          0.000316982 * averageCombustionTemperature +
+          -2.0208e-8 * averageCombustionTemperature ** 2 +
+          7.29755e-12 * averageCombustionTemperature ** 3 +
+          8.71812e-15 * averageCombustionTemperature ** 4 +
+          -3.60461e-18 * averageCombustionTemperature ** 5)) /
         (params.convectivePackageCharacteristics.outerTubeDiameter * 0.001)) *
       reynoldsCriterion ** 0.65 *
       prandtlCriterion ** 0.33 *
@@ -183,18 +184,18 @@ export class ConvectivePackageHeatBalancesService {
     const averageWallTemperature = heatedMediumTemperature + 25;
 
     const radiativeHeatTransferCoefficient =
-      params.furnaceHeatBalance.blackBodyRadiationCoefficient *
-      (screenWallBlacknessDegree + 1) *
-      0.5 *
-      effectiveBlacknessDegree *
-      (averageCombustionTemperature + 273.15) ** 3 *
-      ((1 -
-        ((averageWallTemperature + 273.15) /
-          (averageCombustionTemperature + 273.15)) **
-          3.6) /
+      (params.furnaceHeatBalance.blackBodyRadiationCoefficient *
+        (screenWallBlacknessDegree + 1) *
+        0.5 *
+        effectiveBlacknessDegree *
+        (averageCombustionTemperature + 273.15) ** 3 *
         (1 -
-          (averageWallTemperature + 273.15) /
-            (averageCombustionTemperature + 273.15)));
+          ((averageWallTemperature + 273.15) /
+            (averageCombustionTemperature + 273.15)) **
+            3.6)) /
+      (1 -
+        (averageWallTemperature + 273.15) /
+          (averageCombustionTemperature + 273.15));
 
     const heatTransferCoefficient =
       heatEfficiencyCoefficient *
@@ -267,7 +268,7 @@ export class ConvectivePackageHeatBalancesService {
       params.convectivePackageCharacteristics.convectivePackageHeatSurfaceArea;
 
     const convectivePackageHeatBalance = new ConvectivePackageHeatBalance({
-      convectivePackageId: 1,
+      convectivePackageId,
       averageHeatAbsorptionCoefficient,
       sumAngularCoefficients,
       furnaceExitWindowArea,

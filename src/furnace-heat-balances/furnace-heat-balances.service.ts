@@ -12,42 +12,44 @@ export class FurnaceHeatBalancesService {
       params.furnaceCharacteristic.screenContaminationFactor;
     const acceptedFurnaceExitTemperature =
       params.acceptedFurnaceExitTemperature;
+    const acceptedAdiabaticCombustionTemperature =
+      params.acceptedAdiabaticCombustionTemperature;
 
     const combustionProductEnthalpyExit =
       (params.alphaBurnerCombustionMaterialBalance.theoreticalCO2Volume *
         (1.604309582 +
           0.001133138 * acceptedFurnaceExitTemperature +
-          -0.000000860416 * acceptedFurnaceExitTemperature ** 2 +
-          0.000000000468441 * acceptedFurnaceExitTemperature ** 3 +
+          -8.60416e-7 * acceptedFurnaceExitTemperature ** 2 +
+          4.68441e-10 * acceptedFurnaceExitTemperature ** 3 +
           -1.44713e-13 * acceptedFurnaceExitTemperature ** 4 +
-          1.822707e-17 * acceptedFurnaceExitTemperature ** 5) +
+          1.82271e-17 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaBurnerCombustionMaterialBalance.theoreticalSO2Volume *
-          (0.607026715343734 +
-            3.08631797297832e-4 * acceptedFurnaceExitTemperature +
-            -1.59369965554858e-7 * acceptedFurnaceExitTemperature ** 2 +
-            1.63637023130679e-11 * acceptedFurnaceExitTemperature ** 3 +
-            1.25572787709454e-14 * acceptedFurnaceExitTemperature ** 4 +
-            -3.03012265579358e-18 * acceptedFurnaceExitTemperature ** 5) +
+          (0.607026715 +
+            0.000308632 * acceptedFurnaceExitTemperature +
+            -1.5937e-7 * acceptedFurnaceExitTemperature ** 2 +
+            1.63637e-11 * acceptedFurnaceExitTemperature ** 3 +
+            1.25573e-14 * acceptedFurnaceExitTemperature ** 4 +
+            -3.03012e-18 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaBurnerCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.498317949 +
             0.000102932 * acceptedFurnaceExitTemperature +
-            0.000000244654 * acceptedFurnaceExitTemperature ** 2 +
-            -0.000000000156126 * acceptedFurnaceExitTemperature ** 3 +
+            2.44654e-7 * acceptedFurnaceExitTemperature ** 2 +
+            -1.56126e-10 * acceptedFurnaceExitTemperature ** 3 +
             4.36681e-14 * acceptedFurnaceExitTemperature ** 4 +
             -5.05709e-18 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaBurnerCombustionMaterialBalance.theoreticalNitrogenVolume *
           (1.29747332 +
             -0.000010563 * acceptedFurnaceExitTemperature +
-            0.00000024181 * acceptedFurnaceExitTemperature ** 2 +
-            -0.000000000183389 * acceptedFurnaceExitTemperature ** 3 +
+            2.4181e-7 * acceptedFurnaceExitTemperature ** 2 +
+            -1.83389e-10 * acceptedFurnaceExitTemperature ** 3 +
             5.85924e-14 * acceptedFurnaceExitTemperature ** 4 +
             -7.03381e-18 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaBurnerCombustionMaterialBalance.theoreticalOxygenVolume *
           (1.306450711 +
             0.000150251 * acceptedFurnaceExitTemperature +
-            0.000000172284 * acceptedFurnaceExitTemperature ** 2 +
-            -0.000000000232114 * acceptedFurnaceExitTemperature ** 3 +
+            1.72284e-7 * acceptedFurnaceExitTemperature ** 2 +
+            -2.32114e-10 * acceptedFurnaceExitTemperature ** 3 +
             1.01527e-13 * acceptedFurnaceExitTemperature ** 4 +
             -1.53025e-17 * acceptedFurnaceExitTemperature ** 5)) *
       acceptedFurnaceExitTemperature;
@@ -71,52 +73,49 @@ export class FurnaceHeatBalancesService {
           100) +
       heatInputToFurnaceFromAir -
       params.heatBalance.heatInputFromAir;
-    const acceptedAdiabaticCombustionTemperature =
-      params.acceptedAdiabaticCombustionTemperature;
     const calculatedAdiabaticCombustionTemperature =
       usefulHeatReleaseInFurnace /
       (params.alphaFurnaceAvgCombustionMaterialBalance.theoreticalCO2Volume *
         (1.604309582 +
-          0.001133138 * acceptedAdiabaticCombustionTemperature +
-          -0.000000860416 * acceptedAdiabaticCombustionTemperature ** 2 +
-          0.000000000468441 * acceptedAdiabaticCombustionTemperature ** 3 +
-          -1.44713e-13 * acceptedAdiabaticCombustionTemperature ** 4 +
-          1.822707e-17 * acceptedAdiabaticCombustionTemperature ** 5) +
+          0.001133138 * acceptedFurnaceExitTemperature +
+          -8.60416e-7 * acceptedFurnaceExitTemperature ** 2 +
+          4.68441e-10 * acceptedFurnaceExitTemperature ** 3 +
+          -1.44713e-13 * acceptedFurnaceExitTemperature ** 4 +
+          1.82271e-17 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaFurnaceAvgCombustionMaterialBalance.theoreticalSO2Volume *
-          (0.607026715343734 +
-            3.08631797297832e-4 * acceptedAdiabaticCombustionTemperature +
-            -1.59369965554858e-7 * acceptedAdiabaticCombustionTemperature ** 2 +
-            1.63637023130679e-11 * acceptedAdiabaticCombustionTemperature ** 3 +
-            1.25572787709454e-14 * acceptedAdiabaticCombustionTemperature ** 4 +
-            -3.03012265579358e-18 *
-              acceptedAdiabaticCombustionTemperature ** 5) +
+          (0.607026715 +
+            0.000308632 * acceptedFurnaceExitTemperature +
+            -1.5937e-7 * acceptedFurnaceExitTemperature ** 2 +
+            1.63637e-11 * acceptedFurnaceExitTemperature ** 3 +
+            1.25573e-14 * acceptedFurnaceExitTemperature ** 4 +
+            -3.03012e-18 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaFurnaceAvgCombustionMaterialBalance
           .theoreticalWaterVaporVolume *
           (1.498317949 +
-            0.000102932 * acceptedAdiabaticCombustionTemperature +
-            0.000000244654 * acceptedAdiabaticCombustionTemperature ** 2 +
-            -0.000000000156126 * acceptedAdiabaticCombustionTemperature ** 3 +
-            4.36681e-14 * acceptedAdiabaticCombustionTemperature ** 4 +
-            -5.05709e-18 * acceptedAdiabaticCombustionTemperature ** 5) +
+            0.000102932 * acceptedFurnaceExitTemperature +
+            2.44654e-7 * acceptedFurnaceExitTemperature ** 2 +
+            -1.56126e-10 * acceptedFurnaceExitTemperature ** 3 +
+            4.36681e-14 * acceptedFurnaceExitTemperature ** 4 +
+            -5.05709e-18 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaFurnaceAvgCombustionMaterialBalance
           .theoreticalNitrogenVolume *
           (1.29747332 +
-            -0.000010563 * acceptedAdiabaticCombustionTemperature +
-            0.00000024181 * acceptedAdiabaticCombustionTemperature ** 2 +
-            -0.000000000183389 * acceptedAdiabaticCombustionTemperature ** 3 +
-            5.85924e-14 * acceptedAdiabaticCombustionTemperature ** 4 +
-            -7.03381e-18 * acceptedAdiabaticCombustionTemperature ** 5) +
+            -0.000010563 * acceptedFurnaceExitTemperature +
+            2.4181e-7 * acceptedFurnaceExitTemperature ** 2 +
+            -1.83389e-10 * acceptedFurnaceExitTemperature ** 3 +
+            5.85924e-14 * acceptedFurnaceExitTemperature ** 4 +
+            -7.03381e-18 * acceptedFurnaceExitTemperature ** 5) +
         params.alphaFurnaceAvgCombustionMaterialBalance
           .theoreticalOxygenVolume *
           (1.306450711 +
-            0.000150251 * acceptedAdiabaticCombustionTemperature +
-            0.000000172284 * acceptedAdiabaticCombustionTemperature ** 2 +
-            -0.000000000232114 * acceptedAdiabaticCombustionTemperature ** 3 +
-            1.01527e-13 * acceptedAdiabaticCombustionTemperature ** 4 +
-            -1.53025e-17 * acceptedAdiabaticCombustionTemperature ** 5));
+            0.000150251 * acceptedFurnaceExitTemperature +
+            1.72284e-7 * acceptedFurnaceExitTemperature ** 2 +
+            -2.32114e-10 * acceptedFurnaceExitTemperature ** 3 +
+            1.01527e-13 * acceptedFurnaceExitTemperature ** 4 +
+            -1.53025e-17 * acceptedFurnaceExitTemperature ** 5));
 
     const imbalancePercentage = Math.abs(
-      ((acceptedAdiabaticCombustionTemperature -
+      ((acceptedFurnaceExitTemperature -
         calculatedAdiabaticCombustionTemperature) *
         100) /
         calculatedAdiabaticCombustionTemperature,
@@ -182,13 +181,13 @@ export class FurnaceHeatBalancesService {
         (3.16 *
           Math.sqrt(
             params.alphaFurnaceAvgCombustionMaterialBalance
-              .specificVolumeFractionTriatomicGases *
+              .partialPressureTriatomicGases *
               params.furnaceCharacteristic.effectiveRadiatingLayerThickness,
           )) -
         1) *
-      (1 - (0.37 * (blackBodyRadiationCoefficient + 273.15)) / 1000) *
+      (1 - (0.37 * (acceptedFurnaceExitTemperature + 273.15)) / 1000) *
       params.alphaFurnaceAvgCombustionMaterialBalance
-        .specificVolumeFractionTriatomicGases;
+        .specificVolumeFractionTriatomicGases; // F22
 
     const carbonToHydrogenMassRatio =
       0.12 *

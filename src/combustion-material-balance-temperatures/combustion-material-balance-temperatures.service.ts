@@ -23,17 +23,17 @@ export class CombustionMaterialBalanceTemperaturesService {
 
     const higherHeatingValue =
       0.01 *
-      (12750 * params.fuelComposition.hydrogenPercentage +
-        12640 * params.fuelComposition.carbonMonoxidePercentage +
-        39800 * params.fuelComposition.methanePercentage +
-        70300 * params.fuelComposition.ethanePercentage +
-        101200 * params.fuelComposition.propanePercentage +
-        113800 * params.fuelComposition.nButanePercentage +
-        132900 * params.fuelComposition.isoButanePercentage +
-        169300 * params.fuelComposition.pentanePercentage +
-        36000 * params.fuelComposition.acetylenePercentage +
-        91900 * params.fuelComposition.propylenePercentage +
-        121400 * params.fuelComposition.butylenePercentage);
+      (39820 * params.fuelComposition.methanePercentage +
+        70310 * params.fuelComposition.ethanePercentage +
+        101210 * params.fuelComposition.propanePercentage +
+        133800 * params.fuelComposition.nButanePercentage +
+        132960 * params.fuelComposition.isoButanePercentage +
+        169270 * params.fuelComposition.pentanePercentage +
+        12750 * params.fuelComposition.hydrogenPercentage +
+        63039 * params.fuelComposition.acetylenePercentage +
+        91945 * params.fuelComposition.propylenePercentage +
+        121434 * params.fuelComposition.butylenePercentage +
+        12640 * params.fuelComposition.carbonMonoxidePercentage);
 
     const theoreticalDryAirConsumption =
       0.0476 *

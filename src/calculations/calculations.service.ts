@@ -29,6 +29,7 @@ import { HeatBalance } from 'src/heat-balances/entities';
 import { FurnaceHeatBalance } from 'src/furnace-heat-balances/entities';
 import { ConvectivePackageHeatBalance } from 'src/convective-package-heat-balances/entities';
 import { EconomizerHeatBalance } from 'src/economizer-heat-balances/entities';
+import * as fs from 'fs';
 
 @Injectable()
 export class CalculationsService {
@@ -57,9 +58,9 @@ export class CalculationsService {
       firstConvectivePackageExitTemperature: 290,
       secondConvectivePackageExitTemperature: 215,
       furnaceExitTemperature: 840,
-      adiabaticCombustionTemperature: 1850,
+      adiabaticCombustionTemperature: 1855,
     };
-    const discrepancyThreshold = 0.01;
+    const discrepancyThreshold = 0.001;
     const furnaceDichotomyDivisionPercentage = 50;
     const convectivePackage1DichotomyDivisionPercentage = 20;
     const convectivePackage2DichotomyDivisionPercentage = 20;
@@ -577,6 +578,7 @@ export class CalculationsService {
       ...result,
       message: 'Calculation result',
     });
+    fs.writeFileSync('result.json', JSON.stringify(result, null, 2));
 
     return result;
   }

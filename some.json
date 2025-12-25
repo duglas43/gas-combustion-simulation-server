@@ -18,7 +18,7 @@
     "oxygenPercentage": 0
   },
   "boilerCharacteristics": {
-    "loadPercentage": 97,
+    "loadPercentage": 97.86,
     "airHumidityForCombustion": 13,
     "gasHumidityForCombustion": 0,
     "feedWaterTemperature": 85,
@@ -31,11 +31,15 @@
   "convectivePackagesParameters": [
     {
       "id": 1,
-      "wallBlacknessDegree": 0.8
+      "wallBlacknessDegree": 0.8,
+      "tubesPerRow": 16,
+      "minCrossSectionDimension": 1.64
     },
     {
       "id": 2,
-      "wallBlacknessDegree": 0.8
+      "wallBlacknessDegree": 0.8,
+      "tubesPerRow": 11,
+      "minCrossSectionDimension": 1.08
     }
   ]
 }

@@ -106,18 +106,17 @@ export class CombustionMaterialBalancesService {
       const recirculationRate = 0;
 
       const specificMassOfCombustionProducts =
-        (((theoreticalCO2Volume * 1.977 +
+        ((theoreticalCO2Volume * 1.977 +
           theoreticalWaterVaporVolume * 0.8041 +
           theoreticalNitrogenVolume * 1.251 +
           theoreticalOxygenVolume * 1.429) /
           totalWetCombustionProductsVolume +
           params.boilerCharacteristics.gasHumidityForCombustion * 0.001) *
           (1 + recirculationRate) +
-          1.306 *
-            (airExcessCoefficient.value +
-              airExcessCoefficient.value +
-              airExcessCoefficient.value * recirculationRate)) *
-        totalWetCombustionProductsVolume;
+        1.306 *
+          (airExcessCoefficient.value +
+            airExcessCoefficient.value * recirculationRate) *
+          totalWetCombustionProductsVolume;
 
       const combustionMaterialBalance = new CombustionMaterialBalance({
         airExcessCoefficientName: airExcessCoefficient.name,

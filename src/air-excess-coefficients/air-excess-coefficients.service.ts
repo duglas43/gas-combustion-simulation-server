@@ -48,21 +48,21 @@ export class AirExcessCoefficientsService {
       new AirExcessCoefficient({
         name: 'alphaConvectivePackage2',
         value:
-          alphaFurnaceAirExcessCoefficient.value +
+          alphaConvectivePackage1AirExcessCoefficient.value +
           params.airLeakage.actualSecondConvectiveAirLeakage,
       });
     const alphaConvectivePackage2AvgAirExcessCoefficient =
       new AirExcessCoefficient({
         name: 'alphaConvectivePackage2Avg',
         value:
-          (alphaFurnaceAirExcessCoefficient.value +
+          (alphaConvectivePackage1AirExcessCoefficient.value +
             alphaConvectivePackage2AirExcessCoefficient.value) /
           2,
       });
     const alphaEconomizerAirExcessCoefficient = new AirExcessCoefficient({
       name: 'alphaEconomizer',
       value:
-        alphaFurnaceAirExcessCoefficient.value +
+        alphaConvectivePackage2AirExcessCoefficient.value +
         params.airLeakage.actualEconomizerAirLeakage,
     });
     const alphaFlueGasAirExcessCoefficient = new AirExcessCoefficient({

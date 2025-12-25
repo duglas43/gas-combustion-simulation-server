@@ -57,8 +57,8 @@ export class CalculationsService {
       economizerExitTemperature: 153.2773346,
       firstConvectivePackageExitTemperature: 290.1,
       secondConvectivePackageExitTemperature: 215.7,
-      furnaceExitTemperature: 840.4,
-      adiabaticCombustionTemperature: 1855.3,
+      furnaceExitTemperature: 840.4251947,
+      adiabaticCombustionTemperature: 1855.316033,
     };
     const discrepancyThreshold = 0.001;
     const furnaceDichotomyDivisionPercentage = 50;
@@ -195,18 +195,18 @@ export class CalculationsService {
         },
       });
 
-      const alphaBurnerCoefficient = airExcessCoefficients.find(
-        (airExcessCoefficient) => airExcessCoefficient.name === 'alphaBurner',
+      const alphaFurnaceCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFurnace',
       );
       const alphaFurnaceAvgCoefficient = airExcessCoefficients.find(
         (airExcessCoefficient) =>
           airExcessCoefficient.name === 'alphaFurnaceAvg',
       );
-      const alphaBurnerCombustionMaterialBalance =
+      const alphaFurnaceCombustionMaterialBalance =
         combustionMaterialBalances.find(
           (combustionMaterialBalance) =>
             combustionMaterialBalance.airExcessCoefficientName ===
-            alphaBurnerCoefficient.name,
+            alphaFurnaceCoefficient.name,
         );
       const alphaFurnaceAvgCombustionMaterialBalance =
         combustionMaterialBalances.find(
@@ -221,8 +221,8 @@ export class CalculationsService {
           acceptedValuesMap.furnaceExitTemperature,
         acceptedAdiabaticCombustionTemperature:
           acceptedValuesMap.adiabaticCombustionTemperature,
-        alphaBurnerCoefficient: alphaBurnerCoefficient.value,
-        alphaBurnerCombustionMaterialBalance,
+        alphaFurnaceCoefficient: alphaFurnaceCoefficient.value,
+        alphaFurnaceCombustionMaterialBalance,
         alphaFurnaceAvgCombustionMaterialBalance,
         boilerCharacteristics: {
           flueGasAbsolutePressure: boilerCharacteristic.flueGasAbsolutePressure,
@@ -231,6 +231,7 @@ export class CalculationsService {
         fuelComposition,
         furnaceCharacteristic,
         heatBalance,
+        alphaFlueGasCoefficient: alphaFlueGasCoefficient.value,
         temperatureCharacteristic,
       });
 
@@ -484,9 +485,7 @@ export class CalculationsService {
             combustionMaterialBalance.airExcessCoefficientName ===
             alphaEconomizerCoefficient.name,
         );
-      const alphaFurnaceCoefficient = airExcessCoefficients.find(
-        (airExcessCoefficient) => airExcessCoefficient.name === 'alphaFurnace',
-      );
+
       const alphaFurnaceCombusitonMaterialBalance =
         combustionMaterialBalances.find(
           (combustionMaterialBalance) =>

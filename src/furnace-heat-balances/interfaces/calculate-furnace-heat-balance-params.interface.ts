@@ -52,8 +52,8 @@ export interface CalculateFurnaceHeatBalanceParams {
     | 'totalRadiantHeatSurfaceArea'
     | 'furnaceVolume'
   >;
-  alphaBurnerCoefficient: number;
-  alphaBurnerCombustionMaterialBalance: Pick<
+  alphaFurnaceCoefficient: number;
+  alphaFurnaceCombustionMaterialBalance: Pick<
     CombustionMaterialBalance,
     | 'theoreticalCO2Volume'
     | 'theoreticalNitrogenVolume'
@@ -73,6 +73,7 @@ export interface CalculateFurnaceHeatBalanceParams {
     | 'partialPressureTriatomicGases'
     | 'totalWetCombustionProductsVolume'
   >;
+  alphaFlueGasCoefficient: number;
   combustionMaterialBalanceTemperature: Pick<
     CombustionMaterialBalanceTemperature,
     'theoreticalWetAirConsumption'

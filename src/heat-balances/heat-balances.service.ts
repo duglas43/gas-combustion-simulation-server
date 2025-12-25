@@ -24,34 +24,34 @@ export class HeatBalancesService {
           1.44713e-13 * flueGasTemperatureSet ** 4 +
           1.82271e-17 * flueGasTemperatureSet ** 5) +
         params.alphaFlueGasCombustionMaterialBalance.theoreticalSO2Volume *
+          (0.607026715343734 +
+            0.000308632 * flueGasTemperatureSet -
+            1.5937e-7 * flueGasTemperatureSet ** 2 +
+            1.63637e-11 * flueGasTemperatureSet ** 3 +
+            1.25573e-14 * flueGasTemperatureSet ** 4 -
+            3.03012e-18 * flueGasTemperatureSet ** 5) +
+        params.alphaFlueGasCombustionMaterialBalance
+          .theoreticalWaterVaporVolume *
           (1.498317949 +
             0.000102932 * flueGasTemperatureSet +
             2.44654e-7 * flueGasTemperatureSet ** 2 -
             1.56126e-10 * flueGasTemperatureSet ** 3 +
             4.36681e-14 * flueGasTemperatureSet ** 4 -
             5.05709e-18 * flueGasTemperatureSet ** 5) +
-        params.alphaFlueGasCombustionMaterialBalance
-          .theoreticalWaterVaporVolume *
+        params.alphaFlueGasCombustionMaterialBalance.theoreticalNitrogenVolume *
           (1.29747332 -
             0.000010563 * flueGasTemperatureSet +
             2.4181e-7 * flueGasTemperatureSet ** 2 -
             1.83389e-10 * flueGasTemperatureSet ** 3 +
             5.85924e-14 * flueGasTemperatureSet ** 4 -
             7.03381e-18 * flueGasTemperatureSet ** 5) +
-        params.alphaFlueGasCombustionMaterialBalance.theoreticalNitrogenVolume *
+        params.alphaFlueGasCombustionMaterialBalance.theoreticalOxygenVolume *
           (1.306450711 +
             0.000150251 * flueGasTemperatureSet +
             1.72284e-7 * flueGasTemperatureSet ** 2 -
             2.32114e-10 * flueGasTemperatureSet ** 3 +
             1.01527e-13 * flueGasTemperatureSet ** 4 -
-            1.53025e-17 * flueGasTemperatureSet ** 5) +
-        params.alphaFlueGasCombustionMaterialBalance.theoreticalOxygenVolume *
-          (1.285314861 +
-            0.0001585 * flueGasTemperatureSet -
-            4.77872e-7 * flueGasTemperatureSet ** 2 +
-            7.55826e-10 * flueGasTemperatureSet ** 3 -
-            5.20124e-13 * flueGasTemperatureSet ** 4 +
-            1.33782e-16 * flueGasTemperatureSet ** 5)) *
+            1.53025e-17 * flueGasTemperatureSet ** 5)) *
       flueGasTemperatureSet;
     const surroundingAirEnthalpy =
       params.combustionMaterialBalanceTemperature.theoreticalWetAirConsumption *

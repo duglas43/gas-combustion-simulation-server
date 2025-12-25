@@ -72,7 +72,7 @@ export class CombustionMaterialBalancesService {
         0.21 *
           (airExcessCoefficient.value - 1) *
           params.combustionMaterialBalanceTemperature
-            .theoreticalWetAirConsumption +
+            .theoreticalDryAirConsumption +
         0.01 * params.fuelComposition.oxygenPercentage;
 
       const totalWetCombustionProductsVolume =

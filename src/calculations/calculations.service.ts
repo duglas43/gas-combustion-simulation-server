@@ -54,11 +54,11 @@ export class CalculationsService {
 
   async create(dto: CreateCalculationDto) {
     const acceptedValuesMap = {
-      economizerExitTemperature: 150,
-      firstConvectivePackageExitTemperature: 290,
-      secondConvectivePackageExitTemperature: 215,
-      furnaceExitTemperature: 840,
-      adiabaticCombustionTemperature: 1855,
+      economizerExitTemperature: 153.2773346,
+      firstConvectivePackageExitTemperature: 290.1,
+      secondConvectivePackageExitTemperature: 215.7,
+      furnaceExitTemperature: 840.4,
+      adiabaticCombustionTemperature: 1855.3,
     };
     const discrepancyThreshold = 0.001;
     const furnaceDichotomyDivisionPercentage = 50;
@@ -234,64 +234,64 @@ export class CalculationsService {
         temperatureCharacteristic,
       });
 
-      if (
-        Math.abs(
-          acceptedValuesMap.furnaceExitTemperature -
-            furnaceHeatBalance.calculatedFurnaceExitTemperature,
-        ) >= discrepancyThreshold
-      ) {
-        if (
-          acceptedValuesMap.furnaceExitTemperature <
-          furnaceHeatBalance.calculatedFurnaceExitTemperature
-        ) {
-          acceptedValuesMap.furnaceExitTemperature =
-            acceptedValuesMap.furnaceExitTemperature +
-            Math.abs(
-              acceptedValuesMap.furnaceExitTemperature -
-                furnaceHeatBalance.calculatedFurnaceExitTemperature,
-            ) /
-              2;
-        } else {
-          acceptedValuesMap.furnaceExitTemperature =
-            acceptedValuesMap.furnaceExitTemperature -
-            Math.abs(
-              acceptedValuesMap.furnaceExitTemperature -
-                furnaceHeatBalance.calculatedFurnaceExitTemperature,
-            ) /
-              2;
-        }
-        needRecalculation = true;
-        continue;
-      }
-      if (
-        Math.abs(
-          acceptedValuesMap.adiabaticCombustionTemperature -
-            furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
-        ) >= discrepancyThreshold
-      ) {
-        if (
-          acceptedValuesMap.adiabaticCombustionTemperature <
-          furnaceHeatBalance.calculatedAdiabaticCombustionTemperature
-        ) {
-          acceptedValuesMap.adiabaticCombustionTemperature =
-            acceptedValuesMap.adiabaticCombustionTemperature +
-            Math.abs(
-              acceptedValuesMap.adiabaticCombustionTemperature -
-                furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
-            ) /
-              2;
-        } else {
-          acceptedValuesMap.adiabaticCombustionTemperature =
-            acceptedValuesMap.adiabaticCombustionTemperature -
-            Math.abs(
-              acceptedValuesMap.adiabaticCombustionTemperature -
-                furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
-            ) /
-              2;
-        }
-        needRecalculation = true;
-        continue;
-      }
+      // if (
+      //   Math.abs(
+      //     acceptedValuesMap.furnaceExitTemperature -
+      //       furnaceHeatBalance.calculatedFurnaceExitTemperature,
+      //   ) >= discrepancyThreshold
+      // ) {
+      //   if (
+      //     acceptedValuesMap.furnaceExitTemperature <
+      //     furnaceHeatBalance.calculatedFurnaceExitTemperature
+      //   ) {
+      //     acceptedValuesMap.furnaceExitTemperature =
+      //       acceptedValuesMap.furnaceExitTemperature +
+      //       Math.abs(
+      //         acceptedValuesMap.furnaceExitTemperature -
+      //           furnaceHeatBalance.calculatedFurnaceExitTemperature,
+      //       ) /
+      //         2;
+      //   } else {
+      //     acceptedValuesMap.furnaceExitTemperature =
+      //       acceptedValuesMap.furnaceExitTemperature -
+      //       Math.abs(
+      //         acceptedValuesMap.furnaceExitTemperature -
+      //           furnaceHeatBalance.calculatedFurnaceExitTemperature,
+      //       ) /
+      //         2;
+      //   }
+      //   needRecalculation = true;
+      //   continue;
+      // }
+      // if (
+      //   Math.abs(
+      //     acceptedValuesMap.adiabaticCombustionTemperature -
+      //       furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
+      //   ) >= discrepancyThreshold
+      // ) {
+      //   if (
+      //     acceptedValuesMap.adiabaticCombustionTemperature <
+      //     furnaceHeatBalance.calculatedAdiabaticCombustionTemperature
+      //   ) {
+      //     acceptedValuesMap.adiabaticCombustionTemperature =
+      //       acceptedValuesMap.adiabaticCombustionTemperature +
+      //       Math.abs(
+      //         acceptedValuesMap.adiabaticCombustionTemperature -
+      //           furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
+      //       ) /
+      //         2;
+      //   } else {
+      //     acceptedValuesMap.adiabaticCombustionTemperature =
+      //       acceptedValuesMap.adiabaticCombustionTemperature -
+      //       Math.abs(
+      //         acceptedValuesMap.adiabaticCombustionTemperature -
+      //           furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
+      //       ) /
+      //         2;
+      //   }
+      //   needRecalculation = true;
+      //   continue;
+      // }
 
       const firstAlphaConvectiveAvgCoefficient = airExcessCoefficients.find(
         (airExcessCoefficient) =>
@@ -357,53 +357,53 @@ export class CalculationsService {
           heatBalance,
         });
 
-      if (
-        acceptedValuesMap.firstConvectivePackageExitTemperature -
-          firstConvectivePackageHeatBalance.heatedMediumTemperature <=
-        0
-      ) {
-        acceptedValuesMap.adiabaticCombustionTemperature =
-          firstConvectivePackageHeatBalance.heatedMediumTemperature +
-          furnaceDichotomyDivisionPercentage;
-        acceptedValuesMap.firstConvectivePackageExitTemperature =
-          firstConvectivePackageHeatBalance.heatedMediumTemperature +
-          furnaceDichotomyDivisionPercentage;
-        needRecalculation = true;
-        continue;
-      } else {
-        if (
-          Math.abs(
-            acceptedValuesMap.firstConvectivePackageExitTemperature -
-              firstConvectivePackageHeatBalance.calculatedPackageExitTemperature,
-          ) >= discrepancyThreshold
-        ) {
-          if (
-            acceptedValuesMap.firstConvectivePackageExitTemperature -
-              firstConvectivePackageHeatBalance.calculatedPackageExitTemperature <
-            discrepancyThreshold
-          ) {
-            acceptedValuesMap.firstConvectivePackageExitTemperature =
-              acceptedValuesMap.firstConvectivePackageExitTemperature +
-              Math.abs(
-                (acceptedValuesMap.firstConvectivePackageExitTemperature -
-                  firstConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
-                  0.01 *
-                  convectivePackage1DichotomyDivisionPercentage,
-              );
-          } else {
-            acceptedValuesMap.firstConvectivePackageExitTemperature =
-              acceptedValuesMap.firstConvectivePackageExitTemperature -
-              Math.abs(
-                (acceptedValuesMap.firstConvectivePackageExitTemperature -
-                  firstConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
-                  0.01 *
-                  convectivePackage1DichotomyDivisionPercentage,
-              );
-          }
-          needRecalculation = true;
-          continue;
-        }
-      }
+      // if (
+      //   acceptedValuesMap.firstConvectivePackageExitTemperature -
+      //     firstConvectivePackageHeatBalance.heatedMediumTemperature <=
+      //   0
+      // ) {
+      //   acceptedValuesMap.adiabaticCombustionTemperature =
+      //     firstConvectivePackageHeatBalance.heatedMediumTemperature +
+      //     furnaceDichotomyDivisionPercentage;
+      //   acceptedValuesMap.firstConvectivePackageExitTemperature =
+      //     firstConvectivePackageHeatBalance.heatedMediumTemperature +
+      //     furnaceDichotomyDivisionPercentage;
+      //   needRecalculation = true;
+      //   continue;
+      // } else {
+      //   if (
+      //     Math.abs(
+      //       acceptedValuesMap.firstConvectivePackageExitTemperature -
+      //         firstConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+      //     ) >= discrepancyThreshold
+      //   ) {
+      //     if (
+      //       acceptedValuesMap.firstConvectivePackageExitTemperature -
+      //         firstConvectivePackageHeatBalance.calculatedPackageExitTemperature <
+      //       discrepancyThreshold
+      //     ) {
+      //       acceptedValuesMap.firstConvectivePackageExitTemperature =
+      //         acceptedValuesMap.firstConvectivePackageExitTemperature +
+      //         Math.abs(
+      //           (acceptedValuesMap.firstConvectivePackageExitTemperature -
+      //             firstConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+      //             0.01 *
+      //             convectivePackage1DichotomyDivisionPercentage,
+      //         );
+      //     } else {
+      //       acceptedValuesMap.firstConvectivePackageExitTemperature =
+      //         acceptedValuesMap.firstConvectivePackageExitTemperature -
+      //         Math.abs(
+      //           (acceptedValuesMap.firstConvectivePackageExitTemperature -
+      //             firstConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+      //             0.01 *
+      //             convectivePackage1DichotomyDivisionPercentage,
+      //         );
+      //     }
+      //     needRecalculation = true;
+      //     continue;
+      //   }
+      // }
       secondConvectivePackageHeatBalance =
         this.convectivePackageHeatBalancesService.calculate({
           convecivePackageNumber: 2,
@@ -426,53 +426,53 @@ export class CalculationsService {
           heatBalance,
         });
 
-      if (
-        acceptedValuesMap.secondConvectivePackageExitTemperature -
-          secondConvectivePackageHeatBalance.heatedMediumTemperature <=
-        0
-      ) {
-        acceptedValuesMap.adiabaticCombustionTemperature =
-          secondConvectivePackageHeatBalance.heatedMediumTemperature +
-          furnaceDichotomyDivisionPercentage;
-        acceptedValuesMap.secondConvectivePackageExitTemperature =
-          secondConvectivePackageHeatBalance.heatedMediumTemperature +
-          furnaceDichotomyDivisionPercentage;
-        needRecalculation = true;
-        continue;
-      } else {
-        if (
-          Math.abs(
-            acceptedValuesMap.secondConvectivePackageExitTemperature -
-              secondConvectivePackageHeatBalance.calculatedPackageExitTemperature,
-          ) >= discrepancyThreshold
-        ) {
-          if (
-            acceptedValuesMap.secondConvectivePackageExitTemperature -
-              secondConvectivePackageHeatBalance.calculatedPackageExitTemperature <
-            discrepancyThreshold
-          ) {
-            acceptedValuesMap.secondConvectivePackageExitTemperature =
-              acceptedValuesMap.secondConvectivePackageExitTemperature +
-              Math.abs(
-                (acceptedValuesMap.secondConvectivePackageExitTemperature -
-                  secondConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
-                  0.01 *
-                  convectivePackage2DichotomyDivisionPercentage,
-              );
-          } else {
-            acceptedValuesMap.secondConvectivePackageExitTemperature =
-              acceptedValuesMap.secondConvectivePackageExitTemperature -
-              Math.abs(
-                (acceptedValuesMap.secondConvectivePackageExitTemperature -
-                  secondConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
-                  0.01 *
-                  convectivePackage2DichotomyDivisionPercentage,
-              );
-          }
-          needRecalculation = true;
-          continue;
-        }
-      }
+      // if (
+      //   acceptedValuesMap.secondConvectivePackageExitTemperature -
+      //     secondConvectivePackageHeatBalance.heatedMediumTemperature <=
+      //   0
+      // ) {
+      //   acceptedValuesMap.adiabaticCombustionTemperature =
+      //     secondConvectivePackageHeatBalance.heatedMediumTemperature +
+      //     furnaceDichotomyDivisionPercentage;
+      //   acceptedValuesMap.secondConvectivePackageExitTemperature =
+      //     secondConvectivePackageHeatBalance.heatedMediumTemperature +
+      //     furnaceDichotomyDivisionPercentage;
+      //   needRecalculation = true;
+      //   continue;
+      // } else {
+      //   if (
+      //     Math.abs(
+      //       acceptedValuesMap.secondConvectivePackageExitTemperature -
+      //         secondConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+      //     ) >= discrepancyThreshold
+      //   ) {
+      //     if (
+      //       acceptedValuesMap.secondConvectivePackageExitTemperature -
+      //         secondConvectivePackageHeatBalance.calculatedPackageExitTemperature <
+      //       discrepancyThreshold
+      //     ) {
+      //       acceptedValuesMap.secondConvectivePackageExitTemperature =
+      //         acceptedValuesMap.secondConvectivePackageExitTemperature +
+      //         Math.abs(
+      //           (acceptedValuesMap.secondConvectivePackageExitTemperature -
+      //             secondConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+      //             0.01 *
+      //             convectivePackage2DichotomyDivisionPercentage,
+      //         );
+      //     } else {
+      //       acceptedValuesMap.secondConvectivePackageExitTemperature =
+      //         acceptedValuesMap.secondConvectivePackageExitTemperature -
+      //         Math.abs(
+      //           (acceptedValuesMap.secondConvectivePackageExitTemperature -
+      //             secondConvectivePackageHeatBalance.calculatedPackageExitTemperature) *
+      //             0.01 *
+      //             convectivePackage2DichotomyDivisionPercentage,
+      //         );
+      //     }
+      //     needRecalculation = true;
+      //     continue;
+      //   }
+      // }
 
       const alphaEconomizerCoefficient = airExcessCoefficients.find(
         (airExcessCoefficient) =>
@@ -506,38 +506,38 @@ export class CalculationsService {
         fuelComposition,
         heatBalance,
       });
-      if (
-        Math.abs(
-          acceptedValuesMap.economizerExitTemperature -
-            economizerHeatBalance.calculatedEconomizerExitTemperature,
-        ) >= discrepancyThreshold
-      ) {
-        if (
-          acceptedValuesMap.economizerExitTemperature -
-            economizerHeatBalance.calculatedEconomizerExitTemperature <
-          discrepancyThreshold
-        ) {
-          acceptedValuesMap.economizerExitTemperature =
-            acceptedValuesMap.economizerExitTemperature +
-            Math.abs(
-              (acceptedValuesMap.economizerExitTemperature -
-                economizerHeatBalance.calculatedEconomizerExitTemperature) *
-                0.01 *
-                economizerDichotomyDivisionPercentage,
-            );
-        } else {
-          acceptedValuesMap.economizerExitTemperature =
-            acceptedValuesMap.economizerExitTemperature -
-            Math.abs(
-              (acceptedValuesMap.economizerExitTemperature -
-                economizerHeatBalance.calculatedEconomizerExitTemperature) *
-                0.01 *
-                economizerDichotomyDivisionPercentage,
-            );
-        }
-        needRecalculation = true;
-        continue;
-      }
+      // if (
+      //   Math.abs(
+      //     acceptedValuesMap.economizerExitTemperature -
+      //       economizerHeatBalance.calculatedEconomizerExitTemperature,
+      //   ) >= discrepancyThreshold
+      // ) {
+      //   if (
+      //     acceptedValuesMap.economizerExitTemperature -
+      //       economizerHeatBalance.calculatedEconomizerExitTemperature <
+      //     discrepancyThreshold
+      //   ) {
+      //     acceptedValuesMap.economizerExitTemperature =
+      //       acceptedValuesMap.economizerExitTemperature +
+      //       Math.abs(
+      //         (acceptedValuesMap.economizerExitTemperature -
+      //           economizerHeatBalance.calculatedEconomizerExitTemperature) *
+      //           0.01 *
+      //           economizerDichotomyDivisionPercentage,
+      //       );
+      //   } else {
+      //     acceptedValuesMap.economizerExitTemperature =
+      //       acceptedValuesMap.economizerExitTemperature -
+      //       Math.abs(
+      //         (acceptedValuesMap.economizerExitTemperature -
+      //           economizerHeatBalance.calculatedEconomizerExitTemperature) *
+      //           0.01 *
+      //           economizerDichotomyDivisionPercentage,
+      //       );
+      //   }
+      //   needRecalculation = true;
+      //   continue;
+      // }
     }
 
     const result = {

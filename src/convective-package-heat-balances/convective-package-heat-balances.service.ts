@@ -13,6 +13,8 @@ export class ConvectivePackageHeatBalancesService {
     const screenWallBlacknessDegree = 0.8;
     const heatEfficiencyCoefficient = 0.8;
     const heatUtilizationCoefficient = 0.95;
+    const blackBodyRadiationCoefficient = 20.53e-8;
+
     const acceptedPackageExitTemperature =
       params.acceptedPackageExitTemperature;
 
@@ -61,7 +63,7 @@ export class ConvectivePackageHeatBalancesService {
 
     const heatBalanceAbsorption =
       params.heatBalance.heatRetentionCoefficient *
-      (params.furnaceHeatBalance.combustionProductEnthalpyExit -
+      (params.previousComponentHeatBalance.combustionProductEnthalpyExit -
         combustionProductEnthalpyExit +
         (params.convecivePackageNumber === 1
           ? params.airLeakage.actualFirstConvectiveAirLeakage
@@ -92,17 +94,17 @@ export class ConvectivePackageHeatBalancesService {
         (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 2.5;
 
     const logarithmicTemperatureDifference =
-      ((params.furnaceHeatBalance.calculatedFurnaceExitTemperature -
+      ((params.previousComponentHeatBalance.calculatedExitTemperature -
         heatedMediumTemperature -
         (acceptedPackageExitTemperature - heatedMediumTemperature)) *
         geometricAdjustmentFactor) /
       Math.log(
-        (params.furnaceHeatBalance.calculatedFurnaceExitTemperature -
+        (params.previousComponentHeatBalance.calculatedExitTemperature -
           heatedMediumTemperature) /
           (acceptedPackageExitTemperature - heatedMediumTemperature),
       );
     const averageCombustionTemperature =
-      (params.furnaceHeatBalance.calculatedFurnaceExitTemperature +
+      (params.previousComponentHeatBalance.calculatedExitTemperature +
         acceptedPackageExitTemperature) /
       2;
 
@@ -189,7 +191,7 @@ export class ConvectivePackageHeatBalancesService {
     const averageWallTemperature = heatedMediumTemperature + 25;
 
     const radiativeHeatTransferCoefficient =
-      (params.furnaceHeatBalance.blackBodyRadiationCoefficient *
+      (blackBodyRadiationCoefficient *
         (screenWallBlacknessDegree + 1) *
         0.5 *
         effectiveBlacknessDegree *
@@ -215,7 +217,7 @@ export class ConvectivePackageHeatBalancesService {
       params.heatBalance.calculatedHourlyFuelConsumption;
 
     const calculatedPackageExitTemperature =
-      (params.furnaceHeatBalance.combustionProductEnthalpyExit -
+      (params.previousComponentHeatBalance.combustionProductEnthalpyExit -
         heatTransferByEquation / params.heatBalance.heatRetentionCoefficient +
         (params.convecivePackageNumber === 1
           ? params.airLeakage.actualFirstConvectiveAirLeakage

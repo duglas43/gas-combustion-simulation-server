@@ -354,7 +354,12 @@ export class CalculationsService {
             flueGasAbsolutePressure:
               boilerCharacteristic.flueGasAbsolutePressure,
           },
-          furnaceHeatBalance,
+          previousComponentHeatBalance: {
+            calculatedExitTemperature:
+              furnaceHeatBalance.calculatedFurnaceExitTemperature,
+            combustionProductEnthalpyExit:
+              furnaceHeatBalance.combustionProductEnthalpyExit,
+          },
           heatBalance,
         });
 
@@ -423,7 +428,12 @@ export class CalculationsService {
             flueGasAbsolutePressure:
               boilerCharacteristic.flueGasAbsolutePressure,
           },
-          furnaceHeatBalance,
+          previousComponentHeatBalance: {
+            calculatedExitTemperature:
+              firstConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+            combustionProductEnthalpyExit:
+              firstConvectivePackageHeatBalance.combustionProductEnthalpyExit,
+          },
           heatBalance,
         });
 

@@ -2,9 +2,7 @@ import { AirLeakage } from 'src/air-leakages/entities';
 import { BoilerCharacteristic } from 'src/boiler-characteristics/entities';
 import { CombustionMaterialBalance } from 'src/combustion-material-balances/entities';
 import { ConvectivePackage } from 'src/convective-packages/entities';
-import { FurnaceHeatBalance } from 'src/furnace-heat-balances/entities';
 import { HeatBalance } from 'src/heat-balances/entities';
-
 export interface CalculateConvectivePackageHeatBalanceParams {
   convecivePackageNumber: number;
   acceptedPackageExitTemperature: number;
@@ -51,10 +49,8 @@ export interface CalculateConvectivePackageHeatBalanceParams {
     | 'partialPressureTriatomicGases'
     | 'specificVolumeFractionTriatomicGases'
   >;
-  furnaceHeatBalance: Pick<
-    FurnaceHeatBalance,
-    | 'calculatedFurnaceExitTemperature'
-    | 'blackBodyRadiationCoefficient'
-    | 'combustionProductEnthalpyExit'
-  >;
+  previousComponentHeatBalance: {
+    calculatedExitTemperature: number;
+    combustionProductEnthalpyExit: number;
+  };
 }

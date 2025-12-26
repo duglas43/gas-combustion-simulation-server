@@ -29,7 +29,6 @@ import { HeatBalance } from 'src/heat-balances/entities';
 import { FurnaceHeatBalance } from 'src/furnace-heat-balances/entities';
 import { ConvectivePackageHeatBalance } from 'src/convective-package-heat-balances/entities';
 import { EconomizerHeatBalance } from 'src/economizer-heat-balances/entities';
-import * as fs from 'fs';
 
 @Injectable()
 export class CalculationsService {
@@ -598,7 +597,6 @@ export class CalculationsService {
       ...result,
       message: 'Calculation result',
     });
-    fs.writeFileSync('result.json', JSON.stringify(result, null, 2));
 
     return result;
   }

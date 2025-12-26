@@ -60,18 +60,18 @@ export class EconomizerHeatBalancesService {
     const maxHeatedMediumTemperature =
       14.46082904 +
       391.6643525 *
-        (params.boilerCharacteristic.excessPressureInBoiler + 0.1) ** 0.5 +
+        (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 0.5 +
       -515.7573764 *
-        (params.boilerCharacteristic.excessPressureInBoiler + 0.1) +
+        (params.boilerCharacteristics.excessPressureInBoiler + 0.1) +
       467.8491656 *
-        (params.boilerCharacteristic.excessPressureInBoiler + 0.1) ** 1.5 +
+        (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 1.5 +
       -218.8244345 *
-        (params.boilerCharacteristic.excessPressureInBoiler + 0.1) ** 2 +
+        (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 2 +
       40.22947721 *
-        (params.boilerCharacteristic.excessPressureInBoiler + 0.1) ** 2.5 -
+        (params.boilerCharacteristics.excessPressureInBoiler + 0.1) ** 2.5 -
       20;
     const averageHeatedMediumTemperature =
-      (params.boilerCharacteristic.feedWaterTemperature +
+      (params.boilerCharacteristics.feedWaterTemperature +
         maxHeatedMediumTemperature) /
       2;
     const enthalpyIncrease =
@@ -80,10 +80,11 @@ export class EconomizerHeatBalancesService {
       params.heatBalance.heatedHeatCarrierFlow;
 
     const heatedMediumExitTemperature =
-      enthalpyIncrease / 4.2 + params.boilerCharacteristic.feedWaterTemperature;
+      enthalpyIncrease / 4.2 +
+      params.boilerCharacteristics.feedWaterTemperature;
 
     const averageHeatedMediumExitTemperature =
-      (params.boilerCharacteristic.feedWaterTemperature +
+      (params.boilerCharacteristics.feedWaterTemperature +
         heatedMediumExitTemperature) /
       2;
 
@@ -91,13 +92,13 @@ export class EconomizerHeatBalancesService {
       ((params.convectivePackageHeatBalance.acceptedPackageExitTemperature -
         heatedMediumExitTemperature -
         (acceptedEconomizerExitTemperature -
-          params.boilerCharacteristic.feedWaterTemperature)) *
+          params.boilerCharacteristics.feedWaterTemperature)) *
         geometricAdjustmentFactor) /
       Math.log(
         (params.convectivePackageHeatBalance.acceptedPackageExitTemperature -
           heatedMediumExitTemperature) /
           (acceptedEconomizerExitTemperature -
-            params.boilerCharacteristic.feedWaterTemperature),
+            params.boilerCharacteristics.feedWaterTemperature),
       );
 
     const averageCombustionTemperature =

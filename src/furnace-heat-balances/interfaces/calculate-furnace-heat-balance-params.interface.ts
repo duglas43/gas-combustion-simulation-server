@@ -23,7 +23,7 @@ export interface CalculateFurnaceHeatBalanceParams {
     | 'heatedHeatCarrierFlow'
   >;
   airLeakage: Pick<AirLeakage, 'actualFurnaceAirLeakage'>;
-  temperatureCharacteristic: Pick<
+  temperatureCharacteristics: Pick<
     TemperatureCharacteristic,
     | 'combustionAirHeatCapacity'
     | 'combustionAirTemperature'

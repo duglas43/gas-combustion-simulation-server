@@ -56,14 +56,14 @@ export class FurnaceHeatBalancesService {
 
     const combustionAirEnthalpy =
       params.combustionMaterialBalanceTemperature.theoreticalWetAirConsumption *
-      params.temperatureCharacteristic.combustionAirHeatCapacity *
-      params.temperatureCharacteristic.combustionAirTemperature;
+      params.temperatureCharacteristics.combustionAirHeatCapacity *
+      params.temperatureCharacteristics.combustionAirTemperature;
 
     const airFractionFromAirPreheater =
       params.alphaFurnaceCoefficient -
       params.airLeakage.actualFurnaceAirLeakage -
       (params.alphaFlueGasCoefficient - 1) *
-        params.temperatureCharacteristic.recirculationRate;
+        params.temperatureCharacteristics.recirculationRate;
     const heatInputToFurnaceFromAir =
       airFractionFromAirPreheater * combustionAirEnthalpy +
       params.airLeakage.actualFurnaceAirLeakage *
@@ -168,7 +168,7 @@ export class FurnaceHeatBalancesService {
     const furnaceGasDilutionCoefficient =
       (params.alphaFurnaceAvgCombustionMaterialBalance
         .totalWetCombustionProductsVolume *
-        (1 - params.temperatureCharacteristic.recirculationRate)) /
+        (1 - params.temperatureCharacteristics.recirculationRate)) /
       (params.alphaFurnaceAvgCombustionMaterialBalance.theoreticalCO2Volume +
         params.alphaFurnaceAvgCombustionMaterialBalance.theoreticalSO2Volume +
         params.alphaFurnaceAvgCombustionMaterialBalance

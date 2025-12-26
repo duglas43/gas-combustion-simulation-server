@@ -12,6 +12,7 @@ export interface CalculateEconomizerHeatBalanceParams {
   boilerCharacteristic: BoilerCharacteristic;
   economizerCharacteristic: EconomizerCharacteristic;
   alphaEconomizerCombustionMaterialBalance: CombustionMaterialBalance;
+  alphaEconomizerAvgCombustionMaterialBalance: CombustionMaterialBalance;
   alphaFurnaceCombusitonMaterialBalance: CombustionMaterialBalance;
   convectivePackageHeatBalance: ConvectivePackageHeatBalance;
   airLeakage: AirLeakage;

@@ -14,6 +14,7 @@ export class CombustionMaterialBalancesService {
       'alphaConvectivePackage1Avg',
       'alphaConvectivePackage2',
       'alphaConvectivePackage2Avg',
+      'alphaEconomizerAvg',
       'alphaEconomizer',
       'alphaFlueGas',
     ];

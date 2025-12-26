@@ -7,7 +7,7 @@ export class EconomizerHeatBalancesService {
   public calculate(params: CalculateEconomizerHeatBalanceParams) {
     const geometricAdjustmentFactor = 1;
     const heatEfficiencyCoefficient = 0.5;
-    const heatUtilizationCoefficient = 0.8;
+    const heatUtilizationCoefficient = 1;
     const acceptedEconomizerExitTemperature =
       params.acceptedEconomizerExitTemperature;
     const combustionProductEnthalpyExit =
@@ -89,13 +89,13 @@ export class EconomizerHeatBalancesService {
 
     const logarithmicTemperatureDifference =
       ((params.convectivePackageHeatBalance.acceptedPackageExitTemperature -
-        acceptedEconomizerExitTemperature -
+        heatedMediumExitTemperature -
         (acceptedEconomizerExitTemperature -
           params.boilerCharacteristic.feedWaterTemperature)) *
         geometricAdjustmentFactor) /
       Math.log(
         (params.convectivePackageHeatBalance.acceptedPackageExitTemperature -
-          acceptedEconomizerExitTemperature) /
+          heatedMediumExitTemperature) /
           (acceptedEconomizerExitTemperature -
             params.boilerCharacteristic.feedWaterTemperature),
       );
@@ -104,9 +104,10 @@ export class EconomizerHeatBalancesService {
       (params.convectivePackageHeatBalance.acceptedPackageExitTemperature +
         acceptedEconomizerExitTemperature) /
       2;
+
     const averageCombustionVelocity =
       (params.heatBalance.calculatedHourlyFuelConsumption *
-        params.alphaFurnaceCombusitonMaterialBalance
+        params.alphaEconomizerAvgCombustionMaterialBalance
           .totalWetCombustionProductsVolume *
         (averageCombustionTemperature + 273.15)) /
       (3600 * params.economizerCharacteristic.channelCrossSectionArea * 273.15);
@@ -114,8 +115,8 @@ export class EconomizerHeatBalancesService {
     const reynoldsCriterion =
       (averageCombustionVelocity *
         params.economizerCharacteristic.equivalentChannelDiameter) /
-      (0.0000119686 +
-        0.0000000793511 * averageCombustionTemperature +
+      (1.196865e-5 +
+        7.93511e-8 * averageCombustionTemperature +
         9.50931e-11 * averageCombustionTemperature ** 2 +
         -1.8727e-14 * averageCombustionTemperature ** 3 +
         -2.98081e-18 * averageCombustionTemperature ** 4 +
@@ -156,7 +157,7 @@ export class EconomizerHeatBalancesService {
     );
 
     const correctionCoefficientCs =
-      (1.36 - parameterPhi) * (11 / (parameterPhi + 8) - 0.14);
+      (1.36 - parameterPhi) * (11 / (finningCoefficient + 8) - 0.14);
 
     const correctionCoefficientCz = 1;
 

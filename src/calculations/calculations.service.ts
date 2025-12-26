@@ -485,10 +485,20 @@ export class CalculationsService {
       //   }
       // }
 
+      const alphaEconomizerAvgCoefficient = airExcessCoefficients.find(
+        (airExcessCoefficient) =>
+          airExcessCoefficient.name === 'alphaEconomizerAvg',
+      );
       const alphaEconomizerCoefficient = airExcessCoefficients.find(
         (airExcessCoefficient) =>
           airExcessCoefficient.name === 'alphaEconomizer',
       );
+      const alphaEconomizerAvgCombustionMaterialBalance =
+        combustionMaterialBalances.find(
+          (combustionMaterialBalance) =>
+            combustionMaterialBalance.airExcessCoefficientName ===
+            alphaEconomizerAvgCoefficient.name,
+        );
       const alphaEconomizerCombustionMaterialBalance =
         combustionMaterialBalances.find(
           (combustionMaterialBalance) =>
@@ -508,6 +518,7 @@ export class CalculationsService {
         acceptedEconomizerExitTemperature:
           acceptedValuesMap.economizerExitTemperature,
         alphaEconomizerCombustionMaterialBalance,
+        alphaEconomizerAvgCombustionMaterialBalance,
         alphaFurnaceCombusitonMaterialBalance,
         boilerCharacteristic,
         convectivePackageHeatBalance: secondConvectivePackageHeatBalance,

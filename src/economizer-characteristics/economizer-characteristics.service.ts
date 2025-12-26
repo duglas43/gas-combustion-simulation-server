@@ -16,13 +16,13 @@ export class EconomizerCharacteristicsService {
       averageTubeLength: 3,
       heatTransferSurfaceAreaPerTube: 4.49,
       finHeight: 35,
-      relativeTubePitchInRow: 1.974,
-      relativeRowPitch: 1.974,
+      relativeTubePitchInRow: 1.973684211,
+      relativeRowPitch: 1.973684211,
       totalEconomizerTubes: 112,
       numberOfColumns: 2,
-      totalHeatTransferSurfaceArea: 502.9,
+      totalHeatTransferSurfaceArea: 502.88,
       channelCrossSectionArea: 1.26,
-      equivalentChannelDiameter: 0.0304,
+      equivalentChannelDiameter: 0.030424494,
     });
     return economizerCharacteristic;
   }

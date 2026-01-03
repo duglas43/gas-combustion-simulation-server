@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Runtime } from './entities';
 import { RUNTIME_STATUSES } from './enums';
-import { CreateRuntimeDto, UpdateRuntimeDto } from './dtos';
+import { CreateRuntimeDto, RuntimeDto, UpdateRuntimeDto } from './dtos';
 
 @Injectable()
 export class RuntimeService {
@@ -48,6 +48,11 @@ export class RuntimeService {
   public getCurrent() {
     return this.runtime;
   }
+
+  public getCurrentDto(): RuntimeDto {
+    return new RuntimeDto(this.runtime);
+  }
+
   public canTick() {
     return this.runtime.status === RUNTIME_STATUSES.RUNNING;
   }

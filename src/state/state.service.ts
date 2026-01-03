@@ -60,6 +60,7 @@ export class StateService {
     if (!this.state) {
       throw new BadRequestException('Simulation state not created yet');
     }
+    if (!updateSimulationStateDto) return;
     const updatedEconomizerCharacteristic =
       this.economizerCharacteristicsService.calculate();
     let updatedBoilerCharacteristics: BoilerCharacteristic =

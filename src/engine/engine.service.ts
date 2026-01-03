@@ -68,7 +68,7 @@ export class EngineService {
       },
     );
     newObservation.time = new Date(lastObservation.time.getTime() + this.STEP);
-    newObservation.timestamp = Number(lastObservation.timestamp) + 1;
+    newObservation.timestamp = Number(lastObservation.timestamp) + 1000;
     await this.observationService.saveObservation(newObservation);
     this.runtimeService.step(this.STEP);
   }

@@ -3,6 +3,7 @@ import { CreateSimulationDto, UpdateSimulationDto } from './dtos';
 import { EngineService } from 'src/engine/engine.service';
 import { RuntimeService } from 'src/runtime/runtime.service';
 import { StateService } from 'src/state/state.service';
+import { ObservationsService } from 'src/observations/observations.service';
 
 @Injectable()
 export class SimulationService {
@@ -10,6 +11,7 @@ export class SimulationService {
     private readonly engineService: EngineService,
     private readonly runtimeService: RuntimeService,
     private readonly stateService: StateService,
+    private readonly observationService: ObservationsService,
   ) {}
 
   create(createSimulationDto: CreateSimulationDto): void {
@@ -35,5 +37,11 @@ export class SimulationService {
   pause(): void {
     this.runtimeService.pause();
     this.engineService.stop();
+  }
+
+  reset(): void {
+    this.runtimeService.reset();
+    this.stateService.reset();
+    this.observationService.clearAll();
   }
 }

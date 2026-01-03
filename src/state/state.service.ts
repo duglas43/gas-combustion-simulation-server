@@ -116,6 +116,9 @@ export class StateService {
       convectivePackagesParameters: updatedConvectivePackagesParameters,
     });
   }
+  public reset(): void {
+    this.state = null;
+  }
   getCurrent(): State {
     return this.state;
   }

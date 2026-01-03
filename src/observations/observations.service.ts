@@ -70,4 +70,9 @@ export class ObservationsService {
     });
     return result;
   }
+
+  public async clearAll(): Promise<void> {
+    await this.observationRepository.clear();
+    this.forecastObservations = [];
+  }
 }

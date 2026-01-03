@@ -32,4 +32,9 @@ export class SimulationController {
   pause(): void {
     this.simulationService.pause();
   }
+
+  @Post('reset')
+  reset(): void {
+    this.simulationService.reset();
+  }
 }

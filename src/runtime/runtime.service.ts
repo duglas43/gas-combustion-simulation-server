@@ -31,6 +31,12 @@ export class RuntimeService {
     if (updateRuntimeDto.speedUpFactor !== undefined) {
       this.runtime.speedUpFactor = updateRuntimeDto.speedUpFactor;
     }
+    this.runtime.status = RUNTIME_STATUSES.TRANSITIONING;
+    setTimeout(() => {
+      if (this.runtime.status === RUNTIME_STATUSES.TRANSITIONING) {
+        this.runtime.status = RUNTIME_STATUSES.RUNNING;
+      }
+    }, 3000);
   }
   public step(deltaTimeMs: number = 1000) {
     this.runtime.currentTime += deltaTimeMs;

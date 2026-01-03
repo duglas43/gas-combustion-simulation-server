@@ -1,13 +1,20 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CalculationsModule } from './calculations/calculations.module';
+import { HeatBalanceSolverModule } from './heat-balance-solver/heat-balance-solver.module';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './env.validation';
 import { APP_PIPE } from '@nestjs/core';
-import { EconomizerCharacteristicsModule } from './economizer-characteristics/economizer-characteristics.module';
-import { BoilerCharacteristicsModule } from './boiler-characteristics/boiler-characteristics.module';
-import { LoggerModule } from './logger/logger.module';
+import { EconomizerCharacteristicsModule } from './phisics/economizer-characteristics/economizer-characteristics.module';
+import { BoilerCharacteristicsModule } from './phisics/boiler-characteristics/boiler-characteristics.module';
+import { EngineModule } from './engine/engine.module';
+import { AlertsModule } from './alerts/alerts.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
+import { WarningsModule } from './warnings/warnings.module';
+import { ObservationsModule } from './observations/observations.module';
+import { RuntimeModule } from './runtime/runtime.module';
+import { StateModule } from './state/state.module';
+import { SimulationModule } from './simulation/simulation.module';
 
 @Module({
   imports: [
@@ -16,10 +23,17 @@ import { LoggerModule } from './logger/logger.module';
       validate,
       envFilePath: ['.env.development.local', '.env.development', '.env'],
     }),
-    CalculationsModule,
+    HeatBalanceSolverModule,
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
-    LoggerModule,
+    EngineModule,
+    AlertsModule,
+    RecommendationsModule,
+    WarningsModule,
+    ObservationsModule,
+    RuntimeModule,
+    StateModule,
+    SimulationModule,
   ],
   controllers: [AppController],
   providers: [

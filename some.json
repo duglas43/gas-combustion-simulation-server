@@ -1,45 +1,50 @@
 {
-  "fuelComposition": {
-    "methanePercentage": 98.33,
-    "ethanePercentage": 0.3,
-    "propanePercentage": 0.12,
-    "nButanePercentage": 0.15,
-    "isoButanePercentage": 0,
-    "pentanePercentage": 0,
-    "hydrogenPercentage": 0,
-    "ethylenePercentage": 0,
-    "propylenePercentage": 0,
-    "butylenePercentage": 0,
-    "acetylenePercentage": 0,
-    "hydrogenSulfidePercentage": 0,
-    "carbonMonoxidePercentage": 0,
-    "carbonDioxidePercentage": 0.1,
-    "nitrogenPercentage": 1,
-    "oxygenPercentage": 0
-  },
-  "boilerCharacteristics": {
-    "loadPercentage": 97.86,
-    "airHumidityForCombustion": 13,
-    "gasHumidityForCombustion": 0,
-    "feedWaterTemperature": 85,
-    "roomAirTemperature": 25,
-    "gasInletTemperature": 16
-  },
-  "furnaceCharacteristics": {
-    "screenContaminationFactor": 0.65
-  },
-  "convectivePackagesParameters": [
-    {
-      "id": 1,
-      "wallBlacknessDegree": 0.8,
-      "tubesPerRow": 16,
-      "minCrossSectionDimension": 1.64
+  "state": {
+    "fuelComposition": {
+      "methanePercentage": 98.33,
+      "ethanePercentage": 0.3,
+      "propanePercentage": 0.12,
+      "nButanePercentage": 0.15,
+      "isoButanePercentage": 0,
+      "pentanePercentage": 0,
+      "hydrogenPercentage": 0,
+      "ethylenePercentage": 0,
+      "propylenePercentage": 0,
+      "butylenePercentage": 0,
+      "acetylenePercentage": 0,
+      "hydrogenSulfidePercentage": 0,
+      "carbonMonoxidePercentage": 0,
+      "carbonDioxidePercentage": 0.1,
+      "nitrogenPercentage": 1,
+      "oxygenPercentage": 0
     },
-    {
-      "id": 2,
-      "wallBlacknessDegree": 0.8,
-      "tubesPerRow": 11,
-      "minCrossSectionDimension": 1.08
-    }
-  ]
+    "boilerCharacteristics": {
+      "loadPercentage": 97.86,
+      "airHumidityForCombustion": 13,
+      "gasHumidityForCombustion": 0,
+      "feedWaterTemperature": 85,
+      "roomAirTemperature": 25,
+      "gasInletTemperature": 16
+    },
+    "furnaceCharacteristics": {
+      "screenContaminationFactor": 0.65
+    },
+    "convectivePackagesParameters": [
+      {
+        "id": 1,
+        "wallBlacknessDegree": 0.8,
+        "tubesPerRow": 16,
+        "minCrossSectionDimension": 1.64
+      },
+      {
+        "id": 2,
+        "wallBlacknessDegree": 0.8,
+        "tubesPerRow": 11,
+        "minCrossSectionDimension": 1.08
+      }
+    ]
+  },
+  "runtime": {
+    "speedUpFactor": 1
+  }
 }

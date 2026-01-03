@@ -1,0 +1,3 @@
+export enum ALERT_CODES {
+  FURNACE_OVERHEAT = 'FURNACE_OVERHEAT',
+}

@@ -3,6 +3,12 @@ import { Observation } from '../entities';
 
 export class ObservationDto {
   @ApiProperty()
+  time: Date;
+
+  @ApiProperty()
+  timestamp: number;
+
+  @ApiProperty()
   load: number;
 
   @ApiProperty()
@@ -51,6 +57,8 @@ export class ObservationDto {
   economizerImbalance: number;
 
   constructor(model: Observation | ObservationDto) {
+    this.time = model.time;
+    this.timestamp = model.timestamp;
     this.efficiency = model.efficiency;
     this.adiabaticCombustionTemperature = model.adiabaticCombustionTemperature;
     this.furnaceExitTemperature = model.furnaceExitTemperature;

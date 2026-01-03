@@ -10,10 +10,13 @@ import { HeatBalancesModule } from 'src/phisics/heat-balances/heat-balances.modu
 import { FurnaceHeatBalancesModule } from 'src/phisics/furnace-heat-balances/furnace-heat-balances.module';
 import { ConvectivePackageHeatBalancesModule } from 'src/phisics/convective-package-heat-balances/convective-package-heat-balances.module';
 import { EconomizerHeatBalancesModule } from 'src/phisics/economizer-heat-balances/economizer-heat-balances.module';
+import { ObservationsModule } from 'src/observations/observations.module';
+import { SolverResultToObservationMapper } from './mappers';
 
 @Module({
   imports: [
     AirLeakagesModule,
+    ObservationsModule,
     TemperatureCharacteristicsModule,
     CombustionMaterialBalanceTemperaturesModule,
     AirExcessCoefficientsModule,
@@ -23,6 +26,7 @@ import { EconomizerHeatBalancesModule } from 'src/phisics/economizer-heat-balanc
     ConvectivePackageHeatBalancesModule,
     EconomizerHeatBalancesModule,
   ],
-  providers: [HeatBalanceSolverService],
+  providers: [HeatBalanceSolverService, SolverResultToObservationMapper],
+  exports: [HeatBalanceSolverService],
 })
 export class HeatBalanceSolverModule {}

@@ -27,6 +27,7 @@ export class HeatBalanceSolverService {
     private readonly furnaceHeatBalancesService: FurnaceHeatBalancesService,
     private readonly convectivePackageHeatBalancesService: ConvectivePackageHeatBalancesService,
     private readonly economizerHeatBalancesService: EconomizerHeatBalancesService,
+    private readonly solverResultToObservationMapper: SolverResultToObservationMapper,
   ) {}
 
   solveStep(
@@ -166,7 +167,6 @@ export class HeatBalanceSolverService {
       if (adjustAcceptedValue.changed) {
         acceptedValuesMap.furnaceExitTemperature = adjustAcceptedValue.value;
         needRecalculation = true;
-        continue;
       }
 
       adjustAcceptedValue = this.adjustAcceptedValue(
@@ -180,7 +180,6 @@ export class HeatBalanceSolverService {
         acceptedValuesMap.adiabaticCombustionTemperature =
           adjustAcceptedValue.value;
         needRecalculation = true;
-        continue;
       }
 
       const firstConvectivePackageHeatBalance = this.calculateConvectivePackage(
@@ -207,7 +206,6 @@ export class HeatBalanceSolverService {
         acceptedValuesMap.firstConvectivePackageExitTemperature =
           firstConvectivePackageHeatBalance.heatedMediumTemperature + 50;
         needRecalculation = true;
-        continue;
       }
 
       adjustAcceptedValue = this.adjustAcceptedValue(
@@ -221,7 +219,6 @@ export class HeatBalanceSolverService {
         acceptedValuesMap.firstConvectivePackageExitTemperature =
           adjustAcceptedValue.value;
         needRecalculation = true;
-        continue;
       }
 
       const secondConvectivePackageHeatBalance =
@@ -248,7 +245,6 @@ export class HeatBalanceSolverService {
         acceptedValuesMap.secondConvectivePackageExitTemperature =
           secondConvectivePackageHeatBalance.heatedMediumTemperature + 50;
         needRecalculation = true;
-        continue;
       }
 
       adjustAcceptedValue = this.adjustAcceptedValue(
@@ -262,7 +258,6 @@ export class HeatBalanceSolverService {
         acceptedValuesMap.secondConvectivePackageExitTemperature =
           adjustAcceptedValue.value;
         needRecalculation = true;
-        continue;
       }
 
       const alphaEconomizer = this.getAlpha(
@@ -303,7 +298,6 @@ export class HeatBalanceSolverService {
       if (adjustAcceptedValue.changed) {
         acceptedValuesMap.economizerExitTemperature = adjustAcceptedValue.value;
         needRecalculation = true;
-        continue;
       }
 
       result = {
@@ -320,11 +314,10 @@ export class HeatBalanceSolverService {
       };
     }
 
-    const boilerState = SolverResultToObservationMapper.map(
-      previousObservation,
+    const newObservation = this.solverResultToObservationMapper.map(
       this.convertIntToFloat(result),
     );
-    return boilerState;
+    return newObservation;
   }
 
   private adjustAcceptedValue(

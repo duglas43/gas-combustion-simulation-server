@@ -1,9 +1,14 @@
 import { Observation } from 'src/observations/entities';
 import { SolverResult } from '../interfaces';
+import { ObservationRepository } from 'src/observations/repositories';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class SolverResultToObservationMapper {
-  static map(prevState: Observation, result: SolverResult): Observation {
-    return new Observation({
+  constructor(private readonly observationRepository: ObservationRepository) {}
+
+  map(result: SolverResult): Observation {
+    return this.observationRepository.create({
       efficiency: result.heatBalance.boilerEfficiencyGross,
       adiabaticCombustionTemperature:
         result.furnaceHeatBalance.acceptedAdiabaticCombustionTemperature,

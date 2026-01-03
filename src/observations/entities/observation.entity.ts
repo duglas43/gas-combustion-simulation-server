@@ -1,53 +1,57 @@
+import { Entity, Column } from 'typeorm';
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
+
+@Entity({ name: 'observations' })
+@Hypertable({})
 export class Observation {
+  @TimeColumn()
+  time: Date;
+
+  @Column({ type: 'bigint', unique: true })
+  timestamp: number;
+
+  @Column({ type: 'float' })
   efficiency: number;
 
+  @Column({ type: 'float' })
   adiabaticCombustionTemperature: number;
 
+  @Column({ type: 'float' })
   furnaceExitTemperature: number;
 
+  @Column({ type: 'float' })
   firstConvectivePackageExitTemperature: number;
 
+  @Column({ type: 'float' })
   secondConvectivePackageExitTemperature: number;
 
+  @Column({ type: 'float' })
   economizerExitTemperature: number;
 
+  @Column({ type: 'float' })
   flueGasTemperature: number;
 
+  @Column({ type: 'float' })
   fuelConsumption: number;
 
+  @Column({ type: 'float' })
   lossesWithFlueGasPercentage: number;
 
+  @Column({ type: 'float' })
   lossesThroughWallsPercentage: number;
 
+  @Column({ type: 'float' })
   totalLosses: number;
 
+  @Column({ type: 'float' })
   furnaceImbalance: number;
 
+  @Column({ type: 'float' })
   firstConvectivePackageImbalance: number;
 
+  @Column({ type: 'float' })
   secondConvectivePackageImbalance: number;
 
+  @Column({ type: 'float' })
   economizerImbalance: number;
-
-  constructor(model: Partial<Observation>) {
-    this.efficiency = model.efficiency;
-    this.adiabaticCombustionTemperature = model.adiabaticCombustionTemperature;
-    this.furnaceExitTemperature = model.furnaceExitTemperature;
-    this.firstConvectivePackageExitTemperature =
-      model.firstConvectivePackageExitTemperature;
-    this.secondConvectivePackageExitTemperature =
-      model.secondConvectivePackageExitTemperature;
-    this.economizerExitTemperature = model.economizerExitTemperature;
-    this.flueGasTemperature = model.flueGasTemperature;
-    this.fuelConsumption = model.fuelConsumption;
-    this.lossesWithFlueGasPercentage = model.lossesWithFlueGasPercentage;
-    this.lossesThroughWallsPercentage = model.lossesThroughWallsPercentage;
-    this.totalLosses = model.totalLosses;
-    this.furnaceImbalance = model.furnaceImbalance;
-    this.firstConvectivePackageImbalance =
-      model.firstConvectivePackageImbalance;
-    this.secondConvectivePackageImbalance =
-      model.secondConvectivePackageImbalance;
-    this.economizerImbalance = model.economizerImbalance;
-  }
 }

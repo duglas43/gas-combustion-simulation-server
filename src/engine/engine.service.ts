@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import PQueue from 'p-queue';
 import { HeatBalanceSolverService } from 'src/heat-balance-solver/heat-balance-solver.service';
+import { Observation } from 'src/observations/entities';
 import { ObservationsService } from 'src/observations/observations.service';
 import { RuntimeService } from 'src/runtime/runtime.service';
 import { StateService } from 'src/state/state.service';
@@ -70,6 +71,37 @@ export class EngineService {
     newObservation.time = new Date(lastObservation.time.getTime() + this.STEP);
     newObservation.timestamp = Number(lastObservation.timestamp) + 1000;
     await this.observationService.saveObservation(newObservation);
+    const forecastObservations = await this.getForecastObservations();
+    this.observationService.saveForecastObservations(forecastObservations);
+
     this.runtimeService.step(this.STEP);
+  }
+
+  private async getForecastObservations(): Promise<Observation[]> {
+    const currentState = this.stateService.getCurrent();
+    const stateClone = JSON.parse(JSON.stringify(currentState));
+
+    const lastObservation = await this.observationService.getLastObservation();
+    const forecastObservations: Observation[] = [];
+    let tempObservation = lastObservation;
+
+    for (let i = 0; i < 20; i++) {
+      const newTempObservation = this.heatBalanceSolverService.solveStep(
+        tempObservation,
+        stateClone,
+        {
+          maxInternalIterations: 2,
+          threshold: 0.1,
+        },
+      );
+      tempObservation = {
+        ...newTempObservation,
+        time: new Date(tempObservation.time.getTime() + this.STEP),
+        timestamp: Number(tempObservation.timestamp) + 1000,
+      };
+      forecastObservations.push(tempObservation);
+    }
+
+    return forecastObservations;
   }
 }

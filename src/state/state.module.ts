@@ -6,6 +6,7 @@ import { FuelCompositionsModule } from 'src/phisics/fuel-compositions/fuel-compo
 import { FurnaceCharacteristicsModule } from 'src/phisics/furnace-characteristics/furnace-characteristics.module';
 import { ConvectivePackagesModule } from 'src/phisics/convective-packages/convective-packages.module';
 import { StateController } from './state.controller';
+import { StateRepository } from './repositories';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { StateController } from './state.controller';
     ConvectivePackagesModule,
   ],
   controllers: [StateController],
-  providers: [StateService],
-  exports: [StateService],
+  providers: [StateService, StateRepository],
+  exports: [StateService, StateRepository],
 })
 export class StateModule {}

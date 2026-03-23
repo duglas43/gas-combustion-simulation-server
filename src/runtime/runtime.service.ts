@@ -1,65 +1,69 @@
 import { Injectable } from '@nestjs/common';
-import { Runtime } from './entities';
 import { RUNTIME_STATUSES } from './enums';
 import { CreateRuntimeDto, RuntimeDto, UpdateRuntimeDto } from './dtos';
+import { RuntimeRepository } from './repositories';
 
 @Injectable()
 export class RuntimeService {
-  private runtime: Runtime;
-  public constructor() {
-    this.runtime = new Runtime({
+  public constructor(private readonly runtimeRepository: RuntimeRepository) {}
+
+  public create(createRuntimeDto: CreateRuntimeDto) {
+    this.runtimeRepository.create(createRuntimeDto.speedUpFactor);
+  }
+
+  public reset() {
+    this.runtimeRepository.update({
       status: RUNTIME_STATUSES.IDLE,
       currentTime: 0,
       speedUpFactor: 1,
     });
   }
 
-  public create(createRuntimeDto: CreateRuntimeDto) {
-    this.runtime = new Runtime({
-      status: RUNTIME_STATUSES.IDLE,
-      currentTime: 0,
-      speedUpFactor: createRuntimeDto.speedUpFactor,
+  public update(updateRuntimeDto: UpdateRuntimeDto) {
+    this.runtimeRepository.update({
+      speedUpFactor: updateRuntimeDto.speedUpFactor,
+    });
+    setTimeout(() => {
+      this.runtimeRepository.makeRunningIfTransitioning();
+    }, 1000);
+  }
+  public step(deltaTimeMs: number = 1000) {
+    this.runtimeRepository.update({
+      currentTime:
+        this.runtimeRepository.getCurrent().currentTime + deltaTimeMs,
+    });
+  }
+  public start() {
+    this.runtimeRepository.update({
+      status: RUNTIME_STATUSES.RUNNING,
+    });
+  }
+  public pause() {
+    this.runtimeRepository.update({
+      status: RUNTIME_STATUSES.PAUSED,
+    });
+  }
+  public stop() {
+    this.runtimeRepository.update({
+      status: RUNTIME_STATUSES.COMPLETED,
     });
   }
 
-  public reset() {
-    this.runtime.status = RUNTIME_STATUSES.IDLE;
-    this.runtime.currentTime = 0;
-  }
-
-  public update(updateRuntimeDto: UpdateRuntimeDto) {
-    if (updateRuntimeDto.speedUpFactor !== undefined) {
-      this.runtime.speedUpFactor = updateRuntimeDto.speedUpFactor;
-    }
-    this.runtime.status = RUNTIME_STATUSES.TRANSITIONING;
-    setTimeout(() => {
-      if (this.runtime.status === RUNTIME_STATUSES.TRANSITIONING) {
-        this.runtime.status = RUNTIME_STATUSES.RUNNING;
-      }
-    }, 3000);
-  }
-  public step(deltaTimeMs: number = 1000) {
-    this.runtime.currentTime += deltaTimeMs;
-  }
-  public start() {
-    this.runtime.status = RUNTIME_STATUSES.RUNNING;
-  }
-  public pause() {
-    this.runtime.status = RUNTIME_STATUSES.PAUSED;
-  }
-  public stop() {
-    this.runtime.status = RUNTIME_STATUSES.COMPLETED;
-  }
-
   public getCurrent() {
-    return this.runtime;
+    const currentRuntime = this.runtimeRepository.getCurrent();
+    return currentRuntime;
   }
 
   public getCurrentDto(): RuntimeDto {
-    return new RuntimeDto(this.runtime);
+    const currentRuntime = this.runtimeRepository.getCurrent();
+    return new RuntimeDto(currentRuntime);
   }
 
   public canTick() {
-    return this.runtime.status === RUNTIME_STATUSES.RUNNING;
+    const currentStatus = this.runtimeRepository.getCurrent().status;
+    return (
+      currentStatus === RUNTIME_STATUSES.RUNNING ||
+      currentStatus === RUNTIME_STATUSES.TRANSITIONING
+    );
   }
 }

@@ -10,17 +10,17 @@ import { BoilerCharacteristic } from 'src/phisics/boiler-characteristics/entitie
 import { FuelComposition } from 'src/phisics/fuel-compositions/entities';
 import { FurnaceCharacteristic } from 'src/phisics/furnace-characteristics/entities';
 import { ConvectivePackage } from 'src/phisics/convective-packages/entities';
+import { StateRepository } from './repositories';
 
 @Injectable()
 export class StateService {
-  public state: State | null = null;
-
   public constructor(
     private readonly economizerCharacteristicsService: EconomizerCharacteristicsService,
     private readonly boilerCharacteristicsService: BoilerCharacteristicsService,
     private readonly fuelCompositionsService: FuelCompositionsService,
     private readonly furnaceCharacteristicsService: FurnaceCharacteristicsService,
     private readonly convectivePackagesService: ConvectivePackagesService,
+    private readonly stateRepository: StateRepository,
   ) {}
 
   create(createSimulationStateDto: CreateStateDto): void {
@@ -54,22 +54,19 @@ export class StateService {
       furnaceCharacteristics,
       convectivePackagesParameters,
     });
-    this.state = simulationState;
+    this.stateRepository.create(simulationState);
   }
   update(updateSimulationStateDto: UpdateStateDto): void {
-    if (!this.state) {
+    const currentState = this.stateRepository.getCurrent();
+    if (!currentState) {
       throw new BadRequestException('Simulation state not created yet');
     }
     if (!updateSimulationStateDto) return;
-    const updatedEconomizerCharacteristic =
-      this.economizerCharacteristicsService.calculate();
-    let updatedBoilerCharacteristics: BoilerCharacteristic =
-      this.state.boilerCharacteristics;
-    let updatedFuelComposition: FuelComposition = this.state.fuelComposition;
-    let updatedFurnaceCharacteristics: FurnaceCharacteristic =
-      this.state.furnaceCharacteristics;
-    let updatedConvectivePackagesParameters: ConvectivePackage[] =
-      this.state.convectivePackagesParameters;
+    const updatedEconomizerCharacteristic = null;
+    let updatedBoilerCharacteristics: BoilerCharacteristic = null;
+    let updatedFuelComposition: FuelComposition = null;
+    let updatedFurnaceCharacteristics: FurnaceCharacteristic = null;
+    let updatedConvectivePackagesParameters: ConvectivePackage[] = null;
 
     if (updateSimulationStateDto.boilerCharacteristics) {
       updatedBoilerCharacteristics =
@@ -79,7 +76,7 @@ export class StateService {
       updatedFuelComposition = this.fuelCompositionsService.calculate({
         createFuelCompositionDto:
           updateSimulationStateDto.fuelComposition ||
-          this.state.fuelComposition,
+          currentState.fuelComposition,
         boilerCharacreristics: {
           gasInletTemperature: updatedBoilerCharacteristics.gasInletTemperature,
         },
@@ -108,7 +105,7 @@ export class StateService {
         });
     }
 
-    this.state = new State({
+    this.stateRepository.update({
       economizerCharacteristic: updatedEconomizerCharacteristic,
       boilerCharacteristics: updatedBoilerCharacteristics,
       fuelComposition: updatedFuelComposition,
@@ -117,9 +114,10 @@ export class StateService {
     });
   }
   public reset(): void {
-    this.state = null;
+    this.stateRepository.clear();
   }
   getCurrent(): State {
-    return this.state;
+    const state = this.stateRepository.getCurrent();
+    return state;
   }
 }

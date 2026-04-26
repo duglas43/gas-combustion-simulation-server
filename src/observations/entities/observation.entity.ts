@@ -1,11 +1,8 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
-import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 @Entity({ name: 'observations' })
-@Hypertable({})
 export class Observation {
-  @TimeColumn()
-  @PrimaryColumn({ type: 'timestamptz' })
+  @PrimaryColumn()
   time: Date;
 
   @Column({ type: 'bigint', unique: true })

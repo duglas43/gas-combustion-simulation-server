@@ -70,7 +70,7 @@ export class EngineService {
       },
     );
     newObservation.time = new Date(lastObservation.time.getTime() + this.STEP);
-    newObservation.timestamp = Number(lastObservation.timestamp) + 1000;
+    newObservation.timestamp = Number(lastObservation.timestamp) + this.STEP;
     await this.observationService.saveObservation(newObservation);
     const forecastObservations = await this.getForecastObservations();
     this.observationService.saveForecastObservations(forecastObservations);
@@ -98,7 +98,7 @@ export class EngineService {
       tempObservation = {
         ...newTempObservation,
         time: new Date(tempObservation.time.getTime() + this.STEP),
-        timestamp: Number(tempObservation.timestamp) + 1000,
+        timestamp: Number(tempObservation.timestamp) + this.STEP,
       };
       forecastObservations.push(tempObservation);
     }

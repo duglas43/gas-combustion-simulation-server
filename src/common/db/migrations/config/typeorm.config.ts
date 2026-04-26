@@ -1,4 +1,3 @@
-import '@timescaledb/typeorm';
 import 'dotenv/config';
 import { Observation } from 'src/observations/entities';
 import { DataSource, DataSourceOptions } from 'typeorm';

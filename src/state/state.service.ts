@@ -23,7 +23,7 @@ export class StateService {
     private readonly stateRepository: StateRepository,
   ) {}
 
-  create(createSimulationStateDto: CreateStateDto): void {
+  calculate(createSimulationStateDto: CreateStateDto): State {
     const economizerCharacteristic =
       this.economizerCharacteristicsService.calculate();
     const boilerCharacteristics = this.boilerCharacteristicsService.calculate(
@@ -47,13 +47,17 @@ export class StateService {
           createSimulationStateDto.convectivePackagesParameters,
       });
 
-    const simulationState = new State({
+    return new State({
       economizerCharacteristic,
       boilerCharacteristics,
       fuelComposition,
       furnaceCharacteristics,
       convectivePackagesParameters,
     });
+  }
+
+  create(createSimulationStateDto: CreateStateDto): void {
+    const simulationState = this.calculate(createSimulationStateDto);
     this.stateRepository.create(simulationState);
   }
   update(updateSimulationStateDto: UpdateStateDto): void {

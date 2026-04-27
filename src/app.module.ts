@@ -16,6 +16,7 @@ import { RuntimeModule } from './runtime/runtime.module';
 import { StateModule } from './state/state.module';
 import { SimulationModule } from './simulation/simulation.module';
 import { TypeOrmModule } from './type-orm/type-orm.module';
+import { CalculationsModule } from './calculations/calculations.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TypeOrmModule } from './type-orm/type-orm.module';
     StateModule,
     SimulationModule,
     TypeOrmModule,
+    CalculationsModule,
   ],
   controllers: [AppController],
   providers: [

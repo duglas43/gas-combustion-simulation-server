@@ -10,7 +10,8 @@ export class ConvectivePackageHeatBalancesService {
     const sumAngularCoefficients = 0.949;
     const furnaceExitWindowArea = 2.327;
     const geometricAdjustmentFactor = 1;
-    const screenWallBlacknessDegree = 0.8;
+    const screenWallBlacknessDegree =
+      params.convectivePackageCharacteristics.wallBlacknessDegree;
     const heatEfficiencyCoefficient = 0.8;
     const heatUtilizationCoefficient = 0.95;
     const blackBodyRadiationCoefficient = 20.53e-8;

@@ -15,6 +15,7 @@ export interface CalculateConvectivePackageHeatBalanceParams {
     | 'outerTubeDiameter'
     | 'effectiveRadiatingLayerThickness'
     | 'convectivePackageHeatSurfaceArea'
+    | 'wallBlacknessDegree'
   >;
   boilerCharacteristics: Pick<
     BoilerCharacteristic,

@@ -34,11 +34,6 @@ export class SimulationService {
     this.engineService.stop();
   }
 
-  pause(): void {
-    this.runtimeService.pause();
-    this.engineService.stop();
-  }
-
   reset(): void {
     this.runtimeService.reset();
     this.stateService.reset();

@@ -38,14 +38,10 @@ export class RuntimeService {
       status: RUNTIME_STATUSES.RUNNING,
     });
   }
-  public pause() {
-    this.runtimeRepository.update({
-      status: RUNTIME_STATUSES.PAUSED,
-    });
-  }
+
   public stop() {
     this.runtimeRepository.update({
-      status: RUNTIME_STATUSES.COMPLETED,
+      status: RUNTIME_STATUSES.PAUSED,
     });
   }
 

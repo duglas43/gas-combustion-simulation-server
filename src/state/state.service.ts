@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateStateDto, UpdateStateDto } from './dtos';
+import { CreateStateDto, StateDto, UpdateStateDto } from './dtos';
 import { State } from './entities';
 import { EconomizerCharacteristicsService } from 'src/phisics/economizer-characteristics/economizer-characteristics.service';
 import { BoilerCharacteristicsService } from 'src/phisics/boiler-characteristics/boiler-characteristics.service';
@@ -120,6 +120,11 @@ export class StateService {
   public reset(): void {
     this.stateRepository.clear();
   }
+  public getCurrentDto(): StateDto {
+    const state = this.stateRepository.getCurrent();
+    return new StateDto(state);
+  }
+
   getCurrent(): State {
     const state = this.stateRepository.getCurrent();
     return state;

@@ -60,13 +60,12 @@ export class EngineService {
   private async simulateStep() {
     const currentState = this.stateService.getCurrent();
     const lastObservation = await this.observationService.getLastObservation();
-    const isFirstStep = lastObservation.timestamp === 0;
     const newObservation = this.heatBalanceSolverService.solveStep(
       lastObservation,
       currentState,
       {
-        maxInternalIterations: isFirstStep ? 300 : 2, // more iterations for the first step to stabilize
-        threshold: 0.1,
+        maxInternalIterations: 1000,
+        threshold: 0.01,
       },
     );
     newObservation.time = new Date(lastObservation.time.getTime() + this.STEP);
@@ -86,13 +85,13 @@ export class EngineService {
     const forecastObservations: Observation[] = [];
     let tempObservation = lastObservation;
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 50; i++) {
       const newTempObservation = this.heatBalanceSolverService.solveStep(
         tempObservation,
         stateClone,
         {
-          maxInternalIterations: 2,
-          threshold: 0.1,
+          maxInternalIterations: 1000,
+          threshold: 0.01,
         },
       );
       tempObservation = {

@@ -122,6 +122,7 @@ export class StateService {
   }
   public getCurrentDto(): StateDto {
     const state = this.stateRepository.getCurrent();
+    if (!state) return null;
     return new StateDto(state);
   }
 

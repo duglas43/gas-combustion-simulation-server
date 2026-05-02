@@ -157,28 +157,29 @@ export class HeatBalanceSolverService {
         temperatureCharacteristics,
       });
 
-      let adjustAcceptedValue = this.adjustAcceptedValue(
+      const nextFurnaceExitTemperature = this.adjustAcceptedValue(
         acceptedValuesMap.furnaceExitTemperature,
         furnaceHeatBalance.calculatedFurnaceExitTemperature,
         options.threshold,
         2,
       );
 
-      if (adjustAcceptedValue.changed) {
-        acceptedValuesMap.furnaceExitTemperature = adjustAcceptedValue.value;
+      if (nextFurnaceExitTemperature.changed) {
+        acceptedValuesMap.furnaceExitTemperature =
+          nextFurnaceExitTemperature.value;
         needRecalculation = true;
       }
 
-      adjustAcceptedValue = this.adjustAcceptedValue(
+      const nextAdiabaticCombustionTemperature = this.adjustAcceptedValue(
         acceptedValuesMap.adiabaticCombustionTemperature,
         furnaceHeatBalance.calculatedAdiabaticCombustionTemperature,
         options.threshold,
         2,
       );
 
-      if (adjustAcceptedValue.changed) {
+      if (nextAdiabaticCombustionTemperature.changed) {
         acceptedValuesMap.adiabaticCombustionTemperature =
-          adjustAcceptedValue.value;
+          nextAdiabaticCombustionTemperature.value;
         needRecalculation = true;
       }
 
@@ -208,16 +209,17 @@ export class HeatBalanceSolverService {
         needRecalculation = true;
       }
 
-      adjustAcceptedValue = this.adjustAcceptedValue(
-        acceptedValuesMap.firstConvectivePackageExitTemperature,
-        firstConvectivePackageHeatBalance.calculatedPackageExitTemperature,
-        options.threshold,
-        20,
-      );
+      const nextFirstConvectivePackageExitTemperature =
+        this.adjustAcceptedValue(
+          acceptedValuesMap.firstConvectivePackageExitTemperature,
+          firstConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+          options.threshold,
+          20,
+        );
 
-      if (adjustAcceptedValue.changed) {
+      if (nextFirstConvectivePackageExitTemperature.changed) {
         acceptedValuesMap.firstConvectivePackageExitTemperature =
-          adjustAcceptedValue.value;
+          nextFirstConvectivePackageExitTemperature.value;
         needRecalculation = true;
       }
 
@@ -247,16 +249,17 @@ export class HeatBalanceSolverService {
         needRecalculation = true;
       }
 
-      adjustAcceptedValue = this.adjustAcceptedValue(
-        acceptedValuesMap.secondConvectivePackageExitTemperature,
-        secondConvectivePackageHeatBalance.calculatedPackageExitTemperature,
-        options.threshold,
-        20,
-      );
+      const nextSecondConvectivePackageExitTemperature =
+        this.adjustAcceptedValue(
+          acceptedValuesMap.secondConvectivePackageExitTemperature,
+          secondConvectivePackageHeatBalance.calculatedPackageExitTemperature,
+          options.threshold,
+          20,
+        );
 
-      if (adjustAcceptedValue.changed) {
+      if (nextSecondConvectivePackageExitTemperature.changed) {
         acceptedValuesMap.secondConvectivePackageExitTemperature =
-          adjustAcceptedValue.value;
+          nextSecondConvectivePackageExitTemperature.value;
         needRecalculation = true;
       }
 
@@ -288,15 +291,16 @@ export class HeatBalanceSolverService {
           alphaFurnaceCombusitonMaterialBalance: alphaFurnace.balance,
         });
 
-      adjustAcceptedValue = this.adjustAcceptedValue(
+      const nextEconomizerExitTemperature = this.adjustAcceptedValue(
         acceptedValuesMap.economizerExitTemperature,
         economizerHeatBalance.calculatedEconomizerExitTemperature,
         options.threshold,
         10,
       );
 
-      if (adjustAcceptedValue.changed) {
-        acceptedValuesMap.economizerExitTemperature = adjustAcceptedValue.value;
+      if (nextEconomizerExitTemperature.changed) {
+        acceptedValuesMap.economizerExitTemperature =
+          nextEconomizerExitTemperature.value;
         needRecalculation = true;
       }
 

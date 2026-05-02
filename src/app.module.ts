@@ -1,7 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HeatBalanceSolverModule } from './heat-balance-solver/heat-balance-solver.module';
+import { HeatBalanceSolverModule } from './phisics/heat-balance-solver/heat-balance-solver.module';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './env.validation';
 import { APP_PIPE } from '@nestjs/core';

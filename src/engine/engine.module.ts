@@ -3,7 +3,7 @@ import { EngineService } from './engine.service';
 import PQueue from 'p-queue';
 import { RuntimeModule } from 'src/runtime/runtime.module';
 import { StateModule } from 'src/state/state.module';
-import { HeatBalanceSolverModule } from 'src/heat-balance-solver/heat-balance-solver.module';
+import { HeatBalanceSolverModule } from 'src/phisics/heat-balance-solver/heat-balance-solver.module';
 import { ObservationsModule } from 'src/observations/observations.module';
 @Module({
   imports: [

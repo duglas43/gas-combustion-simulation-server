@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import PQueue from 'p-queue';
-import { HeatBalanceSolverService } from 'src/heat-balance-solver/heat-balance-solver.service';
+import { HeatBalanceSolverService } from 'src/phisics/heat-balance-solver/heat-balance-solver.service';
 import { Observation } from 'src/observations/entities';
 import { ObservationsService } from 'src/observations/observations.service';
 import { RuntimeService } from 'src/runtime/runtime.service';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HeatBalanceSolverService } from 'src/heat-balance-solver/heat-balance-solver.service';
+import { HeatBalanceSolverService } from 'src/phisics/heat-balance-solver/heat-balance-solver.service';
 import { ObservationDto } from 'src/observations/dtos';
 import { Observation } from 'src/observations/entities';
 import { CreateStateDto } from 'src/state/dtos';

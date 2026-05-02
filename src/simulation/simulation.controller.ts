@@ -28,11 +28,6 @@ export class SimulationController {
     this.simulationService.stop();
   }
 
-  @Post('pause')
-  pause(): void {
-    this.simulationService.pause();
-  }
-
   @Post('reset')
   reset(): void {
     this.simulationService.reset();

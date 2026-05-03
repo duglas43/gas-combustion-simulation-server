@@ -9,13 +9,13 @@ export class SimulationController {
   constructor(private readonly simulationService: SimulationService) {}
 
   @Post()
-  create(@Body() createSimulationDto: CreateSimulationDto): void {
-    this.simulationService.create(createSimulationDto);
+  create(@Body() createSimulationDto: CreateSimulationDto): Promise<void> {
+    return this.simulationService.create(createSimulationDto);
   }
 
   @Patch()
-  update(@Body() updateSimulationDto: UpdateSimulationDto): void {
-    this.simulationService.update(updateSimulationDto);
+  update(@Body() updateSimulationDto: UpdateSimulationDto): Promise<void> {
+    return this.simulationService.update(updateSimulationDto);
   }
 
   @Post('start')
@@ -29,7 +29,7 @@ export class SimulationController {
   }
 
   @Post('reset')
-  reset(): void {
-    this.simulationService.reset();
+  reset(): Promise<void> {
+    return this.simulationService.reset();
   }
 }

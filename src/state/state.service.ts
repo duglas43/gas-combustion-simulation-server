@@ -15,9 +15,20 @@ import { ResourcesService } from 'src/phisics/resources/resources.service';
 import { Resource } from 'src/phisics/resources/entities';
 import { AirLeakagesService } from 'src/phisics/air-leakages/air-leakages.service';
 import { AirLeakage } from 'src/phisics/air-leakages/entities';
+import { StateSnapshotRepository } from './snapshots/repositories';
+import { Laws } from 'src/laws/entities';
+import {
+  FindStateSnapshotsDto,
+  StateSnapshotDto,
+  StateSnapshotsListDto,
+} from './snapshots/dtos';
+import { StateSnapshot } from './snapshots/entities';
+import { And, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class StateService {
+  private forecastSnapshots: StateSnapshot[] = [];
+
   public constructor(
     private readonly economizerCharacteristicsService: EconomizerCharacteristicsService,
     private readonly boilerCharacteristicsService: BoilerCharacteristicsService,
@@ -27,6 +38,7 @@ export class StateService {
     private readonly resourcesService: ResourcesService,
     private readonly airLeakagesService: AirLeakagesService,
     private readonly stateRepository: StateRepository,
+    private readonly stateSnapshotRepository: StateSnapshotRepository,
   ) {}
 
   calculate(createStateDto: CreateStateDto): State {
@@ -70,16 +82,18 @@ export class StateService {
     });
   }
 
-  create(createStateDto: CreateStateDto): void {
+  create(createStateDto: CreateStateDto): State {
     const simulationState = this.calculate(createStateDto);
     this.stateRepository.create(simulationState);
+    return simulationState;
   }
-  update(updateSimulationStateDto: UpdateStateDto): void {
+
+  update(updateSimulationStateDto: UpdateStateDto): State {
     const currentState = this.stateRepository.getCurrent();
     if (!currentState) {
       throw new BadRequestException('Simulation state not created yet');
     }
-    if (!updateSimulationStateDto) return;
+    if (!updateSimulationStateDto) return currentState;
     const updatedEconomizerCharacteristic = null;
     let updatedBoilerCharacteristics: BoilerCharacteristic = null;
     let updatedAirLeakage: AirLeakage = null;
@@ -160,6 +174,8 @@ export class StateService {
       convectivePackagesParameters: updatedConvectivePackagesParameters,
       resource: updatedResource,
     });
+
+    return this.stateRepository.getCurrent();
   }
 
   public replace(state: State): void {
@@ -168,6 +184,74 @@ export class StateService {
   public reset(): void {
     this.stateRepository.clear();
   }
+
+  public async saveSnapshot(params: {
+    state: State;
+    timestamp: number;
+    time: Date;
+    laws?: Laws;
+  }): Promise<StateSnapshot> {
+    const snapshot = this.stateSnapshotRepository.create({
+      time: params.time,
+      timestamp: params.timestamp,
+      state: this.clone(params.state),
+      laws: this.clone(params.laws ?? {}),
+    });
+
+    await this.stateSnapshotRepository.upsert(snapshot, ['timestamp']);
+
+    return this.stateSnapshotRepository.findOne({
+      where: { timestamp: params.timestamp },
+    });
+  }
+
+  public saveForecastSnapshots(snapshots: StateSnapshot[]): void {
+    this.forecastSnapshots = snapshots.map((snapshot) =>
+      this.stateSnapshotRepository.create(snapshot),
+    );
+  }
+
+  public async getRecentSnapshots(limit = 20): Promise<StateSnapshot[]> {
+    const snapshots = await this.stateSnapshotRepository.find({
+      order: { timestamp: 'DESC' },
+      take: limit,
+    });
+
+    return snapshots.reverse();
+  }
+
+  public async findSnapshots(
+    params: FindStateSnapshotsDto,
+  ): Promise<StateSnapshotsListDto> {
+    const snapshots = await this.stateSnapshotRepository.find({
+      where: {
+        timestamp: And(
+          MoreThanOrEqual(params.from),
+          LessThanOrEqual(params.to),
+        ),
+      },
+      order: { timestamp: 'ASC' },
+    });
+
+    const historical = snapshots.map(
+      (snapshot) => new StateSnapshotDto(snapshot),
+    );
+    const forecast = this.forecastSnapshots.map(
+      (snapshot) => new StateSnapshotDto(snapshot),
+    );
+
+    return new StateSnapshotsListDto({
+      historical,
+      current: historical[historical.length - 1] ?? null,
+      forecast,
+    });
+  }
+
+  public async clearSnapshots(): Promise<void> {
+    await this.stateSnapshotRepository.clear();
+    this.forecastSnapshots = [];
+  }
+
   public getCurrentDto(): StateDto {
     const state = this.stateRepository.getCurrent();
     if (!state) return null;
@@ -177,5 +261,9 @@ export class StateService {
   getCurrent(): State {
     const state = this.stateRepository.getCurrent();
     return state;
+  }
+
+  private clone<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value));
   }
 }

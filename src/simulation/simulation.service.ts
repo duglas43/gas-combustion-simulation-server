@@ -16,16 +16,29 @@ export class SimulationService {
     private readonly lawsService: LawsService,
   ) {}
 
-  create(createSimulationDto: CreateSimulationDto): void {
+  async create(createSimulationDto: CreateSimulationDto): Promise<void> {
     this.runtimeService.create(createSimulationDto.runtime);
-    this.stateService.create(createSimulationDto.state);
+    const state = this.stateService.create(createSimulationDto.state);
     this.lawsService.create(createSimulationDto.laws);
+    await this.stateService.saveSnapshot({
+      state,
+      laws: this.lawsService.getCurrent(),
+      timestamp: 0,
+      time: new Date(),
+    });
   }
 
-  update(updateSimulationDto: UpdateSimulationDto): void {
+  async update(updateSimulationDto: UpdateSimulationDto): Promise<void> {
     this.runtimeService.update(updateSimulationDto.runtime);
-    this.stateService.update(updateSimulationDto.state);
     this.lawsService.update(updateSimulationDto.laws);
+    const state = this.stateService.update(updateSimulationDto.state);
+    const runtime = this.runtimeService.getCurrent();
+    await this.stateService.saveSnapshot({
+      state,
+      laws: this.lawsService.getCurrent(),
+      timestamp: runtime.currentTime,
+      time: new Date(),
+    });
   }
 
   start(): void {
@@ -38,10 +51,11 @@ export class SimulationService {
     this.engineService.stop();
   }
 
-  reset(): void {
+  async reset(): Promise<void> {
     this.runtimeService.reset();
     this.stateService.reset();
     this.lawsService.reset();
-    this.observationService.clearAll();
+    await this.observationService.clearAll();
+    await this.stateService.clearSnapshots();
   }
 }

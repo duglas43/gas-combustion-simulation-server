@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { Observation } from 'src/observations/entities';
+import { StateSnapshot } from 'src/state/snapshots/entities';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
@@ -14,7 +15,7 @@ export const typeOrmConfig: DataSourceOptions = {
     'dist/common/db/migrations/migrations/*.js',
     'dist/common/db/migrations/seeds/*.js',
   ],
-  entities: [Observation],
+  entities: [Observation, StateSnapshot],
   ssl: process.env.DB_SSL && {
     rejectUnauthorized: false,
   },

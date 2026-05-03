@@ -1,7 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { StateService } from './state.service';
 import { StateDto } from './dtos';
+import { FindStateSnapshotsDto, StateSnapshotsListDto } from './snapshots/dtos';
 
 @ApiTags('state')
 @Controller('state')
@@ -12,5 +13,13 @@ export class StateController {
   @ApiOkResponse({ type: StateDto })
   getCurrentState() {
     return this.stateService.getCurrentDto();
+  }
+
+  @Get('history')
+  @ApiOkResponse({ type: StateSnapshotsListDto })
+  findSnapshots(
+    @Query() params: FindStateSnapshotsDto,
+  ): Promise<StateSnapshotsListDto> {
+    return this.stateService.findSnapshots(params);
   }
 }

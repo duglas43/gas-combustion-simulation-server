@@ -9,9 +9,13 @@ import { StateController } from './state.controller';
 import { StateRepository } from './repositories';
 import { ResourcesModule } from 'src/phisics/resources/resources.module';
 import { AirLeakagesModule } from 'src/phisics/air-leakages/air-leakages.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { StateSnapshot } from './snapshots/entities';
+import { StateSnapshotRepository } from './snapshots/repositories';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([StateSnapshot]),
     EconomizerCharacteristicsModule,
     BoilerCharacteristicsModule,
     FuelCompositionsModule,
@@ -21,7 +25,7 @@ import { AirLeakagesModule } from 'src/phisics/air-leakages/air-leakages.module'
     AirLeakagesModule,
   ],
   controllers: [StateController],
-  providers: [StateService, StateRepository],
+  providers: [StateService, StateRepository, StateSnapshotRepository],
   exports: [StateService, StateRepository],
 })
 export class StateModule {}

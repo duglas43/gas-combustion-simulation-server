@@ -1,8 +1,9 @@
 import { UpdateStateDto } from 'src/state/dtos';
 import { UpdateRuntimeDto } from 'src/runtime/dtos';
-import { IsOptional, ValidateNested } from 'class-validator';
+import { IsObject, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { LawDto } from 'src/laws/dtos';
 
 export class UpdateSimulationDto {
   @ApiPropertyOptional()
@@ -10,6 +11,14 @@ export class UpdateSimulationDto {
   @ValidateNested()
   @Type(() => UpdateStateDto)
   state?: UpdateStateDto;
+
+  @ApiPropertyOptional({
+    type: 'object',
+    additionalProperties: { type: 'object' },
+  })
+  @IsOptional()
+  @IsObject()
+  laws?: Record<string, LawDto>;
 
   @ApiPropertyOptional()
   @IsOptional()

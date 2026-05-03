@@ -13,16 +13,31 @@ export class StateEvolverPipelineService {
   public run(context: StateEvolverContext): State {
     let state = context.state;
     for (const evolver of this.evolvers) {
-      const delta = evolver.evolve(context);
+      const delta = evolver.evolve({ ...context, state });
       state = this.merge(state, delta);
     }
     return state;
   }
 
   private merge(state: State, delta: StateDelta): State {
-    return {
-      ...state,
-      ...delta,
-    };
+    if (!delta) return state;
+    return this.deepMerge(state, delta) as State;
+  }
+
+  private deepMerge<T>(target: T, source: Partial<T>): T {
+    if (Array.isArray(source)) return source as T;
+    if (!this.isPlainObject(target) || !this.isPlainObject(source)) {
+      return source as T;
+    }
+
+    const result = { ...target } as Record<string, unknown>;
+    for (const [key, value] of Object.entries(source)) {
+      result[key] = this.deepMerge(result[key], value);
+    }
+    return result as T;
+  }
+
+  private isPlainObject(value: unknown): value is Record<string, unknown> {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
   }
 }

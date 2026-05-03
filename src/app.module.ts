@@ -19,6 +19,7 @@ import { TypeOrmModule } from './common/type-orm/type-orm.module';
 import { CalculationsModule } from './calculations/calculations.module';
 import { StateEvolverModule } from './state-evolver/state-evolver.module';
 import { ResourcesModule } from './phisics/resources/resources.module';
+import { LawsModule } from './laws/laws.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ResourcesModule } from './phisics/resources/resources.module';
     CalculationsModule,
     StateEvolverModule,
     ResourcesModule,
+    LawsModule,
   ],
   controllers: [AppController],
   providers: [

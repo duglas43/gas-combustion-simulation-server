@@ -15,6 +15,7 @@ export class RuntimeRepository {
   }
 
   public update(runtime: Partial<Runtime>) {
+    if (!runtime) return;
     if (runtime.speedUpFactor !== undefined) {
       this.runtime.speedUpFactor = runtime.speedUpFactor;
     }

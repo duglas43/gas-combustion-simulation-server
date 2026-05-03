@@ -1,19 +1,33 @@
 import { Module } from '@nestjs/common';
 import { StateEvolverService } from './state-evolver.service';
 import { StateEvolverPipelineService } from './state-evolver-pipeline.service';
-import { FuelEvolver } from './evolvers';
+import {
+  FuelEvolver,
+  LawsEvolver,
+  StateNormalizationEvolver,
+} from './evolvers';
 
 @Module({
   providers: [
     StateEvolverService,
+    LawsEvolver,
+    StateNormalizationEvolver,
     FuelEvolver,
     {
       provide: StateEvolverPipelineService,
-      useFactory: (fuelEvolver: FuelEvolver) => {
-        const pipeline = new StateEvolverPipelineService([fuelEvolver]);
+      useFactory: (
+        lawsEvolver: LawsEvolver,
+        stateNormalizationEvolver: StateNormalizationEvolver,
+        fuelEvolver: FuelEvolver,
+      ) => {
+        const pipeline = new StateEvolverPipelineService([
+          lawsEvolver,
+          stateNormalizationEvolver,
+          fuelEvolver,
+        ]);
         return pipeline;
       },
-      inject: [FuelEvolver],
+      inject: [LawsEvolver, StateNormalizationEvolver, FuelEvolver],
     },
   ],
   exports: [StateEvolverService],

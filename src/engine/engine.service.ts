@@ -6,6 +6,8 @@ import { ObservationsService } from 'src/observations/observations.service';
 import { RuntimeService } from 'src/runtime/runtime.service';
 import { StateService } from 'src/state/state.service';
 import { StateEvolverService } from 'src/state-evolver/state-evolver.service';
+import { LawsService } from 'src/laws/laws.service';
+
 @Injectable()
 export class EngineService {
   private readonly STEP = 1000;
@@ -19,6 +21,7 @@ export class EngineService {
     private readonly heatBalanceSolverService: HeatBalanceSolverService,
     private readonly observationService: ObservationsService,
     private readonly stateEvolver: StateEvolverService,
+    private readonly lawsService: LawsService,
     private readonly queue: PQueue,
   ) {}
 
@@ -60,7 +63,9 @@ export class EngineService {
   }
 
   private async simulateStep() {
+    const runtime = this.runtimeService.getCurrent();
     const currentState = this.stateService.getCurrent();
+    const currentLaws = this.lawsService.getCurrent();
     const lastObservation = await this.observationService.getLastObservation();
     const newObservation = this.heatBalanceSolverService.solveStep(
       lastObservation,
@@ -75,6 +80,8 @@ export class EngineService {
     const newState = this.stateEvolver.evolve({
       state: currentState,
       observation: newObservation,
+      laws: currentLaws,
+      currentTime: runtime.currentTime / 1000,
       dt: this.STEP,
     });
     this.stateService.replace(newState);

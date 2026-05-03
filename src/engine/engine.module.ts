@@ -6,6 +6,7 @@ import { StateModule } from 'src/state/state.module';
 import { HeatBalanceSolverModule } from 'src/phisics/heat-balance-solver/heat-balance-solver.module';
 import { ObservationsModule } from 'src/observations/observations.module';
 import { StateEvolverModule } from 'src/state-evolver/state-evolver.module';
+import { LawsModule } from 'src/laws/laws.module';
 @Module({
   imports: [
     RuntimeModule,
@@ -13,6 +14,7 @@ import { StateEvolverModule } from 'src/state-evolver/state-evolver.module';
     HeatBalanceSolverModule,
     ObservationsModule,
     StateEvolverModule,
+    LawsModule,
   ],
   providers: [
     EngineService,

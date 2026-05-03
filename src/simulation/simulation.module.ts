@@ -5,9 +5,16 @@ import { EngineModule } from 'src/engine/engine.module';
 import { StateModule } from 'src/state/state.module';
 import { RuntimeModule } from 'src/runtime/runtime.module';
 import { ObservationsModule } from 'src/observations/observations.module';
+import { LawsModule } from 'src/laws/laws.module';
 
 @Module({
-  imports: [EngineModule, StateModule, RuntimeModule, ObservationsModule],
+  imports: [
+    EngineModule,
+    StateModule,
+    RuntimeModule,
+    ObservationsModule,
+    LawsModule,
+  ],
   providers: [SimulationService],
   controllers: [SimulationController],
 })

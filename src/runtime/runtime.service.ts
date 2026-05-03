@@ -20,6 +20,7 @@ export class RuntimeService {
   }
 
   public update(updateRuntimeDto: UpdateRuntimeDto) {
+    if (!updateRuntimeDto) return;
     this.runtimeRepository.update({
       speedUpFactor: updateRuntimeDto.speedUpFactor,
     });

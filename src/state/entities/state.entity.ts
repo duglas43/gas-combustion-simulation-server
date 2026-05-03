@@ -4,11 +4,14 @@ import { EconomizerCharacteristic } from 'src/phisics/economizer-characteristics
 import { FuelComposition } from 'src/phisics/fuel-compositions/entities';
 import { FurnaceCharacteristic } from 'src/phisics/furnace-characteristics/entities';
 import { Resource } from 'src/phisics/resources/entities';
+import { AirLeakage } from 'src/phisics/air-leakages/entities';
 
 export class State {
   fuelComposition: FuelComposition;
 
   boilerCharacteristics: BoilerCharacteristic;
+
+  airLeakage: AirLeakage;
 
   furnaceCharacteristics: FurnaceCharacteristic;
 
@@ -21,6 +24,7 @@ export class State {
   constructor(model: State) {
     this.fuelComposition = model.fuelComposition;
     this.boilerCharacteristics = model.boilerCharacteristics;
+    this.airLeakage = model.airLeakage;
     this.furnaceCharacteristics = model.furnaceCharacteristics;
     this.convectivePackagesParameters = model.convectivePackagesParameters;
     this.economizerCharacteristic = model.economizerCharacteristic;

@@ -18,6 +18,9 @@ export class StateRepository {
       this.state.boilerCharacteristics =
         updateSimulationStateDto.boilerCharacteristics;
     }
+    if (updateSimulationStateDto.airLeakage) {
+      this.state.airLeakage = updateSimulationStateDto.airLeakage;
+    }
     if (updateSimulationStateDto.fuelComposition) {
       this.state.fuelComposition = updateSimulationStateDto.fuelComposition;
     }

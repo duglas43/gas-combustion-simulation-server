@@ -13,6 +13,8 @@ import { ConvectivePackage } from 'src/phisics/convective-packages/entities';
 import { StateRepository } from './repositories';
 import { ResourcesService } from 'src/phisics/resources/resources.service';
 import { Resource } from 'src/phisics/resources/entities';
+import { AirLeakagesService } from 'src/phisics/air-leakages/air-leakages.service';
+import { AirLeakage } from 'src/phisics/air-leakages/entities';
 
 @Injectable()
 export class StateService {
@@ -23,6 +25,7 @@ export class StateService {
     private readonly furnaceCharacteristicsService: FurnaceCharacteristicsService,
     private readonly convectivePackagesService: ConvectivePackagesService,
     private readonly resourcesService: ResourcesService,
+    private readonly airLeakagesService: AirLeakagesService,
     private readonly stateRepository: StateRepository,
   ) {}
 
@@ -32,6 +35,10 @@ export class StateService {
     const boilerCharacteristics = this.boilerCharacteristicsService.calculate(
       createStateDto.boilerCharacteristics,
     );
+    const airLeakage = this.airLeakagesService.calculate({
+      boilerCharacreristics: boilerCharacteristics,
+      airLeakage: createStateDto.airLeakage,
+    });
     const fuelComposition = this.fuelCompositionsService.calculate({
       createFuelCompositionDto: createStateDto.fuelComposition,
       boilerCharacreristics: {
@@ -55,6 +62,7 @@ export class StateService {
     return new State({
       economizerCharacteristic,
       boilerCharacteristics,
+      airLeakage,
       fuelComposition,
       furnaceCharacteristics,
       convectivePackagesParameters,
@@ -74,30 +82,51 @@ export class StateService {
     if (!updateSimulationStateDto) return;
     const updatedEconomizerCharacteristic = null;
     let updatedBoilerCharacteristics: BoilerCharacteristic = null;
+    let updatedAirLeakage: AirLeakage = null;
     let updatedFuelComposition: FuelComposition = null;
     let updatedFurnaceCharacteristics: FurnaceCharacteristic = null;
     let updatedConvectivePackagesParameters: ConvectivePackage[] = null;
     let updatedResource: Resource = null;
 
+    const boilerCharacteristicsDto = {
+      ...currentState.boilerCharacteristics,
+      ...updateSimulationStateDto.boilerCharacteristics,
+    };
+    const airLeakageDto = {
+      ...currentState.airLeakage,
+      ...updateSimulationStateDto.airLeakage,
+    };
+
     if (updateSimulationStateDto.boilerCharacteristics) {
       updatedBoilerCharacteristics =
-        this.boilerCharacteristicsService.calculate(
-          updateSimulationStateDto.boilerCharacteristics,
-        );
-      updatedFuelComposition = this.fuelCompositionsService.calculate({
-        createFuelCompositionDto:
-          updateSimulationStateDto.fuelComposition ||
-          currentState.fuelComposition,
-        boilerCharacreristics: {
-          gasInletTemperature: updatedBoilerCharacteristics.gasInletTemperature,
-        },
+        this.boilerCharacteristicsService.calculate(boilerCharacteristicsDto);
+    }
+
+    const effectiveBoilerCharacteristics =
+      updatedBoilerCharacteristics || currentState.boilerCharacteristics;
+
+    if (
+      updateSimulationStateDto.boilerCharacteristics ||
+      updateSimulationStateDto.airLeakage
+    ) {
+      updatedAirLeakage = this.airLeakagesService.calculate({
+        boilerCharacreristics: effectiveBoilerCharacteristics,
+        airLeakage: airLeakageDto,
       });
     }
-    if (updateSimulationStateDto.fuelComposition) {
+
+    if (
+      updateSimulationStateDto.boilerCharacteristics ||
+      updateSimulationStateDto.fuelComposition
+    ) {
       updatedFuelComposition = this.fuelCompositionsService.calculate({
-        createFuelCompositionDto: updateSimulationStateDto.fuelComposition,
+        createFuelCompositionDto: {
+          ...currentState.fuelComposition,
+          ...updateSimulationStateDto.fuelComposition,
+        },
         boilerCharacreristics: {
-          gasInletTemperature: updatedBoilerCharacteristics.gasInletTemperature,
+          gasInletTemperature:
+            effectiveBoilerCharacteristics.gasInletTemperature,
         },
       });
     }
@@ -125,6 +154,7 @@ export class StateService {
     this.stateRepository.update({
       economizerCharacteristic: updatedEconomizerCharacteristic,
       boilerCharacteristics: updatedBoilerCharacteristics,
+      airLeakage: updatedAirLeakage,
       fuelComposition: updatedFuelComposition,
       furnaceCharacteristics: updatedFurnaceCharacteristics,
       convectivePackagesParameters: updatedConvectivePackagesParameters,

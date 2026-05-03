@@ -14,7 +14,10 @@ export class CreateBoilerCharacteristicDto {
   @IsNumber()
   loadPercentage: number;
 
-  blowdownPercentage: number = 2.1;
+  @ApiProperty()
+  @IsNumber()
+  blowdownPercentage: number;
+
   excessPressureInBoiler: number = 1.3;
 
   @ApiProperty()
@@ -38,7 +41,10 @@ export class CreateBoilerCharacteristicDto {
   gasInletTemperature: number;
 
   flueGasAbsolutePressure = 0.1;
-  excessAirCoefficient: number = 1.1;
+
+  @ApiProperty()
+  @IsNumber()
+  excessAirCoefficient: number;
 
   constructor(model: CreateBoilerCharacteristicDto) {
     if (!model) return;

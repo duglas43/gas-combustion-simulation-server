@@ -6,6 +6,7 @@ import { CreateFuelCompositionDto } from 'src/phisics/fuel-compositions/dtos';
 import { CreateFurnaceCharacteristicDto } from 'src/phisics/furnace-characteristics/dtos';
 import { CreateConvectivePackageDto } from 'src/phisics/convective-packages/dtos';
 import { CreateResourceDto } from 'src/phisics/resources/dtos';
+import { CreateAirLeakageDto } from 'src/phisics/air-leakages/dtos';
 
 export class CreateStateDto {
   @ApiProperty()
@@ -17,6 +18,11 @@ export class CreateStateDto {
   @ValidateNested()
   @Type(() => CreateBoilerCharacteristicDto)
   boilerCharacteristics: CreateBoilerCharacteristicDto;
+
+  @ApiProperty({ type: CreateAirLeakageDto })
+  @ValidateNested()
+  @Type(() => CreateAirLeakageDto)
+  airLeakage: CreateAirLeakageDto;
 
   @ApiProperty({ type: CreateFurnaceCharacteristicDto })
   @ValidateNested()

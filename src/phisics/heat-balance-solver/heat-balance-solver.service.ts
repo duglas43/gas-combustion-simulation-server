@@ -66,6 +66,7 @@ export class HeatBalanceSolverService {
           nominalSteamProduction:
             state.boilerCharacteristics.nominalSteamProduction,
         },
+        airLeakage: state.airLeakage,
       });
 
       const temperatureCharacteristics =

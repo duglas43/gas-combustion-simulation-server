@@ -7,19 +7,29 @@ export class AirLeakagesService {
   public calculate(params: CalculateAirLeakageParams) {
     const { nominalSteamProduction, actualSteamProduction } =
       params.boilerCharacreristics;
+    const {
+      nominalFurnaceAirLeakage,
+      nominalFirstConvectiveAirLeakage,
+      nominalSecondConvectiveAirLeakage,
+      nominalEconomizerAirLeakage,
+    } = params.airLeakage;
     const airLeakage = new AirLeakage({
-      nominalFurnaceAirLeakage: 0.05,
+      nominalFurnaceAirLeakage,
       actualFurnaceAirLeakage:
-        0.05 * (nominalSteamProduction / actualSteamProduction),
-      nominalFirstConvectiveAirLeakage: 0.05,
+        nominalFurnaceAirLeakage *
+        (nominalSteamProduction / actualSteamProduction),
+      nominalFirstConvectiveAirLeakage,
       actualFirstConvectiveAirLeakage:
-        0.05 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
-      nominalSecondConvectiveAirLeakage: 0.1,
+        nominalFirstConvectiveAirLeakage *
+        (nominalSteamProduction / actualSteamProduction) ** 0.5,
+      nominalSecondConvectiveAirLeakage,
       actualSecondConvectiveAirLeakage:
-        0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
-      nominalEconomizerAirLeakage: 0.1,
+        nominalSecondConvectiveAirLeakage *
+        (nominalSteamProduction / actualSteamProduction) ** 0.5,
+      nominalEconomizerAirLeakage,
       actualEconomizerAirLeakage:
-        0.1 * (nominalSteamProduction / actualSteamProduction) ** 0.5,
+        nominalEconomizerAirLeakage *
+        (nominalSteamProduction / actualSteamProduction) ** 0.5,
     });
     return airLeakage;
   }

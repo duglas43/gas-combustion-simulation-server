@@ -5,6 +5,7 @@ import { Observation } from 'src/observations/entities';
 import { ObservationsService } from 'src/observations/observations.service';
 import { RuntimeService } from 'src/runtime/runtime.service';
 import { StateService } from 'src/state/state.service';
+import { StateEvolverService } from 'src/state-evolver/state-evolver.service';
 @Injectable()
 export class EngineService {
   private readonly STEP = 1000;
@@ -17,6 +18,7 @@ export class EngineService {
     private readonly stateService: StateService,
     private readonly heatBalanceSolverService: HeatBalanceSolverService,
     private readonly observationService: ObservationsService,
+    private readonly stateEvolver: StateEvolverService,
     private readonly queue: PQueue,
   ) {}
 
@@ -70,6 +72,12 @@ export class EngineService {
     );
     newObservation.time = new Date(lastObservation.time.getTime() + this.STEP);
     newObservation.timestamp = Number(lastObservation.timestamp) + this.STEP;
+    const newState = this.stateEvolver.evolve({
+      state: currentState,
+      observation: newObservation,
+      dt: this.STEP,
+    });
+    this.stateService.replace(newState);
     await this.observationService.saveObservation(newObservation);
     const forecastObservations = await this.getForecastObservations();
     this.observationService.saveForecastObservations(forecastObservations);

@@ -5,6 +5,7 @@ import { CreateBoilerCharacteristicDto } from 'src/phisics/boiler-characteristic
 import { CreateFuelCompositionDto } from 'src/phisics/fuel-compositions/dtos';
 import { CreateFurnaceCharacteristicDto } from 'src/phisics/furnace-characteristics/dtos';
 import { CreateConvectivePackageDto } from 'src/phisics/convective-packages/dtos';
+import { CreateResourceDto } from 'src/phisics/resources/dtos';
 
 export class CreateStateDto {
   @ApiProperty()
@@ -26,4 +27,9 @@ export class CreateStateDto {
   @ValidateNested({ each: true })
   @Type(() => CreateConvectivePackageDto)
   convectivePackagesParameters: CreateConvectivePackageDto[];
+
+  @ApiProperty({ type: CreateResourceDto })
+  @ValidateNested()
+  @Type(() => CreateResourceDto)
+  resource: CreateResourceDto;
 }

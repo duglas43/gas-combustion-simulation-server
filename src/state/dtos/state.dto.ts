@@ -3,6 +3,7 @@ import { ConvectivePackage } from 'src/phisics/convective-packages/entities';
 import { FuelComposition } from 'src/phisics/fuel-compositions/entities';
 import { FurnaceCharacteristic } from 'src/phisics/furnace-characteristics/entities';
 import { State } from '../entities';
+import { Resource } from 'src/phisics/resources/entities/resource.entity';
 
 export class StateDto {
   fuelComposition: Partial<FuelComposition>;
@@ -13,10 +14,13 @@ export class StateDto {
 
   convectivePackagesParameters: Partial<ConvectivePackage>[];
 
+  resource: Partial<Resource>;
+
   constructor(model: StateDto | State) {
     this.fuelComposition = model.fuelComposition;
     this.boilerCharacteristics = model.boilerCharacteristics;
     this.furnaceCharacteristics = model.furnaceCharacteristics;
     this.convectivePackagesParameters = model.convectivePackagesParameters;
+    this.resource = model.resource;
   }
 }

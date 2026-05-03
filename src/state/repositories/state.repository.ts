@@ -29,6 +29,9 @@ export class StateRepository {
       this.state.convectivePackagesParameters =
         updateSimulationStateDto.convectivePackagesParameters;
     }
+    if (updateSimulationStateDto.resource) {
+      this.state.resource = updateSimulationStateDto.resource;
+    }
   }
 
   public getCurrent() {

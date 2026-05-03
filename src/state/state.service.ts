@@ -11,6 +11,8 @@ import { FuelComposition } from 'src/phisics/fuel-compositions/entities';
 import { FurnaceCharacteristic } from 'src/phisics/furnace-characteristics/entities';
 import { ConvectivePackage } from 'src/phisics/convective-packages/entities';
 import { StateRepository } from './repositories';
+import { ResourcesService } from 'src/phisics/resources/resources.service';
+import { Resource } from 'src/phisics/resources/entities';
 
 @Injectable()
 export class StateService {
@@ -20,32 +22,35 @@ export class StateService {
     private readonly fuelCompositionsService: FuelCompositionsService,
     private readonly furnaceCharacteristicsService: FurnaceCharacteristicsService,
     private readonly convectivePackagesService: ConvectivePackagesService,
+    private readonly resourcesService: ResourcesService,
     private readonly stateRepository: StateRepository,
   ) {}
 
-  calculate(createSimulationStateDto: CreateStateDto): State {
+  calculate(createStateDto: CreateStateDto): State {
     const economizerCharacteristic =
       this.economizerCharacteristicsService.calculate();
     const boilerCharacteristics = this.boilerCharacteristicsService.calculate(
-      createSimulationStateDto.boilerCharacteristics,
+      createStateDto.boilerCharacteristics,
     );
     const fuelComposition = this.fuelCompositionsService.calculate({
-      createFuelCompositionDto: createSimulationStateDto.fuelComposition,
+      createFuelCompositionDto: createStateDto.fuelComposition,
       boilerCharacreristics: {
         gasInletTemperature: boilerCharacteristics.gasInletTemperature,
       },
     });
     const furnaceCharacteristics = this.furnaceCharacteristicsService.calculate(
       {
-        createFurnaceCharacteristicDto:
-          createSimulationStateDto.furnaceCharacteristics,
+        createFurnaceCharacteristicDto: createStateDto.furnaceCharacteristics,
       },
     );
     const convectivePackagesParameters =
       this.convectivePackagesService.calculate({
         createConvectivePackageDtos:
-          createSimulationStateDto.convectivePackagesParameters,
+          createStateDto.convectivePackagesParameters,
       });
+    const resource = this.resourcesService.calculate({
+      fuelRemaining: createStateDto.resource.fuelRemaining,
+    });
 
     return new State({
       economizerCharacteristic,
@@ -53,11 +58,12 @@ export class StateService {
       fuelComposition,
       furnaceCharacteristics,
       convectivePackagesParameters,
+      resource,
     });
   }
 
-  create(createSimulationStateDto: CreateStateDto): void {
-    const simulationState = this.calculate(createSimulationStateDto);
+  create(createStateDto: CreateStateDto): void {
+    const simulationState = this.calculate(createStateDto);
     this.stateRepository.create(simulationState);
   }
   update(updateSimulationStateDto: UpdateStateDto): void {
@@ -71,6 +77,7 @@ export class StateService {
     let updatedFuelComposition: FuelComposition = null;
     let updatedFurnaceCharacteristics: FurnaceCharacteristic = null;
     let updatedConvectivePackagesParameters: ConvectivePackage[] = null;
+    let updatedResource: Resource = null;
 
     if (updateSimulationStateDto.boilerCharacteristics) {
       updatedBoilerCharacteristics =
@@ -109,13 +116,24 @@ export class StateService {
         });
     }
 
+    if (updateSimulationStateDto.resource) {
+      updatedResource = this.resourcesService.calculate({
+        fuelRemaining: updateSimulationStateDto.resource.fuelRemaining,
+      });
+    }
+
     this.stateRepository.update({
       economizerCharacteristic: updatedEconomizerCharacteristic,
       boilerCharacteristics: updatedBoilerCharacteristics,
       fuelComposition: updatedFuelComposition,
       furnaceCharacteristics: updatedFurnaceCharacteristics,
       convectivePackagesParameters: updatedConvectivePackagesParameters,
+      resource: updatedResource,
     });
+  }
+
+  public replace(state: State): void {
+    this.stateRepository.update(state);
   }
   public reset(): void {
     this.stateRepository.clear();

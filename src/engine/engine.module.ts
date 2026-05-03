@@ -5,12 +5,14 @@ import { RuntimeModule } from 'src/runtime/runtime.module';
 import { StateModule } from 'src/state/state.module';
 import { HeatBalanceSolverModule } from 'src/phisics/heat-balance-solver/heat-balance-solver.module';
 import { ObservationsModule } from 'src/observations/observations.module';
+import { StateEvolverModule } from 'src/state-evolver/state-evolver.module';
 @Module({
   imports: [
     RuntimeModule,
     StateModule,
     HeatBalanceSolverModule,
     ObservationsModule,
+    StateEvolverModule,
   ],
   providers: [
     EngineService,

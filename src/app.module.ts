@@ -17,6 +17,8 @@ import { StateModule } from './state/state.module';
 import { SimulationModule } from './simulation/simulation.module';
 import { TypeOrmModule } from './common/type-orm/type-orm.module';
 import { CalculationsModule } from './calculations/calculations.module';
+import { StateEvolverModule } from './state-evolver/state-evolver.module';
+import { ResourcesModule } from './phisics/resources/resources.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { CalculationsModule } from './calculations/calculations.module';
     SimulationModule,
     TypeOrmModule,
     CalculationsModule,
+    StateEvolverModule,
+    ResourcesModule,
   ],
   controllers: [AppController],
   providers: [

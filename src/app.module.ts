@@ -20,6 +20,7 @@ import { CalculationsModule } from './calculations/calculations.module';
 import { StateEvolverModule } from './state-evolver/state-evolver.module';
 import { ResourcesModule } from './phisics/resources/resources.module';
 import { LawsModule } from './laws/laws.module';
+import { InsightsModule } from './insights/insights.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { LawsModule } from './laws/laws.module';
     StateEvolverModule,
     ResourcesModule,
     LawsModule,
+    InsightsModule,
   ],
   controllers: [AppController],
   providers: [

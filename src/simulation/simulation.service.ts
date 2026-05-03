@@ -5,6 +5,7 @@ import { RuntimeService } from 'src/runtime/runtime.service';
 import { StateService } from 'src/state/state.service';
 import { ObservationsService } from 'src/observations/observations.service';
 import { LawsService } from 'src/laws/laws.service';
+import { InsightsService } from 'src/insights/insights.service';
 
 @Injectable()
 export class SimulationService {
@@ -14,6 +15,7 @@ export class SimulationService {
     private readonly stateService: StateService,
     private readonly observationService: ObservationsService,
     private readonly lawsService: LawsService,
+    private readonly insightsService: InsightsService,
   ) {}
 
   async create(createSimulationDto: CreateSimulationDto): Promise<void> {
@@ -39,6 +41,11 @@ export class SimulationService {
       timestamp: runtime.currentTime,
       time: new Date(),
     });
+    const lastObservation =
+      await this.observationService.getLastSavedObservation();
+    if (lastObservation) {
+      this.insightsService.evaluate({ state, observation: lastObservation });
+    }
   }
 
   start(): void {
@@ -55,6 +62,7 @@ export class SimulationService {
     this.runtimeService.reset();
     this.stateService.reset();
     this.lawsService.reset();
+    this.insightsService.clear();
     await this.observationService.clearAll();
     await this.stateService.clearSnapshots();
   }

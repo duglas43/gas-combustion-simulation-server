@@ -7,6 +7,7 @@ import { HeatBalanceSolverModule } from 'src/phisics/heat-balance-solver/heat-ba
 import { ObservationsModule } from 'src/observations/observations.module';
 import { StateEvolverModule } from 'src/state-evolver/state-evolver.module';
 import { LawsModule } from 'src/laws/laws.module';
+import { InsightsModule } from 'src/insights/insights.module';
 @Module({
   imports: [
     RuntimeModule,
@@ -15,6 +16,7 @@ import { LawsModule } from 'src/laws/laws.module';
     ObservationsModule,
     StateEvolverModule,
     LawsModule,
+    InsightsModule,
   ],
   providers: [
     EngineService,

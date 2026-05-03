@@ -10,6 +10,7 @@ import { LawsService } from 'src/laws/laws.service';
 import { State } from 'src/state/entities';
 import { Laws } from 'src/laws/entities';
 import { StateSnapshot } from 'src/state/snapshots/entities';
+import { InsightsService } from 'src/insights/insights.service';
 
 @Injectable()
 export class EngineService {
@@ -27,6 +28,7 @@ export class EngineService {
     private readonly observationService: ObservationsService,
     private readonly stateEvolver: StateEvolverService,
     private readonly lawsService: LawsService,
+    private readonly insightsService: InsightsService,
     private readonly queue: PQueue,
   ) {}
 
@@ -91,6 +93,10 @@ export class EngineService {
     });
     this.stateService.replace(newState);
     await this.observationService.saveObservation(newObservation);
+    this.insightsService.evaluate({
+      state: newState,
+      observation: newObservation,
+    });
     await this.stateService.saveSnapshot({
       state: newState,
       laws: currentLaws,

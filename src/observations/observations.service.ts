@@ -11,11 +11,15 @@ export class ObservationsService {
   private forecastObservations: Observation[] = [];
   constructor(private observationRepository: ObservationRepository) {}
 
-  public async getLastObservation(): Promise<Observation> {
-    const lastObservation = await this.observationRepository.findOne({
+  public async getLastSavedObservation(): Promise<Observation | null> {
+    return this.observationRepository.findOne({
       order: { time: 'DESC' },
       where: {},
     });
+  }
+
+  public async getLastObservation(): Promise<Observation> {
+    const lastObservation = await this.getLastSavedObservation();
     if (!lastObservation) {
       const mockObservation = this.observationRepository.create({
         time: new Date(),
